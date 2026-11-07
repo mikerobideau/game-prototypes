@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://b78tnktuqtxhg"
+path="res://.godot/imported/Lost Woods - Guiding Rays - kulakovka-indie-rock-274381.mp3-dbdc63d486b38ec7855e4cd79cbc1550.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Indie/Lost Woods/Lost Woods - Guiding Rays - kulakovka-indie-rock-274381.mp3"
+dest_files=["res://.godot/imported/Lost Woods - Guiding Rays - kulakovka-indie-rock-274381.mp3-dbdc63d486b38ec7855e4cd79cbc1550.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

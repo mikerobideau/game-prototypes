@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bxjqt4p60h053"
+path="res://.godot/imported/Lilypad - Tiny Flower - alex-morgan-indie-rock-dreamy-537459.mp3-adae09bf681184d6312a947d9e288818.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Indie/Lilypad/Lilypad - Tiny Flower - alex-morgan-indie-rock-dreamy-537459.mp3"
+dest_files=["res://.godot/imported/Lilypad - Tiny Flower - alex-morgan-indie-rock-dreamy-537459.mp3-adae09bf681184d6312a947d9e288818.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

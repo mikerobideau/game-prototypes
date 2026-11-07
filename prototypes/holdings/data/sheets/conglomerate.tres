@@ -1,0 +1,127 @@
+[gd_resource type="Resource" script_class="HoldingsSheet" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_lot.gd" id="1_566lw"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_sheet.gd" id="2_nngfa"]
+
+[sub_resource type="Resource" id="Resource_14nam"]
+script = ExtResource("1_566lw")
+rule = "sector"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_ao2dq"]
+script = ExtResource("1_566lw")
+rule = "sector"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_5ep5c"]
+script = ExtResource("1_566lw")
+rule = "sector"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "adjacent"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_tcwkk"]
+script = ExtResource("1_566lw")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_l35vs"]
+script = ExtResource("1_566lw")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_jws6q"]
+script = ExtResource("1_566lw")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_li1d0"]
+script = ExtResource("1_566lw")
+rule = "sector"
+rule_sector = "Industry"
+value_min = 1
+value_max = 99
+lock = "pay"
+lock_resource = "equipment"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_rcq3v"]
+script = ExtResource("1_566lw")
+rule = "sector"
+rule_sector = "Industry"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_pti63"]
+script = ExtResource("1_566lw")
+rule = "sector"
+rule_sector = "Industry"
+value_min = 1
+value_max = 99
+lock = "adjacent"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Industry"
+pocket = "none"
+
+[resource]
+script = ExtResource("2_nngfa")
+id = "conglomerate"
+name = "Conglomerate"
+description = "Finance across the top, Industry along the bottom, anything in between."
+difficulty = 3
+order = 10
+random_layout = false
+lots = Array[ExtResource("1_566lw")]([SubResource("Resource_14nam"), SubResource("Resource_ao2dq"), SubResource("Resource_5ep5c"), SubResource("Resource_tcwkk"), SubResource("Resource_l35vs"), SubResource("Resource_jws6q"), SubResource("Resource_li1d0"), SubResource("Resource_rcq3v"), SubResource("Resource_pti63")])
+bonus_cash = 0
+bonus_labor = 0
+bonus_equipment = 0
+bonus_intel = 0
+bonus_advertising = 0

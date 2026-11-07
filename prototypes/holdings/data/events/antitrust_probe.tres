@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="HoldingsEvent" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_event_effect.gd" id="1_ahq4k"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_event.gd" id="2_ykm0n"]
+
+[sub_resource type="Resource" id="Resource_0wnj3"]
+script = ExtResource("1_ahq4k")
+kind = "dormant"
+amount = 0
+resource = "none"
+target = "highest_value"
+cap = 0
+per_businesses = 0
+rate = 0
+
+[sub_resource type="Resource" id="Resource_klyq4"]
+script = ExtResource("1_ahq4k")
+kind = "halve_value"
+amount = 0
+resource = "none"
+target = "highest_value"
+cap = 0
+per_businesses = 0
+rate = 0
+
+[resource]
+script = ExtResource("2_ykm0n")
+id = "antitrust_probe"
+name = "Antitrust Probe"
+tier = "severe"
+category = "business"
+text = "Your highest-value business becomes distressed"
+effects = Array[ExtResource("1_ahq4k")]([SubResource("Resource_0wnj3")])
+weak_text = "Your highest-value business adds half its Brand this quarter"
+weak_effects = Array[ExtResource("1_ahq4k")]([SubResource("Resource_klyq4")])
+goal = "none"
+goal_sector = "none"
+goal_amount = 0
+penalty = Array[ExtResource("1_ahq4k")]([])

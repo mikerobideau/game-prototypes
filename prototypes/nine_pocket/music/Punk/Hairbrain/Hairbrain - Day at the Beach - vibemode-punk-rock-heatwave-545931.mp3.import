@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://b5ek0767ajhmo"
+path="res://.godot/imported/Hairbrain - Day at the Beach - vibemode-punk-rock-heatwave-545931.mp3-706ff8038c7148e361d4345cc141a15a.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Punk/Hairbrain/Hairbrain - Day at the Beach - vibemode-punk-rock-heatwave-545931.mp3"
+dest_files=["res://.godot/imported/Hairbrain - Day at the Beach - vibemode-punk-rock-heatwave-545931.mp3-706ff8038c7148e361d4345cc141a15a.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

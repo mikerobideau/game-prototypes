@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://pnmop2hn71e6"
+path="res://.godot/imported/Canine - More Bark Than Bite - 331music-power-alternative-rock-598376.mp3-ad914a143b154d2d5f2439eae76d8999.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Alternative/Canine/Canine - More Bark Than Bite - 331music-power-alternative-rock-598376.mp3"
+dest_files=["res://.godot/imported/Canine - More Bark Than Bite - 331music-power-alternative-rock-598376.mp3-ad914a143b154d2d5f2439eae76d8999.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

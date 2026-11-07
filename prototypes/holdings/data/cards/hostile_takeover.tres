@@ -1,0 +1,103 @@
+[gd_resource type="Resource" script_class="HoldingsCard" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_ability.gd" id="1_ch2y2"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_card.gd" id="2_lewbd"]
+
+[sub_resource type="Resource" id="Resource_lbsx3"]
+script = ExtResource("1_ch2y2")
+when = "operate"
+kind = "vp_per"
+cash = 0
+labor = 0
+equipment = 0
+intel = 0
+advertising = 0
+brand_for_convert = 0
+amount = 1
+resource = "none"
+per = "adjacent_type"
+sector = "Finance"
+divide_by = 1
+max_count = 0
+condition = "none"
+condition_sector = "none"
+condition_amount = 0
+else_amount = 0
+only_if_neighbor_sector = "none"
+only_if_operated = false
+on_die = 0
+quarters = 0
+min_value = 0
+speed_per = "none"
+tag = ""
+count = 0
+forecast_slot = -1
+context_key = ""
+
+[sub_resource type="Resource" id="Resource_3cl8v"]
+script = ExtResource("1_ch2y2")
+when = "buy"
+kind = "absorb"
+cash = 0
+labor = 0
+equipment = 0
+intel = 0
+advertising = 0
+brand_for_convert = 0
+amount = 0
+resource = "none"
+per = "none"
+sector = "none"
+divide_by = 1
+max_count = 0
+condition = "none"
+condition_sector = "none"
+condition_amount = 0
+else_amount = 0
+only_if_neighbor_sector = "none"
+only_if_operated = false
+on_die = 0
+quarters = 0
+min_value = 0
+speed_per = "none"
+tag = ""
+count = 0
+forecast_slot = -1
+context_key = ""
+
+[resource]
+script = ExtResource("2_lewbd")
+id = "hostile_takeover"
+name = "Shell Company"
+sector = "Finance"
+value = 2
+rarity = "rare"
+custom_cost = false
+cost_cash = 0
+cost_labor = 0
+cost_equipment = 0
+cost_intel = 0
+cost_advertising = 0
+pattern = "sum_at_least"
+pattern_param = 9
+chain_left = false
+copy_left = false
+text = "When bought, absorb an adjacent business: remove it and permanently add its value to this one (counts as a sale). Operate: +1 Brand per adjacent Finance business."
+short_text = "On buy: absorb an adjacent business, keeping its value. +1 Brand per adjacent Finance"
+tags = PackedStringArray()
+abilities = Array[ExtResource("1_ch2y2")]([SubResource("Resource_lbsx3"), SubResource("Resource_3cl8v")])
+prevent_distress = false
+prevent_distress_brand = 0
+repeat_same_die = false
+adjacent_any_die = false
+adjacent_value_sector = "none"
+adjacent_value_amount = 0
+adjacent_die_plus_sector = "none"
+adjacent_die_plus_amount = 0
+art = {
+"body": "b8a3a3",
+"cols": 3,
+"form": "office",
+"height": 120,
+"width": 80
+}

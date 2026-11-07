@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cgo6lro5cwkc6"]
+
+[ext_resource type="Script" path="res://prototypes/thock/thock.gd" id="1_thock"]
+
+[node name="Thock" type="Node2D"]
+script = ExtResource("1_thock")

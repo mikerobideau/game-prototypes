@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dfss780ivjh1r"]
+
+[ext_resource type="Script" path="res://prototypes/base_builder/base_builder.gd" id="1_base"]
+
+[node name="BaseBuilder" type="Node2D"]
+script = ExtResource("1_base")

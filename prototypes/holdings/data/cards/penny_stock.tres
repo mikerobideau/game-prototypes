@@ -1,0 +1,94 @@
+[gd_resource type="Resource" script_class="HoldingsCard" load_steps=5 format=3 uid="uid://r68ot28dfm5"]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_ability.gd" id="1_f08d0"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_card.gd" id="2_ibgxs"]
+
+[sub_resource type="Resource" id="Resource_lbo31"]
+script = ExtResource("1_f08d0")
+when = "operate"
+kind = "vp_per"
+cash = 0
+labor = 0
+equipment = 0
+intel = 0
+advertising = 0
+brand_for_convert = 0
+amount = 2
+resource = "none"
+per = "die_value"
+sector = "none"
+divide_by = 1
+max_count = 0
+condition = "none"
+condition_sector = "none"
+condition_amount = 0
+else_amount = 0
+only_if_neighbor_sector = "none"
+only_if_operated = false
+on_die = 0
+quarters = 0
+min_value = 0
+speed_per = "none"
+tag = ""
+count = 0
+forecast_slot = -1
+context_key = ""
+
+[sub_resource type="Resource" id="Resource_jly60"]
+script = ExtResource("1_f08d0")
+when = "operate"
+kind = "distress_self"
+cash = 0
+labor = 0
+equipment = 0
+intel = 0
+advertising = 0
+brand_for_convert = 0
+amount = 0
+resource = "none"
+per = "none"
+sector = "none"
+divide_by = 1
+max_count = 0
+condition = "none"
+condition_sector = "none"
+condition_amount = 0
+else_amount = 0
+only_if_neighbor_sector = "none"
+only_if_operated = false
+on_die = 1
+quarters = 0
+min_value = 0
+speed_per = "none"
+tag = ""
+count = 0
+forecast_slot = -1
+context_key = ""
+
+[resource]
+script = ExtResource("2_ibgxs")
+id = "penny_stock"
+name = "Penny Stock"
+sector = "Finance"
+value = 1
+rarity = "common"
+pattern = "any"
+pattern_param = 0
+chain_left = false
+copy_left = false
+text = "+2 Brand per pip on the die. If the die is a 1, Penny Stock becomes distressed."
+short_text = "+2 Brand per pip. On a 1, it becomes distressed"
+tags = PackedStringArray()
+abilities = Array[ExtResource("1_f08d0")]([SubResource("Resource_lbo31"), SubResource("Resource_jly60")])
+prevent_distress = false
+prevent_distress_brand = 0
+repeat_same_die = false
+adjacent_any_die = false
+adjacent_value_sector = "none"
+adjacent_value_amount = 0
+adjacent_die_plus_sector = "none"
+adjacent_die_plus_amount = 0
+art = {
+"body": "c9b9a6",
+"form": "tower"
+}

@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://b2k5mevp7hg7o"
+path="res://.godot/imported/Melting Rainbows - Fingerpaint - prettyjohn1-funk-groove-soul-527077.mp3-c5290ee66b0769517c21d8e1b3a6d7cc.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Psychadelic/Melting Rainbows/Melting Rainbows - Fingerpaint - prettyjohn1-funk-groove-soul-527077.mp3"
+dest_files=["res://.godot/imported/Melting Rainbows - Fingerpaint - prettyjohn1-funk-groove-soul-527077.mp3-c5290ee66b0769517c21d8e1b3a6d7cc.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

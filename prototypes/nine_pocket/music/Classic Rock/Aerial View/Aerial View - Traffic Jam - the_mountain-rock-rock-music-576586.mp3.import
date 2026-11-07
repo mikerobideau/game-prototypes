@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://brdnhd53yammq"
+path="res://.godot/imported/Aerial View - Traffic Jam - the_mountain-rock-rock-music-576586.mp3-1979a4601b6625aa630c529ae948e48a.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Classic Rock/Aerial View/Aerial View - Traffic Jam - the_mountain-rock-rock-music-576586.mp3"
+dest_files=["res://.godot/imported/Aerial View - Traffic Jam - the_mountain-rock-rock-music-576586.mp3-1979a4601b6625aa630c529ae948e48a.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

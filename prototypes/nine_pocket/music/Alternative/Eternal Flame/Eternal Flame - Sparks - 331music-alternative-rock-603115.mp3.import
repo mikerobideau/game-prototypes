@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bku50lbbgbebn"
+path="res://.godot/imported/Eternal Flame - Sparks - 331music-alternative-rock-603115.mp3-8742e6fe6682022a1701a4ff01d8a70e.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Alternative/Eternal Flame/Eternal Flame - Sparks - 331music-alternative-rock-603115.mp3"
+dest_files=["res://.godot/imported/Eternal Flame - Sparks - 331music-alternative-rock-603115.mp3-8742e6fe6682022a1701a4ff01d8a70e.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

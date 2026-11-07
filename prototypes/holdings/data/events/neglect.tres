@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="HoldingsEvent" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_event_effect.gd" id="1_y7276"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_event.gd" id="2_ut20t"]
+
+[sub_resource type="Resource" id="Resource_p2e68"]
+script = ExtResource("1_y7276")
+kind = "dormant"
+amount = 0
+resource = "none"
+target = "lowest_value"
+cap = 0
+per_businesses = 0
+rate = 0
+
+[resource]
+script = ExtResource("2_ut20t")
+id = "neglect"
+name = "Neglect"
+tier = "moderate"
+category = "conditional"
+text = "If fewer than 3 businesses operate, your lowest-value business becomes distressed"
+effects = Array[ExtResource("1_y7276")]([])
+weak_text = ""
+weak_effects = Array[ExtResource("1_y7276")]([])
+goal = "activations_at_least"
+goal_sector = "none"
+goal_amount = 3
+penalty = Array[ExtResource("1_y7276")]([SubResource("Resource_p2e68")])

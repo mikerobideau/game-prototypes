@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dgdp7hh350fcv"]
+
+[ext_resource type="Script" path="res://prototypes/garden/garden.gd" id="1_garden"]
+
+[node name="GardenPrototype" type="Node2D"]
+script = ExtResource("1_garden")

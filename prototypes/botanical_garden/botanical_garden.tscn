@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cejkqxurtqlig"]
+
+[ext_resource type="Script" path="res://prototypes/botanical_garden/botanical_garden.gd" id="1_bg"]
+
+[node name="BotanicalGarden" type="Node2D"]
+script = ExtResource("1_bg")

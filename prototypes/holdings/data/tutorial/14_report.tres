@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HoldingsTutorialStep" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_tutorial_step.gd" id="1_tut"]
+
+[resource]
+script = ExtResource("1_tut")
+title = "Quarter report"
+body = "This shows the Brand you earned this quarter and how close you are to the yearly target.\nClick Next quarter."
+targets = PackedStringArray("modal")
+wait = "next_quarter"

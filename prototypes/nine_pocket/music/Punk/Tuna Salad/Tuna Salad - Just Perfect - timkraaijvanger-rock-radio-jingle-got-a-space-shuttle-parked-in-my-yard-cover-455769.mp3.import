@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://du68axn5ou523"
+path="res://.godot/imported/Tuna Salad - Just Perfect - timkraaijvanger-rock-radio-jingle-got-a-space-shuttle-parked-in-my-yard-cover-455769.mp3-5d2354b396a940e8ac0218c5f0b04b83.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Punk/Tuna Salad/Tuna Salad - Just Perfect - timkraaijvanger-rock-radio-jingle-got-a-space-shuttle-parked-in-my-yard-cover-455769.mp3"
+dest_files=["res://.godot/imported/Tuna Salad - Just Perfect - timkraaijvanger-rock-radio-jingle-got-a-space-shuttle-parked-in-my-yard-cover-455769.mp3-5d2354b396a940e8ac0218c5f0b04b83.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

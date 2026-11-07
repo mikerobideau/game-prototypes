@@ -1,0 +1,97 @@
+[gd_resource type="Resource" script_class="HoldingsCard" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_ability.gd" id="1_lnulv"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_card.gd" id="2_kag1w"]
+
+[sub_resource type="Resource" id="Resource_628cc"]
+script = ExtResource("1_lnulv")
+when = "operate"
+kind = "pay"
+cash = 0
+labor = 0
+equipment = 0
+intel = 0
+advertising = 1
+brand_for_convert = 0
+amount = 0
+resource = "none"
+per = "none"
+sector = "none"
+divide_by = 1
+max_count = 0
+condition = "none"
+condition_sector = "none"
+condition_amount = 0
+else_amount = 0
+only_if_neighbor_sector = "none"
+only_if_operated = false
+on_die = 0
+quarters = 0
+min_value = 0
+speed_per = "none"
+tag = ""
+count = 0
+forecast_slot = -1
+context_key = ""
+
+[sub_resource type="Resource" id="Resource_kirsy"]
+script = ExtResource("1_lnulv")
+when = "operate"
+kind = "vp_per"
+cash = 0
+labor = 0
+equipment = 0
+intel = 0
+advertising = 0
+brand_for_convert = 0
+amount = 1
+resource = "none"
+per = "distinct_dice"
+sector = "none"
+divide_by = 1
+max_count = 0
+condition = "none"
+condition_sector = "none"
+condition_amount = 0
+else_amount = 0
+only_if_neighbor_sector = "none"
+only_if_operated = false
+on_die = 0
+quarters = 0
+min_value = 0
+speed_per = "none"
+tag = ""
+count = 0
+forecast_slot = -1
+context_key = ""
+
+[resource]
+script = ExtResource("2_kag1w")
+id = "trend_shop"
+name = "Trend Shop"
+sector = "Consumer"
+value = 3
+rarity = "uncommon"
+pattern = "run"
+pattern_param = 0
+chain_left = false
+copy_left = false
+text = "Pay 1 Advertising: +1 Brand per different die value used this quarter."
+short_text = "Pay 1 Advertising: +1 Brand per different die value used"
+tags = PackedStringArray()
+abilities = Array[ExtResource("1_lnulv")]([SubResource("Resource_628cc"), SubResource("Resource_kirsy")])
+prevent_distress = false
+prevent_distress_brand = 0
+repeat_same_die = false
+adjacent_any_die = false
+adjacent_value_sector = "none"
+adjacent_value_amount = 0
+adjacent_die_plus_sector = "none"
+adjacent_die_plus_amount = 0
+art = {
+"accent": "7a63b8",
+"body": "ece6f2",
+"form": "shop",
+"height": 88,
+"width": 96
+}

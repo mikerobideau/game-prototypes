@@ -1,0 +1,69 @@
+[gd_resource type="Resource" script_class="HoldingsCard" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_ability.gd" id="1_l7cbk"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_card.gd" id="2_3hd2w"]
+
+[sub_resource type="Resource" id="Resource_scyh5"]
+script = ExtResource("1_l7cbk")
+when = "operate"
+kind = "retrigger_adjacent"
+cash = 0
+labor = 0
+equipment = 0
+intel = 0
+advertising = 0
+brand_for_convert = 0
+amount = 0
+resource = "none"
+per = "none"
+sector = "Finance"
+divide_by = 1
+max_count = 0
+condition = "none"
+condition_sector = "none"
+condition_amount = 0
+else_amount = 0
+only_if_neighbor_sector = "none"
+only_if_operated = false
+on_die = 0
+quarters = 0
+min_value = 0
+speed_per = "none"
+tag = ""
+count = 0
+forecast_slot = -1
+context_key = ""
+
+[resource]
+script = ExtResource("2_3hd2w")
+id = "holding_company"
+name = "Lender"
+sector = "Finance"
+value = 3
+rarity = "rare"
+custom_cost = false
+cost_cash = 0
+cost_labor = 0
+cost_equipment = 0
+cost_intel = 0
+cost_advertising = 0
+pattern = "pair"
+pattern_param = 0
+chain_left = false
+copy_left = false
+text = "Run the abilities of every adjacent Finance business that already operated this quarter again."
+short_text = "Re-runs adjacent Finance businesses that already operated"
+tags = PackedStringArray()
+abilities = Array[ExtResource("1_l7cbk")]([SubResource("Resource_scyh5")])
+prevent_distress = false
+prevent_distress_brand = 0
+repeat_same_die = false
+adjacent_any_die = false
+adjacent_value_sector = "none"
+adjacent_value_amount = 0
+adjacent_die_plus_sector = "none"
+adjacent_die_plus_amount = 0
+art = {
+"body": "8fa3b3",
+"form": "tower"
+}

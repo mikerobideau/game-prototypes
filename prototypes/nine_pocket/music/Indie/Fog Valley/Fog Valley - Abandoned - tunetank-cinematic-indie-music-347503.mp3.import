@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://chs2gua6vq8a"
+path="res://.godot/imported/Fog Valley - Abandoned - tunetank-cinematic-indie-music-347503.mp3-e156f3d3b3555fd46394dbfdb2ef30bb.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Indie/Fog Valley/Fog Valley - Abandoned - tunetank-cinematic-indie-music-347503.mp3"
+dest_files=["res://.godot/imported/Fog Valley - Abandoned - tunetank-cinematic-indie-music-347503.mp3-e156f3d3b3555fd46394dbfdb2ef30bb.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

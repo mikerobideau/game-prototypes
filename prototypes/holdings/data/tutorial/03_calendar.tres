@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HoldingsTutorialStep" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_tutorial_step.gd" id="1_tut"]
+
+[resource]
+script = ExtResource("1_tut")
+title = "Calendar and headlines"
+body = "A run lasts {years} years of 4 quarters. The calendar shows where you are.\nThe clipping keeps this quarter's headline in view. Hover it to see what's coming next."
+targets = PackedStringArray("calendar", "clipping")
+wait = "next"

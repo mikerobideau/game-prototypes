@@ -1,0 +1,95 @@
+[gd_resource type="Resource" script_class="HoldingsCard" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_ability.gd" id="1_573re"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_card.gd" id="2_fdr7s"]
+
+[sub_resource type="Resource" id="Resource_3n2dc"]
+script = ExtResource("1_573re")
+when = "operate"
+kind = "restore_dormant"
+cash = 0
+labor = 0
+equipment = 0
+intel = 0
+advertising = 0
+brand_for_convert = 0
+amount = 0
+resource = "none"
+per = "none"
+sector = "none"
+divide_by = 1
+max_count = 0
+condition = "none"
+condition_sector = "none"
+condition_amount = 0
+else_amount = 0
+only_if_neighbor_sector = "none"
+only_if_operated = false
+on_die = 0
+quarters = 0
+min_value = 0
+speed_per = "none"
+tag = ""
+count = 0
+forecast_slot = -1
+context_key = ""
+
+[sub_resource type="Resource" id="Resource_q363l"]
+script = ExtResource("1_573re")
+when = "operate"
+kind = "vp_per"
+cash = 0
+labor = 0
+equipment = 0
+intel = 0
+advertising = 0
+brand_for_convert = 0
+amount = 1
+resource = "equipment"
+per = "resource"
+sector = "none"
+divide_by = 2
+max_count = 3
+condition = "none"
+condition_sector = "none"
+condition_amount = 0
+else_amount = 0
+only_if_neighbor_sector = "none"
+only_if_operated = false
+on_die = 0
+quarters = 0
+min_value = 0
+speed_per = "none"
+tag = ""
+count = 0
+forecast_slot = -1
+context_key = ""
+
+[resource]
+script = ExtResource("2_fdr7s")
+id = "repair_shop"
+name = "Repair Shop"
+sector = "Industry"
+value = 3
+rarity = "common"
+pattern = "pair"
+pattern_param = 0
+chain_left = false
+copy_left = false
+text = "Turn around one distressed business. +1 Brand per 2 Equipment you hold (max 3)."
+short_text = "Turn around a distressed business. +1 Brand per 2 Equipment held (max 3)"
+tags = PackedStringArray()
+abilities = Array[ExtResource("1_573re")]([SubResource("Resource_3n2dc"), SubResource("Resource_q363l")])
+prevent_distress = false
+prevent_distress_brand = 0
+repeat_same_die = false
+adjacent_any_die = false
+adjacent_value_sector = "none"
+adjacent_value_amount = 0
+adjacent_die_plus_sector = "none"
+adjacent_die_plus_amount = 0
+art = {
+"accent": "c8862f",
+"body": "d6d0c4",
+"form": "garage"
+}

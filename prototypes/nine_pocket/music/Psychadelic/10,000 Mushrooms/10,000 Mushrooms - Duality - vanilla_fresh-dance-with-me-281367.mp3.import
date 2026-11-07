@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cvu05bbr3wdau"
+path="res://.godot/imported/10,000 Mushrooms - Duality - vanilla_fresh-dance-with-me-281367.mp3-ca3295e4e8f8d43f5aa48456b4f52942.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Psychadelic/10,000 Mushrooms/10,000 Mushrooms - Duality - vanilla_fresh-dance-with-me-281367.mp3"
+dest_files=["res://.godot/imported/10,000 Mushrooms - Duality - vanilla_fresh-dance-with-me-281367.mp3-ca3295e4e8f8d43f5aa48456b4f52942.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

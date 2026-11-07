@@ -1,0 +1,380 @@
+[
+	{
+		"album": "Kingdom",
+		"band": "Canine",
+		"cover": "res://prototypes/nine_pocket/art/covers/Canine - Kingdom.jpg",
+		"genre": "Alternative"
+	},
+	{
+		"album": "More Bark Than Bite",
+		"band": "Canine",
+		"cover": "res://prototypes/nine_pocket/art/covers/Canine - More Bark Than Bite.jpg",
+		"genre": "Alternative"
+	},
+	{
+		"album": "Pawprint",
+		"band": "Canine",
+		"cover": "res://prototypes/nine_pocket/art/covers/Canine - Pawprint.jpg",
+		"genre": "Alternative"
+	},
+	{
+		"album": "Campfire",
+		"band": "Eternal Flame",
+		"cover": "res://prototypes/nine_pocket/art/covers/Eternal Flame - Campfire.jpg",
+		"genre": "Alternative"
+	},
+	{
+		"album": "Fade to Black",
+		"band": "Eternal Flame",
+		"cover": "res://prototypes/nine_pocket/art/covers/Eternal Flame - Fade to Black.jpg",
+		"genre": "Alternative"
+	},
+	{
+		"album": "Sparks",
+		"band": "Eternal Flame",
+		"cover": "res://prototypes/nine_pocket/art/covers/Eternal Flame - Sparks.jpg",
+		"genre": "Alternative"
+	},
+	{
+		"album": "Brass",
+		"band": "The Jake Hudson Band",
+		"cover": "res://prototypes/nine_pocket/art/covers/The Jake Hudson Band - Brass.jpg",
+		"genre": "Alternative"
+	},
+	{
+		"album": "Funk and Soul",
+		"band": "The Jake Hudson Band",
+		"cover": "res://prototypes/nine_pocket/art/covers/The Jake Hudson Band - Funk and Soul.jpg",
+		"genre": "Alternative"
+	},
+	{
+		"album": "Gather One and All",
+		"band": "The Jake Hudson Band",
+		"cover": "res://prototypes/nine_pocket/art/covers/The Jake Hudson Band - Gather One and All.jpg",
+		"genre": "Alternative"
+	},
+	{
+		"album": "Mud",
+		"band": "Earthtone",
+		"cover": "res://prototypes/nine_pocket/art/covers/Earthtone - Mud.jpg",
+		"genre": "Blues"
+	},
+	{
+		"album": "Search for Water",
+		"band": "Earthtone",
+		"cover": "res://prototypes/nine_pocket/art/covers/Earthtone - Search for Water.jpg",
+		"genre": "Blues"
+	},
+	{
+		"album": "Stones",
+		"band": "Earthtone",
+		"cover": "res://prototypes/nine_pocket/art/covers/Earthtone - Stones.jpg",
+		"genre": "Blues"
+	},
+	{
+		"album": "Childhood",
+		"band": "Rusty Wagon",
+		"cover": "res://prototypes/nine_pocket/art/covers/Rusty Wagon - Childhood.jpg",
+		"genre": "Blues"
+	},
+	{
+		"album": "Cowboy",
+		"band": "Rusty Wagon",
+		"cover": "res://prototypes/nine_pocket/art/covers/Rusty Wagon - Cowboy.jpg",
+		"genre": "Blues"
+	},
+	{
+		"album": "Dust Bowl",
+		"band": "Rusty Wagon",
+		"cover": "res://prototypes/nine_pocket/art/covers/Rusty Wagon - Dust Bowl.jpg",
+		"genre": "Blues"
+	},
+	{
+		"album": "Blue Ripple",
+		"band": "Teardrop",
+		"cover": "res://prototypes/nine_pocket/art/covers/Teardrop - Blue Ripple.jpg",
+		"genre": "Blues"
+	},
+	{
+		"album": "Blue Sky",
+		"band": "Teardrop",
+		"cover": "res://prototypes/nine_pocket/art/covers/Teardrop - Blue Sky.jpg",
+		"genre": "Blues"
+	},
+	{
+		"album": "Blue Window",
+		"band": "Teardrop",
+		"cover": "res://prototypes/nine_pocket/art/covers/Teardrop - Blue Window.jpg",
+		"genre": "Blues"
+	},
+	{
+		"album": "Neighborhood",
+		"band": "Aerial View",
+		"cover": "res://prototypes/nine_pocket/art/covers/Aerial View - Neighborhood.jpg",
+		"genre": "Classic Rock"
+	},
+	{
+		"album": "Roadways",
+		"band": "Aerial View",
+		"cover": "res://prototypes/nine_pocket/art/covers/Aerial View - Roadways.jpg",
+		"genre": "Classic Rock"
+	},
+	{
+		"album": "Traffic Jam",
+		"band": "Aerial View",
+		"cover": "res://prototypes/nine_pocket/art/covers/Aerial View - Traffic Jam.jpg",
+		"genre": "Classic Rock"
+	},
+	{
+		"album": "Extra Crispy",
+		"band": "Crunch Bite",
+		"cover": "res://prototypes/nine_pocket/art/covers/Crunch Bite - Extra Crispy.jpg",
+		"genre": "Classic Rock"
+	},
+	{
+		"album": "Heartbreak Surgery",
+		"band": "Crunch Bite",
+		"cover": "res://prototypes/nine_pocket/art/covers/Crunch Bite - Heartbreak Surgery.jpg",
+		"genre": "Classic Rock"
+	},
+	{
+		"album": "Tacos",
+		"band": "Crunch Bite",
+		"cover": "res://prototypes/nine_pocket/art/covers/Crunch Bite - Tacos.jpg",
+		"genre": "Classic Rock"
+	},
+	{
+		"album": "Mr. Andrews",
+		"band": "Empty Suit",
+		"cover": "res://prototypes/nine_pocket/art/covers/Empty Suit - Mr. Andrews.jpg",
+		"genre": "Classic Rock"
+	},
+	{
+		"album": "Mr. Smith",
+		"band": "Empty Suit",
+		"cover": "res://prototypes/nine_pocket/art/covers/Empty Suit - Mr. Smith.jpg",
+		"genre": "Classic Rock"
+	},
+	{
+		"album": "Mr. Thompson",
+		"band": "Empty Suit",
+		"cover": "res://prototypes/nine_pocket/art/covers/Empty Suit - Mr. Thompson.jpg",
+		"genre": "Classic Rock"
+	},
+	{
+		"album": "Abandoned",
+		"band": "Fog Valley",
+		"cover": "res://prototypes/nine_pocket/art/covers/Fog Valley - Abandoned.jpg",
+		"genre": "Indie"
+	},
+	{
+		"album": "Haunted Forest",
+		"band": "Fog Valley",
+		"cover": "res://prototypes/nine_pocket/art/covers/Fog Valley - Haunted Forest.jpg",
+		"genre": "Indie"
+	},
+	{
+		"album": "The Hillside",
+		"band": "Fog Valley",
+		"cover": "res://prototypes/nine_pocket/art/covers/Fog Valley - The Hillside.jpg",
+		"genre": "Indie"
+	},
+	{
+		"album": "Frog",
+		"band": "Lilypad",
+		"cover": "res://prototypes/nine_pocket/art/covers/Lilypad - Frog.jpg",
+		"genre": "Indie"
+	},
+	{
+		"album": "Tiny Flower",
+		"band": "Lilypad",
+		"cover": "res://prototypes/nine_pocket/art/covers/Lilypad - Tiny Flower.jpg",
+		"genre": "Indie"
+	},
+	{
+		"album": "Gentle",
+		"band": "Lilypad",
+		"cover": "res://prototypes/nine_pocket/art/covers/Lilypad - Gentle.jpg",
+		"genre": "Indie"
+	},
+	{
+		"album": "Enchanted",
+		"band": "Lost Woods",
+		"cover": "res://prototypes/nine_pocket/art/covers/Lost Woods - Enchanted.jpg",
+		"genre": "Indie"
+	},
+	{
+		"album": "Guiding Rays",
+		"band": "Lost Woods",
+		"cover": "res://prototypes/nine_pocket/art/covers/Lost Woods - Guiding Rays.jpg",
+		"genre": "Indie"
+	},
+	{
+		"album": "On the Way",
+		"band": "Lost Woods",
+		"cover": "res://prototypes/nine_pocket/art/covers/Lost Woods - On the Way.jpg",
+		"genre": "Indie"
+	},
+	{
+		"album": "Alone",
+		"band": "Below Zero",
+		"cover": "res://prototypes/nine_pocket/art/covers/Below Zero - Alone.jpg",
+		"genre": "Metal"
+	},
+	{
+		"album": "Crystalize",
+		"band": "Below Zero",
+		"cover": "res://prototypes/nine_pocket/art/covers/Below Zero - Crystalize.jpg",
+		"genre": "Metal"
+	},
+	{
+		"album": "Neptune",
+		"band": "Below Zero",
+		"cover": "res://prototypes/nine_pocket/art/covers/Below Zero - Neptune.jpg",
+		"genre": "Metal"
+	},
+	{
+		"album": "Celtic",
+		"band": "Dark Ages",
+		"cover": "res://prototypes/nine_pocket/art/covers/Dark Ages - Celtic.jpg",
+		"genre": "Metal"
+	},
+	{
+		"album": "Light a Candle",
+		"band": "Dark Ages",
+		"cover": "res://prototypes/nine_pocket/art/covers/Dark Ages - Light a Candle.jpg",
+		"genre": "Metal"
+	},
+	{
+		"album": "Scarecrow",
+		"band": "Dark Ages",
+		"cover": "res://prototypes/nine_pocket/art/covers/Dark Ages - Scarecrow.jpg",
+		"genre": "Metal"
+	},
+	{
+		"album": "Mechanical People",
+		"band": "Gear Grinder",
+		"cover": "res://prototypes/nine_pocket/art/covers/Gear Grinder - Mechanical People.jpg",
+		"genre": "Metal"
+	},
+	{
+		"album": "Molten",
+		"band": "Gear Grinder",
+		"cover": "res://prototypes/nine_pocket/art/covers/Gear Grinder - Molten.jpg",
+		"genre": "Metal"
+	},
+	{
+		"album": "Smash",
+		"band": "Gear Grinder",
+		"cover": "res://prototypes/nine_pocket/art/covers/Gear Grinder - Smash.jpg",
+		"genre": "Metal"
+	},
+	{
+		"album": "Acid Rain",
+		"band": "10,000 Mushrooms",
+		"cover": "res://prototypes/nine_pocket/art/covers/10,000 Mushrooms - Acid Rain.jpg",
+		"genre": "Psychedelic"
+	},
+	{
+		"album": "Delightful Mystery",
+		"band": "10,000 Mushrooms",
+		"cover": "res://prototypes/nine_pocket/art/covers/10,000 Mushrooms - Delightful Mystery.jpg",
+		"genre": "Psychedelic"
+	},
+	{
+		"album": "Duality",
+		"band": "10,000 Mushrooms",
+		"cover": "res://prototypes/nine_pocket/art/covers/10,000 Mushrooms - Duality.jpg",
+		"genre": "Psychedelic"
+	},
+	{
+		"album": "Fingerpaint",
+		"band": "Melting Rainbows",
+		"cover": "res://prototypes/nine_pocket/art/covers/Melting Rainbows - Fingerpaint.jpg",
+		"genre": "Psychedelic"
+	},
+	{
+		"album": "Paths to Infinity",
+		"band": "Melting Rainbows",
+		"cover": "res://prototypes/nine_pocket/art/covers/Melting Rainbows - Paths to Infinity.jpg",
+		"genre": "Psychedelic"
+	},
+	{
+		"album": "Umbrellas",
+		"band": "Melting Rainbows",
+		"cover": "res://prototypes/nine_pocket/art/covers/Melting Rainbows - Umbrellas.jpg",
+		"genre": "Psychedelic"
+	},
+	{
+		"album": "Everything",
+		"band": "Spaceman",
+		"cover": "res://prototypes/nine_pocket/art/covers/Spaceman - Everything.jpg",
+		"genre": "Psychedelic"
+	},
+	{
+		"album": "The Great Beyond",
+		"band": "Spaceman",
+		"cover": "res://prototypes/nine_pocket/art/covers/Spaceman - The Great Beyond.jpg",
+		"genre": "Psychedelic"
+	},
+	{
+		"album": "Wonder",
+		"band": "Spaceman",
+		"cover": "res://prototypes/nine_pocket/art/covers/Spaceman - Wonder.jpg",
+		"genre": "Psychedelic"
+	},
+	{
+		"album": "Goodnight, City",
+		"band": "Cyberjunk",
+		"cover": "res://prototypes/nine_pocket/art/covers/Cyberjunk - Goodnight, City.jpg",
+		"genre": "Punk"
+	},
+	{
+		"album": "Alleyway",
+		"band": "Cyberjunk",
+		"cover": "res://prototypes/nine_pocket/art/covers/Cyberjunk - Alleyway.jpg",
+		"genre": "Punk"
+	},
+	{
+		"album": "Download to My Brain",
+		"band": "Cyberjunk",
+		"cover": "res://prototypes/nine_pocket/art/covers/Cyberjunk - Download to My Brain.jpg",
+		"genre": "Punk"
+	},
+	{
+		"album": "Day at the Beach",
+		"band": "Hairbrain",
+		"cover": "res://prototypes/nine_pocket/art/covers/Hairbrain - Day at the Beach.jpg",
+		"genre": "Punk"
+	},
+	{
+		"album": "Rewind",
+		"band": "Hairbrain",
+		"cover": "res://prototypes/nine_pocket/art/covers/Hairbrain - Rewind.jpg",
+		"genre": "Punk"
+	},
+	{
+		"album": "Television",
+		"band": "Hairbrain",
+		"cover": "res://prototypes/nine_pocket/art/covers/Hairbrain - Television.jpg",
+		"genre": "Punk"
+	},
+	{
+		"album": "Happy Family",
+		"band": "Tuna Salad",
+		"cover": "res://prototypes/nine_pocket/art/covers/Tuna Salad - Happy Family.jpg",
+		"genre": "Punk"
+	},
+	{
+		"album": "Just Perfect",
+		"band": "Tuna Salad",
+		"cover": "res://prototypes/nine_pocket/art/covers/Tuna Salad - Just Perfect.jpg",
+		"genre": "Punk"
+	},
+	{
+		"album": "Say Cheese",
+		"band": "Tuna Salad",
+		"cover": "res://prototypes/nine_pocket/art/covers/Tuna Salad - Say Cheese.jpg",
+		"genre": "Punk"
+	}
+]

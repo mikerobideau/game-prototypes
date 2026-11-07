@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HoldingsEdition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_edition.gd" id="1_np03y"]
+
+[resource]
+script = ExtResource("1_np03y")
+id = "bluechip"
+name = "Blue Chip"
+text = "Never becomes distressed; events can't target it"
+color = Color(0.560784, 0.639216, 0.721569, 1)

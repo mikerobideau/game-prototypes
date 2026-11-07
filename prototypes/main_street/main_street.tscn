@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cnp63tg4l0ccu"]
+
+[ext_resource type="Script" path="res://prototypes/main_street/main_street.gd" id="1_ms"]
+
+[node name="MainStreet" type="Node2D"]
+script = ExtResource("1_ms")

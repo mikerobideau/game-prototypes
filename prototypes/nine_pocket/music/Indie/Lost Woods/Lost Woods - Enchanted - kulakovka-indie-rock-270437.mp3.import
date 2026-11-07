@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bksyuqib7wu5x"
+path="res://.godot/imported/Lost Woods - Enchanted - kulakovka-indie-rock-270437.mp3-ebc544ef1c7014f53187067bd14b63d6.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Indie/Lost Woods/Lost Woods - Enchanted - kulakovka-indie-rock-270437.mp3"
+dest_files=["res://.godot/imported/Lost Woods - Enchanted - kulakovka-indie-rock-270437.mp3-ebc544ef1c7014f53187067bd14b63d6.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

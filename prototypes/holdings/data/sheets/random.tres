@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="HoldingsSheet" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_lot.gd" id="1_pqayg"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_sheet.gd" id="2_5278m"]
+
+[resource]
+script = ExtResource("2_5278m")
+id = "random"
+name = "Random Sheet"
+description = "A new random layout every run: three open lots, three sector lots, three value lots and three locks."
+difficulty = 2
+order = 12
+random_layout = true
+lots = Array[ExtResource("1_pqayg")]([])
+bonus_cash = 0
+bonus_labor = 0
+bonus_equipment = 0
+bonus_intel = 0
+bonus_advertising = 0

@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="HoldingsEvent" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_event_effect.gd" id="1_x2mrk"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_event.gd" id="2_101xt"]
+
+[sub_resource type="Resource" id="Resource_rs5vg"]
+script = ExtResource("1_x2mrk")
+kind = "dice_minus"
+amount = 1
+resource = "none"
+target = "none"
+cap = 0
+per_businesses = 0
+rate = 0
+
+[sub_resource type="Resource" id="Resource_47wkx"]
+script = ExtResource("1_x2mrk")
+kind = "cap_highest"
+amount = 0
+resource = "none"
+target = "none"
+cap = 3
+per_businesses = 0
+rate = 0
+
+[resource]
+script = ExtResource("2_101xt")
+id = "recession"
+name = "Recession"
+tier = "severe"
+category = "dice"
+text = "-1 die"
+effects = Array[ExtResource("1_x2mrk")]([SubResource("Resource_rs5vg")])
+weak_text = "Your highest rolled die is capped at 3"
+weak_effects = Array[ExtResource("1_x2mrk")]([SubResource("Resource_47wkx")])
+goal = "none"
+goal_sector = "none"
+goal_amount = 0
+penalty = Array[ExtResource("1_x2mrk")]([])

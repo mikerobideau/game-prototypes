@@ -1,0 +1,92 @@
+class_name MegaCorpCards
+extends RefCounted
+
+const KINDS := ["cash", "people", "ip", "infra", "brand"]
+
+const FIRST_SHOP := ["sales", "side_gig", "hire"]
+
+const ABILITIES := {
+	"sales": {"name": "Sales", "kind": "cash", "pat": "high", "buy": {"brand": 1}, "gain": {"cash": 3}},
+	"side_gig": {"name": "Side Gig", "kind": "cash", "pat": "low", "buy": {"people": 1}, "gain": {"cash": 2}},
+	"hire": {"name": "Hire", "kind": "people", "pat": "any", "buy": {"cash": 2}, "gain": {"people": 1}},
+
+	"consulting": {"name": "Consulting", "kind": "cash", "pat": "even", "buy": {"cash": 3, "people": 1},
+		"per": {"cards": "people", "gain": "cash", "each": 1}},
+	"patent": {"name": "Patent License", "kind": "cash", "pat": "6", "buy": {"ip": 1},
+		"per": {"cards": "ip", "gain": "cash", "each": 2}},
+	"cloud": {"name": "Cloud Service", "kind": "cash", "pat": "odd", "buy": {"cash": 2, "infra": 1},
+		"per": {"cards": "infra", "gain": "cash", "each": 1}},
+	"merch": {"name": "Merch Store", "kind": "cash", "pat": "odd", "buy": {"cash": 2, "brand": 1},
+		"per": {"cards": "brand", "gain": "cash", "each": 1}},
+	"conglomerate": {"name": "Conglomerate", "kind": "cash", "pat": "6", "buy": {"cash": 5, "brand": 2},
+		"per": {"cards": "all", "gain": "cash", "each": 1}},
+	"franchise": {"name": "Franchise", "kind": "cash", "pat": "5", "buy": {"brand": 2}, "gain": {"cash": 6}},
+	"online_store": {"name": "Online Store", "kind": "cash", "pat": "low", "buy": {"cash": 2, "infra": 1}, "gain": {"cash": 3}},
+	"rent_servers": {"name": "Rent Servers", "kind": "cash", "pat": "4", "buy": {"infra": 1}, "gain": {"cash": 4}},
+	"ai_product": {"name": "AI Product", "kind": "cash", "pat": "high", "buy": {"ip": 2, "infra": 1}, "gain": {"cash": 6}},
+	"vaccine": {"name": "Vaccine", "kind": "cash", "pat": "high", "buy": {"ip": 2, "people": 1}, "gain": {"cash": 5, "brand": 1}},
+	"moonshot": {"name": "Moonshot", "kind": "cash", "pat": "any", "buy": {"cash": 3}, "gain": {"cash": 6}, "chance": 0.5},
+	"loan": {"name": "Bank Loan", "kind": "cash", "pat": "1", "buy": {"brand": 1}, "gain": {"cash": 7},
+		"later": {"rounds": 3, "fx": {"cash": -8}}},
+
+	"job_fair": {"name": "Job Fair", "kind": "people", "pat": "2", "copies": 2, "buy": {"brand": 1}, "gain": {"people": 2}},
+	"recruiters": {"name": "Recruiters", "kind": "people", "pat": "low", "buy": {"cash": 3},
+		"per": {"cards": "people", "gain": "people", "each": 1}},
+	"campus": {"name": "Campus Hiring", "kind": "people", "pat": "even", "buy": {"cash": 2, "ip": 1},
+		"per": {"cards": "ip", "gain": "people", "each": 1}},
+	"influencer": {"name": "Influencer", "kind": "people", "pat": "high", "buy": {"cash": 2, "brand": 1},
+		"gain": {"people": 1, "brand": 1}},
+	"overtime": {"name": "Overtime", "kind": "people", "pat": "odd", "buy": {"people": 1}, "extra_die": 1},
+
+	"research": {"name": "Research", "kind": "ip", "pat": "low", "copies": 3, "buy": {"cash": 2}, "gain": {"ip": 2}, "delay": 2},
+	"mentor": {"name": "Mentorship", "kind": "ip", "pat": "even", "copies": 2, "buy": {"people": 2}, "gain": {"ip": 1}},
+	"lab": {"name": "R&D Lab", "kind": "ip", "pat": "56", "buy": {"cash": 2, "infra": 1},
+		"per": {"cards": "infra", "gain": "ip", "each": 1}},
+	"incubator": {"name": "Incubator", "kind": "ip", "pat": "56", "buy": {"cash": 3}, "gain": {"ip": 1, "people": 1}},
+	"acquire": {"name": "Acquisition", "kind": "ip", "pat": "6", "buy": {"cash": 6}, "gain": {"people": 1, "ip": 1, "infra": 1}},
+
+	"data_center": {"name": "Data Center", "kind": "infra", "pat": "high", "copies": 3, "buy": {"cash": 3}, "gain": {"infra": 1}},
+	"warehouse": {"name": "Warehouse", "kind": "infra", "pat": "low", "copies": 2, "buy": {"cash": 2, "people": 1}, "gain": {"infra": 1}},
+	"automation": {"name": "Automation", "kind": "infra", "pat": "4", "buy": {"cash": 2, "ip": 1}, "gain": {"infra": 2}},
+	"construction": {"name": "Construction", "kind": "infra", "pat": "odd", "buy": {"cash": 3, "people": 1},
+		"per": {"cards": "people", "gain": "infra", "each": 1}},
+
+	"ads": {"name": "Ad Campaign", "kind": "brand", "pat": "high", "copies": 3, "buy": {"cash": 2}, "gain": {"brand": 1}},
+	"pr_team": {"name": "PR Team", "kind": "brand", "pat": "low", "copies": 2, "buy": {"cash": 1, "people": 1}, "gain": {"brand": 1}},
+	"viral": {"name": "Viral Post", "kind": "brand", "pat": "6", "buy": {"people": 1}, "gain": {"brand": 3}},
+	"open_source": {"name": "Open Source", "kind": "brand", "pat": "even", "buy": {"ip": 1},
+		"per": {"cards": "ip", "gain": "brand", "each": 1}},
+	"sponsorship": {"name": "Sponsorship", "kind": "brand", "pat": "5", "buy": {"cash": 3},
+		"per": {"cards": "cash", "gain": "brand", "each": 1}},
+	"lobbyist": {"name": "Lobbyist", "kind": "brand", "pat": "3", "buy": {"cash": 2, "brand": 1}, "shield": 1},
+}
+
+const EVENTS := [
+	{"name": "Sanctions", "text": "Pay a fine.", "bad": true, "scale": true, "fx": {"cash": -3}},
+	{"name": "Zoning Rules", "text": "No Infra cards this round.", "bad": true, "mod": {"lock": ["infra"]}},
+	{"name": "Hiring Freeze", "text": "No People cards this round.", "bad": true, "mod": {"lock": ["people"]}},
+	{"name": "Recession", "text": "Every card makes $1 less.", "bad": true, "mod": {"cash_mod": -1}},
+	{"name": "Boom Times", "text": "Every card makes $1 more!", "mod": {"cash_mod": 1}},
+	{"name": "Talent Poach", "text": "A rival steals 1 Person.", "bad": true, "fx": {"people": -1}},
+	{"name": "Scandal", "text": "People are upset. Lose 2 Brand.", "bad": true, "fx": {"brand": -2}},
+	{"name": "Patent Troll", "text": "Pay up, unless you have 2 IP.", "bad": true, "scale": true, "fx": {"cash": -2},
+		"unless": {"ip": 2}},
+	{"name": "Power Outage", "text": "Roll 1 less die.", "bad": true, "mod": {"dice": -1}},
+	{"name": "Lucky Break", "text": "Roll 1 extra die!", "mod": {"dice": 1}},
+	{"name": "Investor Day", "text": "Get $4 if you have 2 Brand.", "fx": {"cash": 4}, "if": {"brand": 2}},
+	{"name": "Tax Day", "text": "Pay 20% of your cash.", "bad": true, "tax": 0.2},
+	{"name": "Server Crash", "text": "Lose 1 Infra.", "bad": true, "fx": {"infra": -1}},
+	{"name": "Cyberattack", "text": "Pay up, unless you have 2 Infra.", "bad": true, "scale": true, "fx": {"cash": -4},
+		"unless": {"infra": 2}},
+	{"name": "In the News", "text": "Everyone is talking about you!", "fx": {"brand": 1}},
+	{"name": "Government Grant", "text": "Free research money!", "fx": {"ip": 1}},
+	{"name": "Rent Hike", "text": "This round's goal needs $2 more.", "bad": true, "mod": {"goal_cash": 2}},
+	{"name": "Odd Week", "text": "Only odd dice work.", "bad": true, "mod": {"only": "odd"}},
+	{"name": "Even Week", "text": "Only even dice work.", "bad": true, "mod": {"only": "even"}},
+	{"name": "Quiet Week", "text": "Nothing happens. Phew!"},
+	{"name": "Viral Moment", "text": "Brand cards give double!", "mod": {"double": "brand"}},
+	{"name": "Lawsuit", "text": "Pay up, unless you have 3 Brand.", "bad": true, "scale": true, "fx": {"cash": -5},
+		"unless": {"brand": 3}},
+	{"name": "Market Crash", "text": "Lose money and Brand.", "bad": true, "scale": true, "fx": {"cash": -2, "brand": -1}},
+	{"name": "Job Seekers", "text": "Someone wants to join you!", "fx": {"people": 1}},
+]

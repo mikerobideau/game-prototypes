@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="HoldingsEvent" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_event_effect.gd" id="1_2psd8"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_event.gd" id="2_kcb6y"]
+
+[sub_resource type="Resource" id="Resource_m2mqs"]
+script = ExtResource("1_2psd8")
+kind = "dice_minus_per_cards"
+amount = 0
+resource = "none"
+target = "none"
+cap = 0
+per_businesses = 5
+rate = 0
+
+[resource]
+script = ExtResource("2_kcb6y")
+id = "bureaucracy"
+name = "Bureaucracy"
+tier = "severe"
+category = "dice"
+text = "-1 die per 5 businesses in your portfolio (round down)"
+effects = Array[ExtResource("1_2psd8")]([SubResource("Resource_m2mqs")])
+weak_text = ""
+weak_effects = Array[ExtResource("1_2psd8")]([])
+goal = "none"
+goal_sector = "none"
+goal_amount = 0
+penalty = Array[ExtResource("1_2psd8")]([])

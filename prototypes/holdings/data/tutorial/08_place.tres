@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HoldingsTutorialStep" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_tutorial_step.gd" id="1_tut"]
+
+[resource]
+script = ExtResource("1_tut")
+title = "Choose a lot"
+body = "Your portfolio has 9 lots. Some accept only certain businesses, and some start locked.\nPlace it in the center lot. A new business earns Brand equal to its value right away."
+targets = PackedStringArray("board:4")
+wait = "placed"

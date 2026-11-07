@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://duatmxm65kmr1"
+path="res://.godot/imported/Aerial View - Roadways - tunetank-classic-rock-music-347516.mp3-4c2130d2cfb4fa5350122b4f32d55c84.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Classic Rock/Aerial View/Aerial View - Roadways - tunetank-classic-rock-music-347516.mp3"
+dest_files=["res://.godot/imported/Aerial View - Roadways - tunetank-classic-rock-music-347516.mp3-4c2130d2cfb4fa5350122b4f32d55c84.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

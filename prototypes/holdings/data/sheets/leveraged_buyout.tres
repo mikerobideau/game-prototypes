@@ -1,0 +1,127 @@
+[gd_resource type="Resource" script_class="HoldingsSheet" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_lot.gd" id="1_rlkas"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_sheet.gd" id="2_rmp75"]
+
+[sub_resource type="Resource" id="Resource_fleak"]
+script = ExtResource("1_rlkas")
+rule = "value"
+rule_sector = "Finance"
+value_min = 5
+value_max = 99
+lock = "pay"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_x7tq6"]
+script = ExtResource("1_rlkas")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_t3r8o"]
+script = ExtResource("1_rlkas")
+rule = "value"
+rule_sector = "Finance"
+value_min = 5
+value_max = 99
+lock = "pay"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_w1yop"]
+script = ExtResource("1_rlkas")
+rule = "sector"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_xmaoi"]
+script = ExtResource("1_rlkas")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "gold"
+
+[sub_resource type="Resource" id="Resource_kyvru"]
+script = ExtResource("1_rlkas")
+rule = "sector"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_fdw5x"]
+script = ExtResource("1_rlkas")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "count"
+lock_resource = "cash"
+lock_amount = 5
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_w5ery"]
+script = ExtResource("1_rlkas")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "value"
+lock_resource = "cash"
+lock_amount = 5
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_l54fa"]
+script = ExtResource("1_rlkas")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "pay"
+lock_resource = "labor"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[resource]
+script = ExtResource("2_rmp75")
+id = "leveraged_buyout"
+name = "Leveraged Buyout"
+description = "Start with 4 extra Cash, but five lots are locked and two only take big businesses."
+difficulty = 3
+order = 11
+random_layout = false
+lots = Array[ExtResource("1_rlkas")]([SubResource("Resource_fleak"), SubResource("Resource_x7tq6"), SubResource("Resource_t3r8o"), SubResource("Resource_w1yop"), SubResource("Resource_xmaoi"), SubResource("Resource_kyvru"), SubResource("Resource_fdw5x"), SubResource("Resource_w5ery"), SubResource("Resource_l54fa")])
+bonus_cash = 4
+bonus_labor = 0
+bonus_equipment = 0
+bonus_intel = 0
+bonus_advertising = 0

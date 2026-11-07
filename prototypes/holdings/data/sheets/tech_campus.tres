@@ -1,0 +1,127 @@
+[gd_resource type="Resource" script_class="HoldingsSheet" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_lot.gd" id="1_27xlp"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_sheet.gd" id="2_nfvuc"]
+
+[sub_resource type="Resource" id="Resource_r6xq1"]
+script = ExtResource("1_27xlp")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "pay"
+lock_resource = "intel"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_c8dc5"]
+script = ExtResource("1_27xlp")
+rule = "sector"
+rule_sector = "Tech"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_axkib"]
+script = ExtResource("1_27xlp")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_igqw3"]
+script = ExtResource("1_27xlp")
+rule = "sector"
+rule_sector = "Tech"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_r6bnx"]
+script = ExtResource("1_27xlp")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "express"
+
+[sub_resource type="Resource" id="Resource_b6xmj"]
+script = ExtResource("1_27xlp")
+rule = "sector"
+rule_sector = "Tech"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_oryjy"]
+script = ExtResource("1_27xlp")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "adjacent"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Tech"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_y3ncm"]
+script = ExtResource("1_27xlp")
+rule = "sector"
+rule_sector = "Tech"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_652hb"]
+script = ExtResource("1_27xlp")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "adjacent"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Tech"
+pocket = "none"
+
+[resource]
+script = ExtResource("2_nfvuc")
+id = "tech_campus"
+name = "Tech Campus"
+description = "Tech fills the cross through the centre. Express pocket in the middle; Tech neighbours open the lower corners."
+difficulty = 2
+order = 5
+random_layout = false
+lots = Array[ExtResource("1_27xlp")]([SubResource("Resource_r6xq1"), SubResource("Resource_c8dc5"), SubResource("Resource_axkib"), SubResource("Resource_igqw3"), SubResource("Resource_r6bnx"), SubResource("Resource_b6xmj"), SubResource("Resource_oryjy"), SubResource("Resource_y3ncm"), SubResource("Resource_652hb")])
+bonus_cash = 0
+bonus_labor = 0
+bonus_equipment = 0
+bonus_intel = 0
+bonus_advertising = 0

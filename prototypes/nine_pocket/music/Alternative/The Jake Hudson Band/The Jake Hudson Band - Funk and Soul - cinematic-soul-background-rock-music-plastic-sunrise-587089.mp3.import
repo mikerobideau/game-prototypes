@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://blbdrkjjiks06"
+path="res://.godot/imported/The Jake Hudson Band - Funk and Soul - cinematic-soul-background-rock-music-plastic-sunrise-587089.mp3-6d5fd49f17351cbc396c66a0a5a474fb.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Alternative/The Jake Hudson Band/The Jake Hudson Band - Funk and Soul - cinematic-soul-background-rock-music-plastic-sunrise-587089.mp3"
+dest_files=["res://.godot/imported/The Jake Hudson Band - Funk and Soul - cinematic-soul-background-rock-music-plastic-sunrise-587089.mp3-6d5fd49f17351cbc396c66a0a5a474fb.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HoldingsTutorialStep" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_tutorial_step.gd" id="1_tut"]
+
+[resource]
+script = ExtResource("1_tut")
+title = "Scout deals"
+body = "Don't like what's for sale? A {scout} swaps every listed deal for new ones.\nClick Scout deals to spend your {scout}."
+targets = PackedStringArray("scout")
+wait = "scout"

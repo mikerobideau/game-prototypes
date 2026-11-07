@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://s6f8kspq6nxi"
+path="res://.godot/imported/Gear Grinder - Molten - nickpanek-old-school-heavy-thrash-metal-instrumental-306522.mp3-fc9710ec8c09b2b334729be91f75c69f.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Metal/Gear Grinder/Gear Grinder - Molten - nickpanek-old-school-heavy-thrash-metal-instrumental-306522.mp3"
+dest_files=["res://.godot/imported/Gear Grinder - Molten - nickpanek-old-school-heavy-thrash-metal-instrumental-306522.mp3-fc9710ec8c09b2b334729be91f75c69f.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

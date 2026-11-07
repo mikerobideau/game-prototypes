@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="HoldingsOffer" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_offer.gd" id="1_jyn7s"]
+
+[resource]
+script = ExtResource("1_jyn7s")
+id = "capital"
+name = "Capital Injection"
+text = "Gain 2 of every resource"
+icon = "cash"
+edition = "none"

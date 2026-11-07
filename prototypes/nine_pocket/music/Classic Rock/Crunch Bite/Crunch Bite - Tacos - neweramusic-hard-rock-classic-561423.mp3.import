@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dhjduskbb120e"
+path="res://.godot/imported/Crunch Bite - Tacos - neweramusic-hard-rock-classic-561423.mp3-9b545b6d99053214c2f2cf2706d052da.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Classic Rock/Crunch Bite/Crunch Bite - Tacos - neweramusic-hard-rock-classic-561423.mp3"
+dest_files=["res://.godot/imported/Crunch Bite - Tacos - neweramusic-hard-rock-classic-561423.mp3-9b545b6d99053214c2f2cf2706d052da.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

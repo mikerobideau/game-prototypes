@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="HoldingsOffer" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_offer.gd" id="1_ngb5k"]
+
+[resource]
+script = ExtResource("1_ngb5k")
+id = "express"
+name = "Express Lane"
+text = "Choose a lot: a business there can operate with any single die"
+icon = "die"
+edition = "none"

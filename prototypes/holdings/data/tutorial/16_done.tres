@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HoldingsTutorialStep" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_tutorial_step.gd" id="1_tut"]
+
+[resource]
+script = ExtResource("1_tut")
+title = "You're ready"
+body = "That's the loop: buy, operate, collect and grow before each yearly check.\nHover anything for details and press H for the full rules. Keep playing this run and see how many years you last. Other portfolio sheets on the menu change the rules."
+targets = PackedStringArray("*")
+wait = "next"

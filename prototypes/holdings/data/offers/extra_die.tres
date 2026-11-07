@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="HoldingsOffer" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_offer.gd" id="1_e4ah3"]
+
+[resource]
+script = ExtResource("1_e4ah3")
+id = "extra_die"
+name = "New Hire"
+text = "Roll 1 more die every quarter from next quarter on"
+icon = "die"
+edition = "none"

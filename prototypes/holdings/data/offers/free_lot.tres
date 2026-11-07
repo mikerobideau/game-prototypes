@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="HoldingsOffer" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_offer.gd" id="1_0qi4h"]
+
+[resource]
+script = ExtResource("1_0qi4h")
+id = "free_lot"
+name = "Expansion Capital"
+text = "Choose a locked lot: it opens for free"
+icon = "lock"
+edition = "none"

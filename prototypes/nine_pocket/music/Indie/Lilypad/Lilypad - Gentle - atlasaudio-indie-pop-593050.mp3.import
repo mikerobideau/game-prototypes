@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dunxkwbxv2bwt"
+path="res://.godot/imported/Lilypad - Gentle - atlasaudio-indie-pop-593050.mp3-3ab018e0f7912c868109566aa1dda123.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Indie/Lilypad/Lilypad - Gentle - atlasaudio-indie-pop-593050.mp3"
+dest_files=["res://.godot/imported/Lilypad - Gentle - atlasaudio-indie-pop-593050.mp3-3ab018e0f7912c868109566aa1dda123.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

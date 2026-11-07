@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="HoldingsCard" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_ability.gd" id="1_8lxi8"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_card.gd" id="2_krlu5"]
+
+[resource]
+script = ExtResource("2_krlu5")
+id = "copycat_startup"
+name = "Copycat Startup"
+sector = "Tech"
+value = 1
+rarity = "rare"
+pattern = "any"
+pattern_param = 0
+chain_left = false
+copy_left = true
+text = "Startup. Copies the ability of the business to its left (paying any costs it has)."
+short_text = "Startup. Copies the ability of the business to its left"
+tags = PackedStringArray("startup")
+abilities = Array[ExtResource("1_8lxi8")]([])
+prevent_distress = false
+prevent_distress_brand = 0
+repeat_same_die = false
+adjacent_any_die = false
+adjacent_value_sector = "none"
+adjacent_value_amount = 0
+adjacent_die_plus_sector = "none"
+adjacent_die_plus_amount = 0
+art = {
+"accent": "d0607a",
+"body": "e6e0ea",
+"form": "startup"
+}

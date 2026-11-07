@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bmq7xgnh1k8uy"]
+
+[ext_resource type="Script" path="res://prototypes/cozy_farm/cozy_farm.gd" id="1_cozy"]
+
+[node name="CozyFarm" type="Node2D"]
+script = ExtResource("1_cozy")

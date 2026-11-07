@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://caigcug8yborc"
+path="res://.godot/imported/Spaceman - Everything - sonican-cinematic-space-rock-odyssey-starlight-echoes-430323.mp3-d54a0410339c67fd0a11454b5ec7fc43.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Psychadelic/Spaceman/Spaceman - Everything - sonican-cinematic-space-rock-odyssey-starlight-echoes-430323.mp3"
+dest_files=["res://.godot/imported/Spaceman - Everything - sonican-cinematic-space-rock-odyssey-starlight-echoes-430323.mp3-d54a0410339c67fd0a11454b5ec7fc43.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cj8c36bm0t6yi"]
+
+[ext_resource type="Script" path="res://prototypes/cd_collector/cd_collector.gd" id="1_cc"]
+
+[node name="CDCollector" type="Node2D"]
+script = ExtResource("1_cc")

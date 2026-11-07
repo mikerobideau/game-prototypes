@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HoldingsEdition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_edition.gd" id="1_vlevw"]
+
+[resource]
+script = ExtResource("1_vlevw")
+id = "gold"
+name = "Gold"
+text = "Earns double its value when it operates"
+color = Color(0.85098, 0.631373, 0.231373, 1)

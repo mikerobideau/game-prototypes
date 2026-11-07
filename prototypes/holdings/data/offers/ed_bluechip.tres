@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="HoldingsOffer" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_offer.gd" id="1_8hjog"]
+
+[resource]
+script = ExtResource("1_8hjog")
+id = "ed_bluechip"
+name = "Blue Chip Edition"
+text = "Choose a business: it becomes Blue Chip (never distressed, can't be targeted)"
+icon = "check"
+edition = "bluechip"

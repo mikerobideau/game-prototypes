@@ -1,0 +1,39 @@
+[
+ {
+  "id": "starter",
+  "name": "Starter Deck",
+  "idea": "One of every basic, plus three each of Rock Anthem, Boy Band, Radio Hip Hop and Smooth Jazz.",
+  "enabled": true,
+  "mixes": 0,
+  "cards": {
+   "basic-rock-60s": 1,
+   "basic-rock-70s": 1,
+   "basic-rock-80s": 1,
+   "basic-rock-90s": 1,
+   "basic-rock-00s": 1,
+   "basic-rock-10s": 1,
+   "basic-pop-60s": 1,
+   "basic-pop-70s": 1,
+   "basic-pop-80s": 1,
+   "basic-pop-90s": 1,
+   "basic-pop-00s": 1,
+   "basic-pop-10s": 1,
+   "basic-hip-hop-60s": 1,
+   "basic-hip-hop-70s": 1,
+   "basic-hip-hop-80s": 1,
+   "basic-hip-hop-90s": 1,
+   "basic-hip-hop-00s": 1,
+   "basic-hip-hop-10s": 1,
+   "basic-jazz-60s": 1,
+   "basic-jazz-70s": 1,
+   "basic-jazz-80s": 1,
+   "basic-jazz-90s": 1,
+   "basic-jazz-00s": 1,
+   "basic-jazz-10s": 1,
+   "unknown-new-card": 3,
+   "unknown-new-card-9": 3,
+   "unknown-new-card-17": 3,
+   "unknown-new-card-22": 3
+  }
+ }
+]

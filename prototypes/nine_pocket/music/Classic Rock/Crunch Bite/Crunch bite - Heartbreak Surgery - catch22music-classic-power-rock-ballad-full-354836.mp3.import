@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bugkqcwx4p5cd"
+path="res://.godot/imported/Crunch bite - Heartbreak Surgery - catch22music-classic-power-rock-ballad-full-354836.mp3-36aec13b8e1b6c795e55a538ce28f9d4.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Classic Rock/Crunch Bite/Crunch bite - Heartbreak Surgery - catch22music-classic-power-rock-ballad-full-354836.mp3"
+dest_files=["res://.godot/imported/Crunch bite - Heartbreak Surgery - catch22music-classic-power-rock-ballad-full-354836.mp3-36aec13b8e1b6c795e55a538ce28f9d4.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="HoldingsOffer" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_offer.gd" id="1_db7jx"]
+
+[resource]
+script = ExtResource("1_db7jx")
+id = "ed_holo"
+name = "Holographic Edition"
+text = "Choose a business: it becomes Holographic (its ability triggers twice)"
+icon = "swap"
+edition = "holo"

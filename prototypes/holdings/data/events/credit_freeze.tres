@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="HoldingsEvent" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_event_effect.gd" id="1_ym7di"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_event.gd" id="2_gt7hr"]
+
+[sub_resource type="Resource" id="Resource_kjfec"]
+script = ExtResource("1_ym7di")
+kind = "market_frozen"
+amount = 0
+resource = "none"
+target = "none"
+cap = 0
+per_businesses = 0
+rate = 0
+
+[sub_resource type="Resource" id="Resource_lq0cw"]
+script = ExtResource("1_ym7di")
+kind = "refresh_frozen"
+amount = 0
+resource = "none"
+target = "none"
+cap = 0
+per_businesses = 0
+rate = 0
+
+[resource]
+script = ExtResource("2_gt7hr")
+id = "credit_freeze"
+name = "Credit Freeze"
+tier = "moderate"
+category = "market"
+text = "Deals frozen: no buying or scouting"
+effects = Array[ExtResource("1_ym7di")]([SubResource("Resource_kjfec")])
+weak_text = "Deals can't be scouted (buying still allowed)"
+weak_effects = Array[ExtResource("1_ym7di")]([SubResource("Resource_lq0cw")])
+goal = "none"
+goal_sector = "none"
+goal_amount = 0
+penalty = Array[ExtResource("1_ym7di")]([])

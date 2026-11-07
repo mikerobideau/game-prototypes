@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="HoldingsOffer" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_offer.gd" id="1_ftrpi"]
+
+[resource]
+script = ExtResource("1_ftrpi")
+id = "ed_gold"
+name = "Gold Edition"
+text = "Choose a business: it becomes Gold (earns double its value when it operates)"
+icon = "vp"
+edition = "gold"

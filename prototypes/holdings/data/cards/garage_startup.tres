@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="HoldingsCard" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_ability.gd" id="1_7t5rr"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_card.gd" id="2_kqhw6"]
+
+[sub_resource type="Resource" id="Resource_sri3u"]
+script = ExtResource("1_7t5rr")
+when = "after_quarter"
+kind = "mature"
+cash = 0
+labor = 0
+equipment = 0
+intel = 0
+advertising = 0
+brand_for_convert = 0
+amount = 0
+resource = "none"
+per = "none"
+sector = "Tech"
+divide_by = 1
+max_count = 0
+condition = "none"
+condition_sector = "none"
+condition_amount = 0
+else_amount = 0
+only_if_neighbor_sector = "none"
+only_if_operated = false
+on_die = 0
+quarters = 4
+min_value = 5
+speed_per = "adjacent_type"
+tag = ""
+count = 0
+forecast_slot = -1
+context_key = ""
+
+[resource]
+script = ExtResource("2_kqhw6")
+id = "garage_startup"
+name = "Garage Startup"
+sector = "Tech"
+value = 1
+rarity = "uncommon"
+pattern = "none"
+pattern_param = 0
+chain_left = false
+copy_left = false
+text = "Startup. Needs no die. After 4 quarters it becomes a random business worth 5 or more. Each adjacent Tech business makes it mature 1 quarter faster."
+short_text = "Startup. No die. Becomes a 5+ value business. Adjacent Tech speeds it up"
+tags = PackedStringArray("startup")
+abilities = Array[ExtResource("1_7t5rr")]([SubResource("Resource_sri3u")])
+prevent_distress = false
+prevent_distress_brand = 0
+repeat_same_die = false
+adjacent_any_die = false
+adjacent_value_sector = "none"
+adjacent_value_amount = 0
+adjacent_die_plus_sector = "none"
+adjacent_die_plus_amount = 0
+art = {
+"accent": "e8892b",
+"body": "d9cfbf",
+"form": "startup"
+}

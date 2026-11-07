@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HoldingsTutorialStep" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_tutorial_step.gd" id="1_tut"]
+
+[resource]
+script = ExtResource("1_tut")
+title = "End the quarter"
+body = "One die is left over. Unused dice turn into Cash when the quarter ends, so nothing goes to waste.\nClick End Quarter."
+targets = PackedStringArray("end")
+wait = "end_quarter"

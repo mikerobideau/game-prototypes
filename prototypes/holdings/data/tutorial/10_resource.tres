@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HoldingsTutorialStep" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_tutorial_step.gd" id="1_tut"]
+
+[resource]
+script = ExtResource("1_tut")
+title = "Dice slots"
+body = "A die can also become a resource. Each slot takes one face: 1 Cash, 2 Labor, 3 Equipment, 4 Intelligence, 5 Advertising.\nClick the Labor slot to turn your 2 into 1 Labor."
+targets = PackedStringArray("res:labor")
+wait = "resource"

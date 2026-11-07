@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="HoldingsCard" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_ability.gd" id="1_2mh6g"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_card.gd" id="2_eqgqi"]
+
+[sub_resource type="Resource" id="Resource_u0xou"]
+script = ExtResource("1_2mh6g")
+when = "operate"
+kind = "gain_per"
+cash = 0
+labor = 0
+equipment = 0
+intel = 0
+advertising = 0
+brand_for_convert = 0
+amount = 2
+resource = "advertising"
+per = "board_type"
+sector = "Consumer"
+divide_by = 1
+max_count = 0
+condition = "none"
+condition_sector = "none"
+condition_amount = 0
+else_amount = 0
+only_if_neighbor_sector = "none"
+only_if_operated = false
+on_die = 0
+quarters = 0
+min_value = 0
+speed_per = "none"
+tag = ""
+count = 0
+forecast_slot = -1
+context_key = ""
+
+[resource]
+script = ExtResource("2_eqgqi")
+id = "influencer"
+name = "Influencer"
+sector = "Consumer"
+value = 1
+rarity = "rare"
+pattern = "exact"
+pattern_param = 6
+chain_left = false
+copy_left = false
+text = "Gain 2 Advertising per Consumer business you own."
+short_text = "+2 Advertising per Consumer business"
+tags = PackedStringArray()
+abilities = Array[ExtResource("1_2mh6g")]([SubResource("Resource_u0xou")])
+prevent_distress = false
+prevent_distress_brand = 0
+repeat_same_die = false
+adjacent_any_die = false
+adjacent_value_sector = "none"
+adjacent_value_amount = 0
+adjacent_die_plus_sector = "none"
+adjacent_die_plus_amount = 0
+art = {
+"accent": "d0607a",
+"body": "f3e4ea",
+"form": "startup"
+}

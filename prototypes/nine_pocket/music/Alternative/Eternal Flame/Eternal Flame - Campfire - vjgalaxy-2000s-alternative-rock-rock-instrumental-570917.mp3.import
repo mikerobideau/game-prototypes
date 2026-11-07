@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://ca3d5v4m06lyc"
+path="res://.godot/imported/Eternal Flame - Campfire - vjgalaxy-2000s-alternative-rock-rock-instrumental-570917.mp3-d0f3e2c4e509dbc99d56437aafdd31a3.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Alternative/Eternal Flame/Eternal Flame - Campfire - vjgalaxy-2000s-alternative-rock-rock-instrumental-570917.mp3"
+dest_files=["res://.godot/imported/Eternal Flame - Campfire - vjgalaxy-2000s-alternative-rock-rock-instrumental-570917.mp3-d0f3e2c4e509dbc99d56437aafdd31a3.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HoldingsTutorialStep" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_tutorial_step.gd" id="1_tut"]
+
+[resource]
+script = ExtResource("1_tut")
+title = "Investor Meeting"
+body = "After every quarter your investors offer a reward. Hitting yearly targets brings better offers.\nChoose one."
+targets = PackedStringArray("modal")
+wait = "meeting"

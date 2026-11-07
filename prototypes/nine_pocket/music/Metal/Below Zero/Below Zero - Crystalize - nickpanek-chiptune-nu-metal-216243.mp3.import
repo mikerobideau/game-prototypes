@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c04q7vixrpihb"
+path="res://.godot/imported/Below Zero - Crystalize - nickpanek-chiptune-nu-metal-216243.mp3-a347532a5f71cb966fbe38e89da2c7a4.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Metal/Below Zero/Below Zero - Crystalize - nickpanek-chiptune-nu-metal-216243.mp3"
+dest_files=["res://.godot/imported/Below Zero - Crystalize - nickpanek-chiptune-nu-metal-216243.mp3-a347532a5f71cb966fbe38e89da2c7a4.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

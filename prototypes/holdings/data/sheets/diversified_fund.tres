@@ -1,0 +1,127 @@
+[gd_resource type="Resource" script_class="HoldingsSheet" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_lot.gd" id="1_ktvja"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_sheet.gd" id="2_j25fa"]
+
+[sub_resource type="Resource" id="Resource_k7w5p"]
+script = ExtResource("1_ktvja")
+rule = "sector"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_ydpxj"]
+script = ExtResource("1_ktvja")
+rule = "sector"
+rule_sector = "Consumer"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_pekao"]
+script = ExtResource("1_ktvja")
+rule = "sector"
+rule_sector = "Services"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_bglxg"]
+script = ExtResource("1_ktvja")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "adjacent"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Industry"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_tauqb"]
+script = ExtResource("1_ktvja")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_cdg4h"]
+script = ExtResource("1_ktvja")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "pay"
+lock_resource = "cash"
+lock_amount = 2
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_n7sbg"]
+script = ExtResource("1_ktvja")
+rule = "sector"
+rule_sector = "Industry"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_l7c5o"]
+script = ExtResource("1_ktvja")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "count"
+lock_resource = "cash"
+lock_amount = 6
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_wwa0s"]
+script = ExtResource("1_ktvja")
+rule = "sector"
+rule_sector = "Tech"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[resource]
+script = ExtResource("2_j25fa")
+id = "diversified_fund"
+name = "Diversified Fund"
+description = "One lot reserved for every sector. Rewards a balanced portfolio."
+difficulty = 2
+order = 7
+random_layout = false
+lots = Array[ExtResource("1_ktvja")]([SubResource("Resource_k7w5p"), SubResource("Resource_ydpxj"), SubResource("Resource_pekao"), SubResource("Resource_bglxg"), SubResource("Resource_tauqb"), SubResource("Resource_cdg4h"), SubResource("Resource_n7sbg"), SubResource("Resource_l7c5o"), SubResource("Resource_wwa0s")])
+bonus_cash = 0
+bonus_labor = 0
+bonus_equipment = 0
+bonus_intel = 0
+bonus_advertising = 0

@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://b4kt5bxmf5ghm"
+path="res://.godot/imported/Teardrop - Blue Sky - alex-morgan-late-night-jazz-blues-lounge-537470.mp3-51ea59c24192408c90837941afb1256d.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Blues/Teardrop/Teardrop - Blue Sky - alex-morgan-late-night-jazz-blues-lounge-537470.mp3"
+dest_files=["res://.godot/imported/Teardrop - Blue Sky - alex-morgan-late-night-jazz-blues-lounge-537470.mp3-51ea59c24192408c90837941afb1256d.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

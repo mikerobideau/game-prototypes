@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HoldingsEdition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_edition.gd" id="1_reeg5"]
+
+[resource]
+script = ExtResource("1_reeg5")
+id = "franchise"
+name = "Franchise"
+text = "Counts as 2 businesses of its sector"
+color = Color(0.243137, 0.607843, 0.541176, 1)

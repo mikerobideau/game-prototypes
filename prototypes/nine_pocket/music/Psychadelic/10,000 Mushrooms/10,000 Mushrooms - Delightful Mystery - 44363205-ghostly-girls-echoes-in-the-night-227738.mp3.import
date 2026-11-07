@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cll8i3yrdeh4t"
+path="res://.godot/imported/10,000 Mushrooms - Delightful Mystery - 44363205-ghostly-girls-echoes-in-the-night-227738.mp3-7eb0045baa02d6f0aa2ba75d8e757cc7.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Psychadelic/10,000 Mushrooms/10,000 Mushrooms - Delightful Mystery - 44363205-ghostly-girls-echoes-in-the-night-227738.mp3"
+dest_files=["res://.godot/imported/10,000 Mushrooms - Delightful Mystery - 44363205-ghostly-girls-echoes-in-the-night-227738.mp3-7eb0045baa02d6f0aa2ba75d8e757cc7.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

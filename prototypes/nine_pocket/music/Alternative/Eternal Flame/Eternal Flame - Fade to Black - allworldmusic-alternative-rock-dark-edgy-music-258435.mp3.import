@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bopald1os0wfb"
+path="res://.godot/imported/Eternal Flame - Fade to Black - allworldmusic-alternative-rock-dark-edgy-music-258435.mp3-4b82c59e87624d3ce4352a5a5c9330ab.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Alternative/Eternal Flame/Eternal Flame - Fade to Black - allworldmusic-alternative-rock-dark-edgy-music-258435.mp3"
+dest_files=["res://.godot/imported/Eternal Flame - Fade to Black - allworldmusic-alternative-rock-dark-edgy-music-258435.mp3-4b82c59e87624d3ce4352a5a5c9330ab.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

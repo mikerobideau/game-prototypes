@@ -1,0 +1,127 @@
+[gd_resource type="Resource" script_class="HoldingsSheet" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_lot.gd" id="1_ssay3"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_sheet.gd" id="2_god4l"]
+
+[sub_resource type="Resource" id="Resource_r78ip"]
+script = ExtResource("1_ssay3")
+rule = "sector"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_wgs2l"]
+script = ExtResource("1_ssay3")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_uiwim"]
+script = ExtResource("1_ssay3")
+rule = "sector"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_d21xx"]
+script = ExtResource("1_ssay3")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_n7qd3"]
+script = ExtResource("1_ssay3")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "express"
+
+[sub_resource type="Resource" id="Resource_0v4v3"]
+script = ExtResource("1_ssay3")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_30am0"]
+script = ExtResource("1_ssay3")
+rule = "sector"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "adjacent"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_puydb"]
+script = ExtResource("1_ssay3")
+rule = "any"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "open"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[sub_resource type="Resource" id="Resource_oxjpu"]
+script = ExtResource("1_ssay3")
+rule = "sector"
+rule_sector = "Finance"
+value_min = 1
+value_max = 99
+lock = "pay"
+lock_resource = "cash"
+lock_amount = 3
+lock_sector = "Finance"
+pocket = "none"
+
+[resource]
+script = ExtResource("2_god4l")
+id = "corner_offices"
+name = "Corner Offices"
+description = "Finance businesses take the four corners. The centre pocket is an Express lane: any single die works there."
+difficulty = 1
+order = 2
+random_layout = false
+lots = Array[ExtResource("1_ssay3")]([SubResource("Resource_r78ip"), SubResource("Resource_wgs2l"), SubResource("Resource_uiwim"), SubResource("Resource_d21xx"), SubResource("Resource_n7qd3"), SubResource("Resource_0v4v3"), SubResource("Resource_30am0"), SubResource("Resource_puydb"), SubResource("Resource_oxjpu")])
+bonus_cash = 0
+bonus_labor = 0
+bonus_equipment = 0
+bonus_intel = 0
+bonus_advertising = 0

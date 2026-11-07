@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cly6d1mkuvy27"
+path="res://.godot/imported/Earthtone - Stones - kaazoom-midnight-stove-top-blues-blues-music-guitar-and-blues-harmonica-480984.mp3-0cd287960d11de99a4aab7c9da564682.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Blues/Earthtone/Earthtone - Stones - kaazoom-midnight-stove-top-blues-blues-music-guitar-and-blues-harmonica-480984.mp3"
+dest_files=["res://.godot/imported/Earthtone - Stones - kaazoom-midnight-stove-top-blues-blues-music-guitar-and-blues-harmonica-480984.mp3-0cd287960d11de99a4aab7c9da564682.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

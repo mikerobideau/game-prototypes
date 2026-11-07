@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="HoldingsEvent" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_event_effect.gd" id="1_q5aad"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_event.gd" id="2_hacxn"]
+
+[sub_resource type="Resource" id="Resource_erldc"]
+script = ExtResource("1_q5aad")
+kind = "refresh_plus"
+amount = 1
+resource = "none"
+target = "none"
+cap = 0
+per_businesses = 0
+rate = 0
+
+[resource]
+script = ExtResource("2_hacxn")
+id = "hot_market"
+name = "Hot Market"
+tier = "mild"
+category = "market"
+text = "Scouting deals costs +1 Cash"
+effects = Array[ExtResource("1_q5aad")]([SubResource("Resource_erldc")])
+weak_text = ""
+weak_effects = Array[ExtResource("1_q5aad")]([])
+goal = "none"
+goal_sector = "none"
+goal_amount = 0
+penalty = Array[ExtResource("1_q5aad")]([])

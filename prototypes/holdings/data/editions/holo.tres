@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HoldingsEdition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_edition.gd" id="1_kqeco"]
+
+[resource]
+script = ExtResource("1_kqeco")
+id = "holo"
+name = "Holographic"
+text = "Its ability triggers twice when it operates"
+color = Color(0.607843, 0.419608, 0.839216, 1)

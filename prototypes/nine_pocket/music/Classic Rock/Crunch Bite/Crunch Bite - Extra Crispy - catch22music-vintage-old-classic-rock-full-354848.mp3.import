@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://ce3rjh8ajkg0"
+path="res://.godot/imported/Crunch Bite - Extra Crispy - catch22music-vintage-old-classic-rock-full-354848.mp3-f088512ce59f67e64044409d4d8f72b0.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Classic Rock/Crunch Bite/Crunch Bite - Extra Crispy - catch22music-vintage-old-classic-rock-full-354848.mp3"
+dest_files=["res://.godot/imported/Crunch Bite - Extra Crispy - catch22music-vintage-old-classic-rock-full-354848.mp3-f088512ce59f67e64044409d4d8f72b0.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c38ohsydw1to"
+path="res://.godot/imported/Earthtone - Mud - nickpanek-blues-rock-instrumental-69-259289.mp3-c2f5c9113c735d3757219fab01d849fa.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Blues/Earthtone/Earthtone - Mud - nickpanek-blues-rock-instrumental-69-259289.mp3"
+dest_files=["res://.godot/imported/Earthtone - Mud - nickpanek-blues-rock-instrumental-69-259289.mp3-c2f5c9113c735d3757219fab01d849fa.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

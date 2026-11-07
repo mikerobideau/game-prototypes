@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="HoldingsEvent" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_event_effect.gd" id="1_k2q85"]
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_event.gd" id="2_xh5n5"]
+
+[resource]
+script = ExtResource("2_xh5n5")
+id = "steady_market"
+name = "Steady Market"
+tier = "none"
+category = "none"
+text = "No effect"
+effects = Array[ExtResource("1_k2q85")]([])
+weak_text = ""
+weak_effects = Array[ExtResource("1_k2q85")]([])
+goal = "none"
+goal_sector = "none"
+goal_amount = 0
+penalty = Array[ExtResource("1_k2q85")]([])

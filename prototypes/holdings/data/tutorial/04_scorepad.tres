@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HoldingsTutorialStep" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prototypes/holdings/types/holdings_tutorial_step.gd" id="1_tut"]
+
+[resource]
+script = ExtResource("1_tut")
+title = "Your Brand target"
+body = "This pad tracks the Brand you've earned this year against the target of {target}. The target is checked after the 4th quarter.\nMiss it and you take a strike. {strikes} strikes ends the run."
+targets = PackedStringArray("scorepad")
+wait = "next"

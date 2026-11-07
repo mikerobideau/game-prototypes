@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dfg7mfdt40te0"
+path="res://.godot/imported/Melting Rainbows - Umbrellas - yurasoop-psychadelic-funky-groove-521741.mp3-fdd27398966eb595e2331bc9dd2f94d6.mp3str"
+
+[deps]
+
+source_file="res://prototypes/nine_pocket/music/Psychadelic/Melting Rainbows/Melting Rainbows - Umbrellas - yurasoop-psychadelic-funky-groove-521741.mp3"
+dest_files=["res://.godot/imported/Melting Rainbows - Umbrellas - yurasoop-psychadelic-funky-groove-521741.mp3-fdd27398966eb595e2331bc9dd2f94d6.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

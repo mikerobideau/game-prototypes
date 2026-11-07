@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bo8vtn1xqf05a"]
+
+[ext_resource type="Script" path="res://prototypes/day_trade/day_trade.gd" id="1_daytrade"]
+
+[node name="DayTrade" type="Node2D"]
+script = ExtResource("1_daytrade")
