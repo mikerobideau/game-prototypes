@@ -1,6 +1,6 @@
 extends RefCounted
 
-const CATALOG := "res://prototypes/nine_pocket/art/covers/catalog.json"
+const CATALOG := "res://prototypes/dj_engine/art/covers/catalog.json"
 
 const GENRES: Array[String] = ["Classic Rock", "Indie", "Metal", "Punk", "Psychedelic"]
 const GENRE_SHORT: Array[String] = ["ROCK", "INDIE", "METAL", "PUNK", "PSYCH"]

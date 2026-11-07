@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c4xhmo1oq5kri"
+path="res://.godot/imported/The Jake Hudson Band - Gather One and All - the_mountain-rock-energetic-593064.mp3-da6fb3399c797aa4bc0f465e87773253.mp3str"
+
+[deps]
+
+source_file="res://prototypes/dj_engine/music/Alternative/The Jake Hudson Band/The Jake Hudson Band - Gather One and All - the_mountain-rock-energetic-593064.mp3"
+dest_files=["res://.godot/imported/The Jake Hudson Band - Gather One and All - the_mountain-rock-energetic-593064.mp3-da6fb3399c797aa4bc0f465e87773253.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

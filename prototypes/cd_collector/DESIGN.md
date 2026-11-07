@@ -2,11 +2,11 @@
 
 A solo tableau-building game about filling a nine-pocket CD binder. Draft CDs from a community row, slot them into your binder so neighbours fit together, and play them to trigger their effects. After 15 turns, your total **victory points (VP)** decides how you did.
 
-It draws on two earlier prototypes: from **Holdings**, a 3×3 board where position and adjacency drive abilities, and from **Disc Engine**, CDs with genres and decades that link to each other. Nothing comes over from venues, rack gear, events, dice or crowd meters.
+It draws on two earlier prototypes: from **Holdings**, a 3×3 board where position and adjacency drive abilities, and from **DJ Engine**, CDs with genres and decades that link to each other. Nothing comes over from venues, rack gear, events, dice or crowd meters.
 
 **Feel:** a modern tabletop game. Everything on screen is a physical component (cards, a binder page, tokens, a turn track, a paper log, a sticky note) and every rule could be run by hand at a table.
 
-**Prototype:** run `cd_collector.tscn` (F6). Data (genres, decades, hook templates, objectives, tuning) is in `cd_collector_data.gd`. Rules are in `cd_collector.gd`: turn flow in `_start_turn` / `_end_turn` / `_finish`, actions in `_buy` / `_place` / `_play`, hooks in `_count` / `_amount` / `_fire`, objectives in `_objective_score`. Drawing helpers are shared with Nine Pocket (`nine_pocket_ui.gd`). `tools/sim.gd` runs a greedy bot headless:
+**Prototype:** run `cd_collector.tscn` (F6). Data (genres, decades, hook templates, objectives, tuning) is in `cd_collector_data.gd`. Rules are in `cd_collector.gd`: turn flow in `_start_turn` / `_end_turn` / `_finish`, actions in `_buy` / `_place` / `_play`, hooks in `_count` / `_amount` / `_fire`, objectives in `_objective_score`. Drawing helpers are shared with DJ Engine (`dj_engine_ui.gd`). `tools/sim.gd` runs a greedy bot headless:
 
 ```bash
 godot --headless --path . -s res://prototypes/cd_collector/tools/sim.gd

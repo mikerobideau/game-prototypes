@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cpq34vi4ogon3"
+path="res://.godot/imported/Tuna Salad - Happy Family - nickpanek-midwest-emo-skater-punk-rock-instrumental-364033.mp3-64447d26382f96b2784c02770cddbce8.mp3str"
+
+[deps]
+
+source_file="res://prototypes/dj_engine/music/Punk/Tuna Salad/Tuna Salad - Happy Family - nickpanek-midwest-emo-skater-punk-rock-instrumental-364033.mp3"
+dest_files=["res://.godot/imported/Tuna Salad - Happy Family - nickpanek-midwest-emo-skater-punk-rock-instrumental-364033.mp3-64447d26382f96b2784c02770cddbce8.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

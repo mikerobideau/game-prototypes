@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bjmgm8l122coe"
+path="res://.godot/imported/10,000 Mushrooms - Acid Rain - welc0mei0-241026-deep-techno-progressive-psychedelic-downtempo-glitch-284018.mp3-a9fc41ef2cf80d94a5f6245add4f25e3.mp3str"
+
+[deps]
+
+source_file="res://prototypes/dj_engine/music/Psychadelic/10,000 Mushrooms/10,000 Mushrooms - Acid Rain - welc0mei0-241026-deep-techno-progressive-psychedelic-downtempo-glitch-284018.mp3"
+dest_files=["res://.godot/imported/10,000 Mushrooms - Acid Rain - welc0mei0-241026-deep-techno-progressive-psychedelic-downtempo-glitch-284018.mp3-a9fc41ef2cf80d94a5f6245add4f25e3.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

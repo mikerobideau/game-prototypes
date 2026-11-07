@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bd3jt26goo81j"
+path="res://.godot/imported/Hairbrain - Rewind - the_mountain-punk-rock-593060.mp3-827e2df666175dbef28e09ba17cbfb39.mp3str"
+
+[deps]
+
+source_file="res://prototypes/dj_engine/music/Punk/Hairbrain/Hairbrain - Rewind - the_mountain-punk-rock-593060.mp3"
+dest_files=["res://.godot/imported/Hairbrain - Rewind - the_mountain-punk-rock-593060.mp3-827e2df666175dbef28e09ba17cbfb39.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

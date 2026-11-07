@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://b7ymtc1syfl6d"
+path="res://.godot/imported/Dark Ages - Celtic - outlawcreative-joe-and-the-river-remix-392663.mp3-27a2df70678c9f1b4c44050a66ed2889.mp3str"
+
+[deps]
+
+source_file="res://prototypes/dj_engine/music/Metal/Dark Ages/Dark Ages - Celtic - outlawcreative-joe-and-the-river-remix-392663.mp3"
+dest_files=["res://.godot/imported/Dark Ages - Celtic - outlawcreative-joe-and-the-river-remix-392663.mp3-27a2df70678c9f1b4c44050a66ed2889.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

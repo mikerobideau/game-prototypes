@@ -1,4 +1,4 @@
-extends "res://prototypes/nine_pocket/nine_pocket_ui.gd"
+extends "res://prototypes/dj_engine/dj_engine_ui.gd"
 
 const D := preload("res://prototypes/cd_collector/cd_collector_data.gd")
 

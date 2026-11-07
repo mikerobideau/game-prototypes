@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://n7t5gbarouhy"
+path="res://.godot/imported/Tuna Salad - Say Cheese - lnplusmusic-pop-punk-rock-music-469456.mp3-17eeff5af0363f224ab4d4845b60d622.mp3str"
+
+[deps]
+
+source_file="res://prototypes/dj_engine/music/Punk/Tuna Salad/Tuna Salad - Say Cheese - lnplusmusic-pop-punk-rock-music-469456.mp3"
+dest_files=["res://.godot/imported/Tuna Salad - Say Cheese - lnplusmusic-pop-punk-rock-music-469456.mp3-17eeff5af0363f224ab4d4845b60d622.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

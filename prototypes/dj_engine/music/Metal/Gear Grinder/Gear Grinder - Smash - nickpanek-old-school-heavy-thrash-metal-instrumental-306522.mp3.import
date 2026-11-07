@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cwmbpeqtubilk"
+path="res://.godot/imported/Gear Grinder - Smash - nickpanek-old-school-heavy-thrash-metal-instrumental-306522.mp3-b435375447181421997c46dbf589cc7e.mp3str"
+
+[deps]
+
+source_file="res://prototypes/dj_engine/music/Metal/Gear Grinder/Gear Grinder - Smash - nickpanek-old-school-heavy-thrash-metal-instrumental-306522.mp3"
+dest_files=["res://.godot/imported/Gear Grinder - Smash - nickpanek-old-school-heavy-thrash-metal-instrumental-306522.mp3-b435375447181421997c46dbf589cc7e.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

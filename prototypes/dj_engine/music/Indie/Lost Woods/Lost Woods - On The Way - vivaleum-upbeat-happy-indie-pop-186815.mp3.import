@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://skhip2ypljx1"
+path="res://.godot/imported/Lost Woods - On The Way - vivaleum-upbeat-happy-indie-pop-186815.mp3-a189c260d35c9148bf3352effc380432.mp3str"
+
+[deps]
+
+source_file="res://prototypes/dj_engine/music/Indie/Lost Woods/Lost Woods - On The Way - vivaleum-upbeat-happy-indie-pop-186815.mp3"
+dest_files=["res://.godot/imported/Lost Woods - On The Way - vivaleum-upbeat-happy-indie-pop-186815.mp3-a189c260d35c9148bf3352effc380432.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

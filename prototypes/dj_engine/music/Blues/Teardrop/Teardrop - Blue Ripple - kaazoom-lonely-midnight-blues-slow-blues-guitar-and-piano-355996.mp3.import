@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://1h3jkjv5mcrc"
+path="res://.godot/imported/Teardrop - Blue Ripple - kaazoom-lonely-midnight-blues-slow-blues-guitar-and-piano-355996.mp3-4d430553d9be7afbbc52372a01e19648.mp3str"
+
+[deps]
+
+source_file="res://prototypes/dj_engine/music/Blues/Teardrop/Teardrop - Blue Ripple - kaazoom-lonely-midnight-blues-slow-blues-guitar-and-piano-355996.mp3"
+dest_files=["res://.godot/imported/Teardrop - Blue Ripple - kaazoom-lonely-midnight-blues-slow-blues-guitar-and-piano-355996.mp3-4d430553d9be7afbbc52372a01e19648.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

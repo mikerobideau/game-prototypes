@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c4a013ntuhm0b"
+path="res://.godot/imported/The Jake Hudson Band - Brass - nickpanek-balkan-brass-funk-instrumental-dirty-igloo-318363.mp3-a25febacdb927df570909dc3382aed5a.mp3str"
+
+[deps]
+
+source_file="res://prototypes/dj_engine/music/Alternative/The Jake Hudson Band/The Jake Hudson Band - Brass - nickpanek-balkan-brass-funk-instrumental-dirty-igloo-318363.mp3"
+dest_files=["res://.godot/imported/The Jake Hudson Band - Brass - nickpanek-balkan-brass-funk-instrumental-dirty-igloo-318363.mp3-a25febacdb927df570909dc3382aed5a.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

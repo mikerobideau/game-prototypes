@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://idqh5nftpyn2"
+path="res://.godot/imported/Lilypad - Frog - echobrainz-upbeat-indie-rock-624221.mp3-ffd77183fd121ad88712150637b4787b.mp3str"
+
+[deps]
+
+source_file="res://prototypes/dj_engine/music/Indie/Lilypad/Lilypad - Frog - echobrainz-upbeat-indie-rock-624221.mp3"
+dest_files=["res://.godot/imported/Lilypad - Frog - echobrainz-upbeat-indie-rock-624221.mp3-ffd77183fd121ad88712150637b4787b.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

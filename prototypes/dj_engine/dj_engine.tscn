@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://qu5g0hdkloro"]
+
+[ext_resource type="Script" path="res://prototypes/dj_engine/dj_engine.gd" id="1_np"]
+
+[node name="DJEngine" type="Node2D"]
+script = ExtResource("1_np")
