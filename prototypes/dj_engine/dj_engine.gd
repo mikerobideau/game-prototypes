@@ -144,6 +144,8 @@ var pts_pulse := 0.0
 var boss_intro_t := 0.0 # counts down while the "Incoming Boss" vignette and banner show
 var move_flash := 0.0 # counts down while the boss ability row is highlighted
 var move_flash_pending := false
+var shake_t := {} # shop item key -> seconds left of its "can't buy" shake
+var hand_after_shop := false # open the hand door once the shop door has finished closing
 var vignette_tex: GradientTexture2D
 var flow_pulse := 0.0
 var sparks: Array = []
@@ -237,9 +239,9 @@ var covers := {}
 var prewarm_i := 0
 var textures := {}
 
-var r_changer := Rect2(800.0, 461.0, 1616.0, 345.0)
+var r_changer := Rect2(800.0, 484.0, 1616.0, 345.0)
 var r_score := Rect2(60.0, 40.0, 640.0, 1320.0)
-var r_wallet := Rect2(800.0, 885.0, 1616.0, 230.0)
+var r_wallet := Rect2(800.0, 1044.0, 1616.0, 230.0)
 var r_side := Rect2(1350.0, 796.0, 490.0, 500.0)
 var r_cash := Rect2(2244.0, 40.0, 251.0, 80.0)
 var r_rack := Rect2(800.0, 202.0, 1616.0, 155.0)
@@ -251,8 +253,13 @@ var r_shelf := Rect2(1110.0, 180.0, 730.0, 1200.0)
 const COL_W := 251.0
 const COL_G := 22.0
 const GEAR_H := 155.0
-const TRAY_Y := 461.0
-const HAND_Y := 885.0
+# Trays are vertically centred in the changer unit (plate 387..803): 387 + (416 - 222) / 2.
+const TRAY_Y := 484.0
+# The hand sits low on the screen (the usual spot in card games), with a clear band between it
+# and the stage. Play / Discard / Next Set sit centred just below the hand, near the bottom edge.
+const HAND_PLATE_Y := 1018.0
+const HAND_Y := HAND_PLATE_Y + 26.0
+const BUTTON_Y := HAND_PLATE_Y + 280.0 + 24.0
 var hover_gear: Dictionary = {}
 var gear_tip_off := false
 
@@ -435,6 +442,18 @@ func _load_finale_sounds() -> void:
 			v += (0.6 * signf(s) + 0.4 * s) * env
 		return v * 0.35
 	_synth_sfx("boss_move", 0.4, -6.0, boss_move_fn)
+	# Can't buy: a short low double buzz (the usual "insufficient funds" cue).
+	var deny_fn := func(t: float) -> float:
+		var v := 0.0
+		for st: float in [0.0, 0.11]:
+			var tt := t - st
+			if tt < 0.0 or tt > 0.085:
+				continue
+			var env := minf(1.0, tt * 500.0) * minf(1.0, (0.085 - tt) * 200.0)
+			var sq := signf(sin(TAU * 155.0 * tt))
+			v += (0.55 * sq + 0.45 * sin(TAU * 310.0 * tt)) * env
+		return v * 0.3
+	_synth_sfx("deny", 0.22, -5.0, deny_fn)
 
 # Builds a mono 22 kHz sound from fn(t) -> sample in -1..1 and registers it as sfx[key].
 func _synth_sfx(key: String, secs: float, vol_db: float, fn: Callable) -> void:
@@ -636,6 +655,13 @@ func _process(delta: float) -> void:
 	_prewarm_step()
 	pts_pulse = maxf(0.0, pts_pulse - delta * 2.5)
 	move_flash = maxf(0.0, move_flash - delta)
+	for sk in shake_t.keys():
+		shake_t[sk] = float(shake_t[sk]) - delta
+		if float(shake_t[sk]) <= 0.0:
+			shake_t.erase(sk)
+	if hand_after_shop and not ch_shop:
+		hand_after_shop = false
+		hand_hold = false
 	if boss_intro_t > 0.0:
 		boss_intro_t = maxf(0.0, boss_intro_t - delta)
 		if boss_intro_t <= 0.0 and move_flash_pending:
@@ -1005,6 +1031,9 @@ func _bg_next() -> void:
 	bg_player.play(0.0)
 
 func _bg_wanted() -> bool:
+	# Background music plays on the main menu (title, kit and deck pick) and during gigs.
+	if not phase in ["title", "kits", "decks", "show"]:
+		return false
 	if resolving or playing:
 		return false
 	if audition_target != null or audition_cur != null or audition_gain > 0.02:
@@ -1167,6 +1196,11 @@ func _era_tex(ei: int) -> Texture2D:
 	return _mask_tex("decade/" + String(D.ERAS[ei]).to_lower())
 
 # Icon <name>.png under D.ICON_DIR, turned into a white mask (dark pixels -> opaque) so it can be tinted.
+# Godot 4.3's draw_circle is not anti-aliased; a smooth arc over the rim hides the stair-steps.
+func _aa_circle(c: Vector2, r: float, col: Color) -> void:
+	draw_circle(c, r - 0.5, col)
+	draw_arc(c, r - 0.75, 0.0, TAU, maxi(32, int(r * 1.5)), col, 1.5, true)
+
 func _mask_tex(name: String) -> Texture2D:
 	var key := "icon:" + name
 	if textures.has(key):
@@ -1179,8 +1213,9 @@ func _mask_tex(name: String) -> Texture2D:
 	if img == null:
 		return null
 	img.convert(Image.FORMAT_RGBA8)
-	if img.get_width() > 128 or img.get_height() > 128:
-		img.resize(128, maxi(1, int(128.0 * img.get_height() / img.get_width())), Image.INTERPOLATE_LANCZOS)
+	# Keep icons at 256 px: mipmaps then give smooth edges at every size they are drawn.
+	if img.get_width() > 256 or img.get_height() > 256:
+		img.resize(256, maxi(1, int(256.0 * img.get_height() / img.get_width())), Image.INTERPOLATE_LANCZOS)
 	for y in img.get_height():
 		for x in img.get_width():
 			var p := img.get_pixel(x, y)
@@ -1916,12 +1951,12 @@ func _draw_jewel(r: Rect2, d: Disc, dim: float = 0.0, price: int = -1) -> void:
 		var gc := Vector2(sx, mid_y - srad - gap)
 		var ec := Vector2(sx, mid_y + srad + gap)
 		for sc in [gc, ec]:
-			draw_circle(sc + Vector2(0.0, 2.0 * k), srad, Color(0, 0, 0, 0.35))
-		draw_circle(gc, srad, Color.WHITE)
-		draw_circle(gc, srad - 2.0 * k, main)
+			_aa_circle(sc + Vector2(0.0, 2.0 * k), srad, Color(0, 0, 0, 0.35))
+		_aa_circle(gc, srad, Color.WHITE)
+		_aa_circle(gc, srad - 2.0 * k, main)
 		_icon("g%d" % d.genre, gc, srad * 1.2, Color.WHITE)
-		draw_circle(ec, srad, Color.WHITE)
-		draw_arc(ec, srad - 1.5 * k, 0.0, TAU, 32, dark, 2.0 * k, true)
+		_aa_circle(ec, srad, Color.WHITE)
+		draw_arc(ec, srad - 1.5 * k, 0.0, TAU, 64, dark, 2.0 * k, true)
 		_icon("e%d" % d.era, ec, srad * 1.2, dark)
 	if d.edition != "":
 		var ed: Dictionary = D.EDITIONS[d.edition]
@@ -2976,7 +3011,7 @@ func _draw_room() -> void:
 	draw_rect(Rect2(-800, -800, UI_W + 1600, UI_H + 1600), Color("131518"))
 	_unit_plate(Rect2(720.0, 172.0, 1776.0, 199.0), "rig")
 	_unit_plate(Rect2(720.0, 387.0, 1776.0, 416.0), "changer")
-	_unit_plate(Rect2(720.0, 859.0, 1776.0, 280.0), "hand")
+	_unit_plate(Rect2(720.0, HAND_PLATE_Y, 1776.0, 280.0), "hand")
 
 func _door_face(r: Rect2, seed_n: int) -> void:
 	_shadow(r, 8, 8.0)
@@ -2987,11 +3022,11 @@ func _draw_hand_door() -> void:
 	if hand_t <= 0.01:
 		return
 	var e := hand_t * hand_t * (3.0 - 2.0 * hand_t)
-	_door_face(Rect2(730.0, 869.0, 1756.0, maxf(12.0, 260.0 * e)), 91)
+	_door_face(Rect2(730.0, HAND_PLATE_Y + 10.0, 1756.0, maxf(12.0, 260.0 * e)), 91)
 
 func _draw_bottom() -> void:
 	var cx := 1608.0
-	var y := 1228.0
+	var y := BUTTON_Y
 	var h := 100.0
 	if shop_open and phase == "show":
 		var ok := ui_live and _shop_live() and install_queue.is_empty() and pack.is_empty()
@@ -3139,7 +3174,7 @@ func _draw_well(s: int) -> void:
 	if i < 0 and _placed() >= _max_play() and not resolving and not _tray_blocked(s):
 		_text_center(cr, "FULL", T_SM, Color(1, 1, 1, 0.22), true)
 	var ro: Dictionary = readout[s]
-	var lr := Rect2(cr.position.x, cr.end.y + 26.0, cr.size.x, 40.0)
+	var lr := Rect2(cr.position.x, cr.end.y + 12.0, cr.size.x, 40.0)
 	var lc := Color(D.SOUND_COLOR).lightened(0.25)
 	if not ro.is_empty() and ro.has("net") and int(ro["net"]) < 0:
 		lc = c_bad.lightened(0.3)
@@ -3462,7 +3497,10 @@ func _close_stall() -> void:
 	if not install_queue.is_empty() or not pack.is_empty():
 		return
 	shop_open = false
-	hand_hold = false # the first shop of a gig is shopped blind; the hand opens once it closes
+	# The first shop of a gig is shopped blind. The hand door opens only after the shop door
+	# has fully closed (see _process), so the two doors move one after the other.
+	if hand_hold:
+		hand_after_shop = true
 	sel_slot = -1
 	_sfx("page_turn")
 
@@ -3472,6 +3510,28 @@ func _open_stall() -> void:
 	shop_open = true
 	sel_slot = -1
 	_sfx("page_turn")
+
+# Clicking something you can't buy: it shakes and a short "denied" buzz plays. No label is drawn
+# over the item; an optional reason (e.g. no free bay) goes to the toast below the stage.
+func _deny(key: String, why: String = "") -> void:
+	shake_t[key] = 0.4
+	_sfx("deny")
+	if why != "":
+		_say(why)
+
+func _shake_off(key: String) -> Vector2:
+	if not shake_t.has(key):
+		return Vector2.ZERO
+	var t := float(shake_t[key])
+	return Vector2(sin(t * 70.0) * 12.0 * (t / 0.4), 0.0)
+
+# A sold offer is replaced by a solid white card the exact size and position of the item it
+# replaced (so its bottom edge lines up with the unsold items), with SOLD in red.
+func _sold_card(r: Rect2) -> void:
+	_shadow(r, 8, 6.0)
+	_panel(r, Color("f7f4ec"), 8, Color(0, 0, 0, 0.35), 2)
+	_panel(r.grow(-7.0), Color(0, 0, 0, 0), 5, Color(c_bad, 0.55), 2)
+	_heavy_center(r, "SOLD", _fit_size("SOLD", T_XL, r.size.x - 40.0, 16), c_bad.darkened(0.1))
 
 func _stall_rect(i: int) -> Rect2:
 	return Rect2(_col_x(i), 421.0, COL_W, COL_W * 0.886)
@@ -3498,13 +3558,12 @@ func _draw_stall() -> void:
 			draw_circle(Vector2(cell.get_center().x + px, cell.position.y - 8.0), 6.0, Color("c3c8ce"))
 			draw_circle(Vector2(cell.get_center().x + px, cell.position.y - 8.0), 3.0, Color("5c626b"))
 		if bool(it["sold"]):
-			_panel(cell.grow(-10.0), Color(0, 0, 0, 0.12), 10, Color(0, 0, 0, 0.25), 2)
-			_heavy_center(cell, "SOLD", T_XL, Color(0, 0, 0, 0.3))
+			var full_cell := String(it["kind"]) in ["album", "album_pack", ""]
+			_sold_card(cell if full_cell else Rect2(cell.position.x, cell.end.y - GEAR_H, COL_W, GEAR_H))
 			continue
 		var ok := _stall_ok(it)
-		var room := _stall_room(it)
-		var hot := live and ok and cell.has_point(mouse)
-		var lift := Vector2(0.0, -8.0 if hot else 0.0)
+		var hot := live and cell.has_point(mouse)
+		var lift := Vector2(0.0, -8.0 if hot else 0.0) + _shake_off("stall%d" % i)
 		var shown := cell
 		match String(it["kind"]):
 			"album":
@@ -3539,16 +3598,13 @@ func _draw_stall() -> void:
 				if live:
 					_tip(shown, "Tape Pack: open it and keep 1 of %d cassettes." % D.TAPE_PACK_SHOW)
 				_hang_tag(Vector2(shown.get_center().x, shown.end.y + 34.0), "$%d" % int(it["price"]))
-		if not ok:
-			_panel(shown, Color(0, 0, 0, 0.5), 8)
-			if not room and cash >= int(it["price"]):
-				var lab := "NO ROOM"
-				var lw := _text_w(lab, T_XS, true) + 22.0
-				var lr := Rect2(shown.get_center().x - lw * 0.5, shown.get_center().y - 16.0, lw, 32.0)
-				_panel(lr, Color(0.35, 0.08, 0.08, 0.95), 10, Color("ffb0a6"), 2)
-				_text_center(lr, lab, T_XS, Color("ffd2cc"), true)
-		elif live:
+		if not live:
+			pass
+		elif ok:
 			_hold(cell, "stall%d" % i, "Hold to buy", _stall_buy.bind(i))
+		else:
+			var why := "" if cash < int(it["price"]) else ("No free cassette slot." if String(it["kind"]) in ["tape", "tape_pack"] else "No free bay in the rig.")
+			_register(cell, _deny.bind("stall%d" % i, why))
 
 func _cond_text(d: Disc, with_trait: bool = true) -> String:
 	var r: Dictionary = d.rule
@@ -4613,6 +4669,22 @@ func _gear_readout(g: Dictionary, slot: int) -> String:
 			s = "+%s BASE" % n
 	return s + (" EA" if each else "")
 
+# Every decade a gear's rule wants: the decade it applies to (aparam when applies == "decade")
+# and the decade it grows on (gparam when grow == "decade").
+func _gear_decades(id: String) -> Array[int]:
+	var out: Array[int] = []
+	var rl: Dictionary = gear_defs[id].get("rule", {})
+	var cands: Array = []
+	if String(rl.get("applies", "")) == "decade":
+		cands.append(String(rl.get("aparam", "")))
+	if String(rl.get("grow", "")) == "decade":
+		cands.append(String(rl.get("gparam", "")))
+	for c in cands:
+		var ei := D.ERAS.find(String(c))
+		if ei >= 0 and not ei in out:
+			out.append(ei)
+	return out
+
 func _gear_genre_color(id: String) -> Color:
 	var gis := _gear_genres(id)
 	if gis.is_empty():
@@ -4677,17 +4749,23 @@ func _draw_gear(r: Rect2, g: Dictionary, flash: float, slot: int = -1) -> void:
 	for sx in [plate.position.x + 9.0 * u, plate.end.x - 9.0 * u]:
 		draw_circle(Vector2(sx, plate.get_center().y), 3.2 * u, Color(0, 0, 0, 0.45))
 		draw_circle(Vector2(sx, plate.get_center().y - 0.6 * u), 2.4 * u, Color(1, 1, 1, 0.5))
-	var gis := _gear_genres(id)
+	# Badges for every genre and decade the unit's rule wants: genre icons in their colour,
+	# decade icons in dark ink (the same look as the CD stickers).
+	var badges: Array = []
+	for gi in _gear_genres(id):
+		badges.append(["g%d" % gi, Color(D.SLEEVE_MAIN[gi])])
+	for ei in _gear_decades(id):
+		badges.append(["e%d" % ei, Color("2b2e33")])
 	var badge_r := 15.0 * u
 	var text_x := plate.position.x
-	if not gis.is_empty():
+	if not badges.is_empty():
 		var bx := plate.position.x + 20.0 * u + badge_r
-		for gi in gis:
+		for bd in badges:
 			var bc := Vector2(bx, plate.get_center().y)
-			var gc := Color(D.SLEEVE_MAIN[gi]) if lit else Color(D.SLEEVE_MAIN[gi]).lerp(Color("6a6f77"), 0.6)
-			draw_circle(bc + Vector2(0.0, 1.5 * u), badge_r, Color(0, 0, 0, 0.35))
-			draw_circle(bc, badge_r, Color.WHITE if lit else Color("c3c8ce"))
-			_icon("g%d" % gi, bc, badge_r * 1.15, gc)
+			var gc: Color = bd[1] if lit else (bd[1] as Color).lerp(Color("6a6f77"), 0.6)
+			_aa_circle(bc + Vector2(0.0, 1.5 * u), badge_r, Color(0, 0, 0, 0.35))
+			_aa_circle(bc, badge_r, Color.WHITE if lit else Color("c3c8ce"))
+			_icon(String(bd[0]), bc, badge_r * 1.15, gc)
 			bx += badge_r * 2.0 + 4.0 * u
 		text_x = bx - badge_r
 	var text_w := plate.end.x - text_x
@@ -4921,7 +4999,7 @@ func _draw_toast() -> void:
 	var a := clampf(message_t / 0.4, 0.0, 1.0)
 	var w := _text_w(message, T_LG, true) + 60.0
 	var cx := 1280.0 if phase == "shop" else r_wallet.get_center().x
-	var cy := 1374.0 if phase == "shop" else r_wallet.position.y - 55.0
+	var cy := 1374.0 if phase == "shop" else HAND_PLATE_Y - 92.0
 	var r := Rect2(cx - w * 0.5, cy, w, 60.0)
 	_panel(r, Color(0.08, 0.1, 0.14, 0.92 * a), 30)
 	_text_center(r, message, T_LG, Color(1, 1, 1, a), true)
@@ -4985,7 +5063,8 @@ func _rich_tag(word: String) -> Dictionary:
 		return {"lead": lead, "core": core, "trail": trail, "icon": "g%d" % gi, "col": Color(D.SLEEVE_MAIN[gi]).lightened(0.45)}
 	var ei := D.ERAS.find(core)
 	if ei >= 0:
-		return {"lead": lead, "core": core, "trail": trail, "icon": "e%d" % ei}
+		# Decades show as the icon alone (no "70s" text after it).
+		return {"lead": lead, "core": core, "trail": trail, "icon": "e%d" % ei, "icon_only": true}
 	return {}
 
 func _rich_layout(text: String, width: float, size: int, bold: bool, pos: Vector2, draw_it: bool, col: Color) -> Vector2:
@@ -5005,6 +5084,8 @@ func _rich_layout(text: String, width: float, size: int, bold: bool, pos: Vector
 				continue
 			var tag := _rich_tag(word)
 			var ww := _text_w(word, size, bold) + ((isz + 4.0) if not tag.is_empty() else 0.0)
+			if tag.has("icon_only"):
+				ww = _text_w(String(tag["lead"]) + String(tag["trail"]), size, bold) + isz
 			if x > 0.0 and x + ww > width:
 				widest = maxf(widest, x - sp)
 				x = 0.0
@@ -5020,9 +5101,12 @@ func _rich_layout(text: String, width: float, size: int, bold: bool, pos: Vector
 						_text(Vector2(lx, base.y), tag["lead"], size, col, bold)
 						lx += _text_w(tag["lead"], size, bold)
 					_icon(String(tag["icon"]), Vector2(lx + isz * 0.5, base.y - size * 0.36), isz, tc)
-					lx += isz + 4.0
-					_text(Vector2(lx, base.y), tag["core"], size, tc, bold)
-					lx += _text_w(tag["core"], size, bold)
+					if tag.has("icon_only"):
+						lx += isz
+					else:
+						lx += isz + 4.0
+						_text(Vector2(lx, base.y), tag["core"], size, tc, bold)
+						lx += _text_w(tag["core"], size, bold)
 					if tag["trail"] != "":
 						_text(Vector2(lx, base.y), tag["trail"], size, col, bold)
 			x += ww + sp
@@ -5091,12 +5175,12 @@ func _draw_disc_tip(d: Disc) -> void:
 		_rarity_chip(box.end.x - pad, box.position.y + pad + 8.0, String(d.rarity) if D.PACK_RARITY.has(String(d.rarity)) else "common")
 	y += 84.0
 	# A chip is [text, colour] or [text, colour, icon kind]; genre and decade chips lead with their icon.
-	var chips := [[D.GENRES[d.genre].to_upper(), Color("5d626a"), "g%d" % d.genre], [D.ERAS[d.era], Color("5d626a"), "e%d" % d.era], ["%d POINTS" % d.sound, Color(D.SOUND_COLOR)], [D.LABELS[d.label]["short"].to_upper(), Color(D.LABELS[d.label]["color"])]] if not (d.genre < 0) else [["CD-R", Color(D.FLOW_COLOR).darkened(0.2)]]
+	var chips := [[D.GENRES[d.genre].to_upper(), Color("5d626a"), "g%d" % d.genre], ["", Color("5d626a"), "e%d" % d.era], ["%d POINTS" % d.sound, Color(D.SOUND_COLOR)], [D.LABELS[d.label]["short"].to_upper(), Color(D.LABELS[d.label]["color"])]] if not (d.genre < 0) else [["CD-R", Color(D.FLOW_COLOR).darkened(0.2)]]
 	var cx := x
 	for c in chips:
 		var chip_icon := String(c[2]) if c.size() > 2 else ""
 		var icw := 28.0 if chip_icon != "" else 0.0
-		var cw := icw + _text_w(String(c[0]), T_XS, true) + 18.0
+		var cw := icw + _text_w(String(c[0]), T_XS, true) + (18.0 if String(c[0]) != "" else 12.0)
 		var cr := Rect2(cx, y, cw, 32.0)
 		_panel(cr, c[1], 12)
 		if chip_icon != "":
@@ -5447,11 +5531,11 @@ func _draw_shop_records() -> void:
 		var it: Dictionary = shop_items[k]
 		var cr := Rect2(_shop_x(k), 600.0, COL_W, COL_W * 0.886)
 		if bool(it["sold"]):
-			_heavy_center(cr, "SOLD", T_XL, Color(1, 1, 1, 0.12))
+			_sold_card(cr)
 			continue
 		var afford := cash >= int(it["price"])
-		var hot := ui_live and afford and cr.has_point(mouse)
-		var rr := Rect2(cr.position - Vector2(0.0, 10.0 if hot else 0.0), cr.size)
+		var hot := ui_live and cr.has_point(mouse)
+		var rr := Rect2(cr.position - Vector2(0.0, 10.0 if hot else 0.0) + _shake_off("buy%d" % k), cr.size)
 		if it["kind"] == "album":
 			var d: Disc = it["disc"]
 			_draw_case(rr, d, int(it["price"]))
@@ -5462,10 +5546,10 @@ func _draw_shop_records() -> void:
 			_draw_case_pack(rr, it["pack"], int(it["price"]))
 			var ap: Dictionary = it["pack"]
 			_tip(cr, "%s: open it and pick %d of %d albums for your binder." % [ap["name"], int(ap["pick"]), int(ap["show"])])
-		if not afford:
-			_panel(rr, Color(0, 0, 0, 0.5), 6)
 		if ui_live and afford:
 			_hold(cr, "buy%d" % k, "Hold to buy", _buy.bind(k))
+		elif ui_live:
+			_register(cr, _deny.bind("buy%d" % k, ""))
 
 func _gear_box(r: Rect2, title: String, sub: String) -> void:
 	_shadow(r, 6, 8.0)
@@ -5482,20 +5566,22 @@ func _draw_shop_gear() -> void:
 		var it: Dictionary = shop_items[3 + k]
 		var ur := Rect2(_shop_x(k), 940.0, COL_W, GEAR_H)
 		if bool(it["sold"]):
-			_heavy_center(ur, "SOLD", T_XL, Color(1, 1, 1, 0.12))
+			_sold_card(ur)
 			continue
 		var afford := cash >= int(it["price"])
+		var skey := ("gbuy%d" % k) if k < 2 else "buy5"
+		var ush := Rect2(ur.position + _shake_off(skey), ur.size)
 		if k < 2:
-			_draw_gear(ur, it["gear"], 0.0)
+			_draw_gear(ush, it["gear"], 0.0)
 			if install_src == 3 + k:
 				_panel(ur.grow(6.0), Color(0, 0, 0, 0), 10, c_gold, 5)
 		else:
 			var gp: Dictionary = it["pack"]
-			_gear_box(Rect2(ur.position - Vector2(0.0, 8.0 if ui_live and afford and install_queue.is_empty() and ur.has_point(mouse) else 0.0), ur.size), String(gp["name"]), "PICK %d OF %d" % [int(gp["pick"]), int(gp["show"])])
+			_gear_box(Rect2(ush.position - Vector2(0.0, 8.0 if ui_live and install_queue.is_empty() and ur.has_point(mouse) else 0.0), ur.size), String(gp["name"]), "PICK %d OF %d" % [int(gp["pick"]), int(gp["show"])])
 			_tip(ur, "%s: open it and keep %d of %d pieces of gear." % [gp["name"], int(gp["pick"]), int(gp["show"])])
-		if not afford:
-			_panel(ur, Color(0, 0, 0, 0.45), 8)
 		_hang_tag(Vector2(ur.get_center().x, ur.end.y + 36.0), "$%d" % int(it["price"]))
+		if ui_live and not afford and install_queue.is_empty():
+			_register(ur, _deny.bind(skey, ""))
 		if ui_live and afford and install_queue.is_empty():
 			if k < 2:
 				if ur.has_point(mouse):
@@ -6092,21 +6178,22 @@ func _draw_services(r: Rect2) -> void:
 		var sv: Dictionary = services[i]
 		var t := Rect2(r.position.x, r.position.y + i * (GEAR_H + 110.0), COL_W, GEAR_H)
 		if bool(sv["sold"]):
-			_heavy_center(t, "SOLD", T_XL, Color(1, 1, 1, 0.12))
+			_sold_card(t)
 			continue
 		var is_pack := bool(sv.get("pack", false))
 		var afford := cash >= int(sv["price"]) and (is_pack or consumables.find("") >= 0)
-		var hot := ui_live and afford and t.has_point(mouse)
+		var hot := ui_live and t.has_point(mouse)
+		var tsh := _shake_off("cons%d" % i)
 		if is_pack:
-			_gear_box(Rect2(t.position - Vector2(0.0, 8.0 if hot else 0.0), t.size), "Tape Pack", "PICK 1 OF %d" % D.TAPE_PACK_SHOW)
+			_gear_box(Rect2(t.position - Vector2(0.0, 8.0 if hot else 0.0) + tsh, t.size), "Tape Pack", "PICK 1 OF %d" % D.TAPE_PACK_SHOW)
 			_tip(t, "Tape Pack: open it and keep 1 of %d cassettes." % D.TAPE_PACK_SHOW)
 		else:
-			_draw_cons_tile(Rect2(t.position - Vector2(0.0, 8.0 if hot else 0.0), t.size), String(sv["id"]), false, false)
-		if not afford:
-			_panel(t, Color(0, 0, 0, 0.45), 8)
+			_draw_cons_tile(Rect2(t.position - Vector2(0.0, 8.0 if hot else 0.0) + tsh, t.size), String(sv["id"]), false, false)
 		_hang_tag(Vector2(t.get_center().x, t.end.y + 36.0), "$%d" % int(sv["price"]))
 		if ui_live and afford:
 			_hold(t, "cons%d" % i, "Hold to buy", _buy_consumable.bind(i))
+		elif ui_live:
+			_register(t, _deny.bind("cons%d" % i, "" if cash < int(sv["price"]) else "No free cassette slot."))
 
 func _fmt_time(sec: int) -> String:
 	return "%d:%02d" % [maxi(0, sec) / 60, maxi(0, sec) % 60]
@@ -6196,6 +6283,7 @@ func _start_show(v: Dictionary) -> void:
 	ch_shop = true
 	hand_t = 1.0
 	hand_hold = true
+	hand_after_shop = false
 	discard_pending = false
 	_start_turn()
 
