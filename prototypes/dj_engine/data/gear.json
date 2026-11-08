@@ -173,7 +173,7 @@
 	{
 		"id": "clone",
 		"name": "Clone Box",
-		"text": "When placed, turns into the gear to its right.",
+		"text": "When placed, turns into the Stomp Box to its right.",
 		"size": "half",
 		"price": 8,
 		"look": "",

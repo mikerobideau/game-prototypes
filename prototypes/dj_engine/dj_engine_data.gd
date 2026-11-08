@@ -238,11 +238,13 @@ const EQ_ERA_START: Array[int] = [2, 1, 1, 0, -1, -1]
 const LEVEL_NAMES: Array[String] = ["", "MK II", "MK III"]
 
 const EDITION_CHANCE := 0.08
+const EDITION_SHADER := "res://prototypes/dj_engine/edition.gdshader"
+const SIGNATURE_FONT := "res://prototypes/dj_engine/font/Style_Script/StyleScript-Regular.ttf"
 const EDITIONS := {
-	"holo": {"name": "Holographic", "short": "HOLO", "text": "+3 points on a hit.", "n": 3, "price": 6, "color": "a678f0"},
-	"signed": {"name": "Signed", "short": "SIGNED", "text": "+5 points on a hit.", "n": 5, "price": 5, "color": "c9a227"},
-	"limited": {"name": "Limited Edition", "short": "LTD", "text": "+8 points on a hit.", "n": 8, "price": 8, "color": "d4508f"},
-	"mint": {"name": "Mint Condition", "short": "MINT", "text": "+$1 each time it's played.", "n": 1, "price": 4, "color": "3fae5a"},
+	"holo": {"name": "Holographic", "short": "HOLO", "text": "Plays twice: its points and its effect fire a second time.", "n": 1, "price": 6, "color": "a678f0"},
+	"signed": {"name": "Signed", "short": "SIGNED", "text": "+$5 when played.", "n": 5, "price": 5, "color": "c9a227"},
+	"limited": {"name": "Limited Edition", "short": "LTD", "text": "+50 points when played.", "n": 50, "price": 8, "color": "d4508f"},
+	"mint": {"name": "Mint Condition", "short": "MINT", "text": "+5 flow when played.", "n": 5, "price": 4, "color": "3fae5a"},
 }
 
 const SERVICES_MAX := 2
@@ -261,12 +263,12 @@ const CONSUMABLES := {
 	"dub": {"name": "Dub", "text": "Add a copy of one CD to your deck.", "target": "cd", "price": 5, "rarity": "uncommon", "col": "2f9d8c"},
 	"press": {"name": "Press", "text": "Give one CD a random edition: holographic, signed, limited or mint.", "target": "cd", "price": 4, "rarity": "uncommon", "col": "2f9d8c"},
 	"trade_in": {"name": "Trade In", "text": "Remove one CD from your deck for good.", "target": "cd", "price": 2, "rarity": "common", "col": "2f9d8c"},
-	"tune_up": {"name": "Tune-Up", "text": "Level up one gear unit that supports it, to MK II and then MK III.", "target": "gear", "price": 6, "rarity": "rare", "col": "6b4fb8"},
+	"tune_up": {"name": "Tune-Up", "text": "Level up one Stomp Box that supports it, to MK II and then MK III.", "target": "gear", "price": 6, "rarity": "rare", "col": "6b4fb8"},
 	"amp_up": {"name": "Amp Up", "text": "+1 flow for the rest of this turn.", "target": "", "price": 2, "rarity": "common", "col": "d9a62e"},
 	"quiet_down": {"name": "Quiet Down", "text": "Cancel this turn's crowd move.", "target": "", "price": 3, "rarity": "uncommon", "col": "d9a62e"},
 	"master_tape": {"name": "Master Tape", "text": "One CD gains +4 base points and a random edition, if it has none.", "target": "cd", "price": 7, "col": "2f9d8c", "rarity": "rare"},
 	"overdrive": {"name": "Overdrive", "text": "Multiply your flow by 1.5 for the rest of this turn.", "target": "", "price": 6, "col": "d9a62e", "rarity": "rare"},
-	"patch_bay": {"name": "Patch Bay", "text": "Swap two gear units in your rig, or move one into an empty bay.", "target": "gear", "price": 3, "rarity": "uncommon", "col": "6b4fb8"},
+	"patch_bay": {"name": "Patch Bay", "text": "Swap two Stomp Boxes in your rig, or move one into an empty bay.", "target": "gear", "price": 3, "rarity": "uncommon", "col": "6b4fb8"},
 	"hype_reel": {"name": "Hype Reel", "text": "+3 flow for the rest of this turn.", "target": "", "price": 6, "rarity": "rare", "col": "d9a62e"},
 	"bootleg": {"name": "Bootleg", "text": "Add two copies of one CD to your deck.", "target": "cd", "price": 7, "rarity": "rare", "col": "2f9d8c"},
 	"platinum_master": {"name": "Platinum Master", "text": "One CD gains +8 base points and a random edition, if it has none.", "target": "cd", "price": 10, "rarity": "legendary", "col": "c9772a"},
