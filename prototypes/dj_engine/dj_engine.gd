@@ -203,6 +203,7 @@ var door_dir_hand := 0.0
 const FX_HOLO := Color(1.0, 0.0, 1.0, 1.0)
 const FX_WRAP := Color(0.0, 1.0, 1.0, 1.0)
 const FX_IDLE_A := 0.95
+const HOLD_WHEEL_R := 46.0
 var fx_white: Texture2D
 var sig_font: Font
 var coll_tab := "cds"
@@ -210,6 +211,7 @@ var coll_scroll := 0.0
 var coll_max := 0.0
 var coll_discs: Array[Disc] = []
 var coll_eds := {}
+var tape_fxs: Array = []
 var hand_after_shop := false # open the hand door once the shop door has finished closing
 var vignette_tex: GradientTexture2D
 var flow_pulse := 0.0
@@ -1106,6 +1108,94 @@ func _tick_pops(pd: float, _delta: float) -> void:
 			_burst(b, f["col"], 6 + int(8.0 * float(f["mag"])), 380.0)
 			pops.remove_at(i)
 
+func _tape_fx(id: String, slot: int, target: Rect2 = Rect2(), on_hit: Callable = Callable()) -> void:
+	if not D.CONSUMABLES.has(id):
+		if on_hit.is_valid():
+			on_hit.call()
+		return
+	tape_fxs.append({"id": id, "from": _cons_rect(slot), "to": target, "t": 0.0, "col": Color(String(D.CONSUMABLES[id]["col"])), "hit": false, "on_hit": on_hit})
+
+func _tape_busy() -> bool:
+	for f: Dictionary in tape_fxs:
+		if not bool(f["hit"]) and (f["to"] as Rect2).size.x > 0.0:
+			return true
+	return false
+	_sc_sfx("whoosh", 0.35, 0.0)
+
+func _tick_tape_fx(delta: float) -> void:
+	for i in range(tape_fxs.size() - 1, -1, -1):
+		var f: Dictionary = tape_fxs[i]
+		f["t"] = float(f["t"]) + delta
+		var tr: Rect2 = f["to"]
+		var fly := D.TAPE_FLY if tr.size.x > 0.0 else D.TAPE_POOF
+		if not bool(f["hit"]) and float(f["t"]) >= fly:
+			f["hit"] = true
+			var cb: Callable = f.get("on_hit", Callable())
+			if cb.is_valid():
+				cb.call()
+			var at := tr.get_center() if tr.size.x > 0.0 else (f["from"] as Rect2).get_center()
+			_burst(at, f["col"], 22, 520.0)
+			if sfx.has("f_activated_radio"):
+				_sc_sfx("f_activated_radio", 0.55, 0.0)
+			else:
+				_sfx("page_turn")
+			if tr.size.x > 0.0:
+				fin_shake = maxf(fin_shake, 0.05)
+		if float(f["t"]) >= fly + D.TAPE_ABSORB:
+			tape_fxs.remove_at(i)
+
+func _draw_tape_fx() -> void:
+	for f: Dictionary in tape_fxs:
+		var t := float(f["t"])
+		var src: Rect2 = f["from"]
+		var tr: Rect2 = f["to"]
+		var col: Color = f["col"]
+		var has_target := tr.size.x > 0.0
+		var fly := D.TAPE_FLY if has_target else D.TAPE_POOF
+		if t < fly:
+			var u := t / fly
+			var e := u * u * (3.0 - 2.0 * u)
+			var pos := src.get_center()
+			var sc := lerpf(1.0, 0.3, e)
+			var rot := 0.0
+			if has_target:
+				pos = src.get_center().lerp(tr.get_center(), e) + Vector2(0.0, -sin(u * PI) * 140.0)
+				rot = sin(u * PI) * 0.35
+			else:
+				pos += Vector2(0.0, -40.0 * e)
+				sc = lerpf(1.0, 0.15, e * e)
+			for k in 3:
+				var trail_u := maxf(0.0, u - 0.08 * (k + 1))
+				if has_target and trail_u > 0.0:
+					var te := trail_u * trail_u * (3.0 - 2.0 * trail_u)
+					var tp := src.get_center().lerp(tr.get_center(), te) + Vector2(0.0, -sin(trail_u * PI) * 140.0)
+					draw_circle(tp, 16.0 - k * 4.0, Color(col.lightened(0.3), 0.3 - k * 0.08))
+			draw_circle(pos, src.size.y * 0.55 * sc + 10.0, Color(col.lightened(0.4), 0.25))
+			draw_set_transform(xf_origin + pos * xf_scale, rot, Vector2(xf_scale, xf_scale) * sc)
+			gear_tip_off = true
+			_draw_cons_tile(Rect2(-src.size * 0.5, src.size), String(f["id"]), false, false)
+			gear_tip_off = false
+			draw_set_transform(xf_origin, 0.0, Vector2(xf_scale, xf_scale))
+			continue
+		var a := clampf((t - fly) / D.TAPE_ABSORB, 0.0, 1.0)
+		if has_target:
+			var c := tr.get_center()
+			for k in 3:
+				var g := 4.0 + k * 5.0
+				_panel(tr.grow(g * (1.0 - a * 0.5)), Color(col.lightened(0.3), (1.0 - a) * (0.45 - k * 0.12)), 10 + int(g))
+			for k in 3:
+				var ru := clampf(a * 1.5 - k * 0.18, 0.0, 1.0)
+				if ru <= 0.0 or ru >= 1.0:
+					continue
+				var rr := lerpf(maxf(tr.size.x, tr.size.y) * 0.9, 8.0, ru)
+				draw_arc(c, rr, 0.0, TAU, 64, Color(col.lightened(0.45), (1.0 - ru) * 0.8), 5.0 - k, true)
+			draw_circle(c, 30.0 * (1.0 - a), Color(1, 1, 1, 0.6 * (1.0 - a)))
+		else:
+			var c2 := src.get_center() + Vector2(0.0, -40.0)
+			var rr2 := lerpf(10.0, 150.0, a)
+			draw_arc(c2, rr2, 0.0, TAU, 64, Color(col.lightened(0.4), (1.0 - a) * 0.8), 6.0 * (1.0 - a) + 1.0, true)
+			draw_circle(c2, 50.0 * (1.0 - a), Color(1, 1, 1, 0.5 * (1.0 - a)))
+
 func _draw_pops() -> void:
 	for f: Dictionary in pops:
 		var t := float(f["t"])
@@ -1392,6 +1482,7 @@ func _process(delta: float) -> void:
 		hitstop_t = maxf(0.0, hitstop_t - delta)
 		pd = 0.0
 	_tick_pops(pd, delta)
+	_tick_tape_fx(delta)
 	pts_pulse = maxf(0.0, pts_pulse - delta * 2.5)
 	move_flash = maxf(0.0, move_flash - delta)
 	for sk in shake_t.keys():
@@ -3124,8 +3215,8 @@ func _use_consumable(slot: int) -> void:
 			if String(crowd_move["kind"]) == "block":
 				blocked_slot = -1
 			flow_live = float(_score_ctx()["fl"])
+	_tape_fx(id, slot)
 	consumables[slot] = ""
-	_sfx("page_turn")
 	_say("Used %s." % D.CONSUMABLES[id]["name"])
 
 func _cd_tape(id: String, d: Disc) -> bool:
@@ -3191,18 +3282,43 @@ func _cd_tape(id: String, d: Disc) -> bool:
 func _apply_consumable(p: int) -> void:
 	if p < 0 or wallet[p] < 0 or consume_mode == "" or String(D.CONSUMABLES[consume_mode]["target"]) != "cd":
 		return
-	var d: Disc = collection[wallet[p]]
+	var idx := wallet[p]
+	var d: Disc = collection[idx]
 	var id := consume_mode
+	var msg := "%s used on %s." % [D.CONSUMABLES[id]["name"], d.title]
+	var hit: Callable
 	if id == "trade_in":
 		doomed.append(d)
-		wallet[p] = -1
-	elif not _cd_tape(id, d):
-		return
+		hit = func() -> void:
+			var wi := wallet.find(idx)
+			if wi >= 0:
+				wallet[wi] = -1
+			var ti := tray.find(idx)
+			if ti >= 0:
+				tray[ti] = -1
+			_say(msg)
+	else:
+		var before := _disc_state(d)
+		if not _cd_tape(id, d):
+			return
+		var after := _disc_state(d)
+		_set_disc_state(d, before)
+		hit = func() -> void:
+			_set_disc_state(d, after)
+			_say(msg)
+	_tape_fx(id, consume_slot, _jewel_box(_pocket_rect(p).grow(-8.0)), hit)
 	consumables[consume_slot] = ""
 	consume_mode = ""
 	consume_slot = -1
-	_sfx("page_turn")
-	_say("%s used on %s." % [D.CONSUMABLES[id]["name"], d.title])
+
+func _disc_state(d: Disc) -> Dictionary:
+	return {"genre": d.genre, "era": d.era, "sound": d.sound, "edition": d.edition}
+
+func _set_disc_state(d: Disc, st: Dictionary) -> void:
+	d.genre = int(st["genre"])
+	d.era = int(st["era"])
+	d.sound = int(st["sound"])
+	d.edition = String(st["edition"])
 
 func _open_tape_browser(slot: int) -> void:
 	var id := String(consumables[slot])
@@ -3238,6 +3354,7 @@ func _browser_pick(d: Disc) -> void:
 		trade_count += 1
 	elif not _cd_tape(id, d):
 		return
+	_tape_fx(id, slot)
 	consumables[slot] = ""
 	tape_view.erase(String(tbrowse["key"]))
 	tbrowse = {}
@@ -3282,14 +3399,17 @@ func _apply_consumable_gear(i: int) -> void:
 	if consume_mode == "" or rack[i].is_empty() or not _gear_can_level(rack[i]):
 		return
 	var g: Dictionary = rack[i]
-	g["level"] = int(g.get("level", 0)) + 1
-	comp_flash[i] = 1.0
 	var id := consume_mode
+	var hit := func() -> void:
+		g["level"] = int(g.get("level", 0)) + 1
+		var gi := rack.find(g)
+		if gi >= 0:
+			comp_flash[gi] = 1.0
+		_say("%s is now %s." % [gear_defs[g["id"]]["name"], D.LEVEL_NAMES[int(g["level"])]])
+	_tape_fx(id, consume_slot, _unit_rect(i), hit)
 	consumables[consume_slot] = ""
 	consume_mode = ""
 	consume_slot = -1
-	_sfx("page_turn")
-	_say("%s is now %s." % [gear_defs[g["id"]]["name"], D.LEVEL_NAMES[int(g["level"])]])
 
 func _cons_rect(i: int) -> Rect2:
 	if phase == "shop":
@@ -3667,7 +3787,7 @@ func _draw() -> void:
 		xf_origin = screen_origin + zoff + shake
 		xf_scale = ui_scale * z
 	var modal := phase in ["result", "over", "won", "end"] or not pack.is_empty() or binder_open or settings_open or not tbrowse.is_empty()
-	ui_live = not modal and not playing
+	ui_live = not modal and not playing and not _tape_busy()
 	hover_disc = null
 	hover_gear = {}
 	if phase == "map":
@@ -3704,6 +3824,7 @@ func _draw() -> void:
 	_draw_floats()
 	_draw_gutter_score()
 	_draw_pops()
+	_draw_tape_fx()
 	_draw_finale()
 	_draw_toast()
 	_draw_boss_intro()
@@ -3734,7 +3855,7 @@ func _draw() -> void:
 	elif (phase == "shop" and install_queue.is_empty()) or phase in ["map", "fork"]:
 		_draw_binder_button()
 	_draw_hold()
-	if resolving:
+	if resolving or hold_key != "":
 		hover_tip = ""
 	elif held < 0 and not drag_active and hover_disc != null:
 		_draw_disc_tip(hover_disc)
@@ -3884,16 +4005,35 @@ func _draw_room() -> void:
 	_unit_plate(Rect2(720.0, CHANGER_Y, 1776.0, CHANGER_H), "changer")
 	_unit_plate(Rect2(720.0, HAND_PLATE_Y, 1776.0, 280.0), "hand")
 
-func _door_face(r: Rect2, seed_n: int) -> void:
-	_shadow(r, 8, 8.0)
-	_brushed(r, 8.0, Color("9aa1a9"), seed_n)
-	_panel(Rect2(r.get_center().x - 50.0, r.end.y - 16.0, 100.0, 8.0), Color("c3c8ce"), 4, Color(0, 0, 0, 0.5), 1)
+func _door_face(r: Rect2, _seed_n: int, label: String = "", full_h: float = 0.0) -> void:
+	_shadow(r, 8, 10.0)
+	_grad_panel(r, 8.0, Color("1d1f23"), Color("111214"))
+	var y := r.position.y + 6.0
+	while y < r.end.y - 18.0:
+		draw_line(Vector2(r.position.x + 10.0, y), Vector2(r.end.x - 10.0, y), Color(1, 1, 1, 0.025), 1.0)
+		y += 5.0
+	var top := minf(26.0, r.size.y)
+	_grad_panel(Rect2(r.position, Vector2(r.size.x, top)), 8.0, Color(0, 0, 0, 0.55), Color(0, 0, 0, 0.0))
+	var gw := r.size.x * 0.22
+	draw_colored_polygon(PackedVector2Array([r.position + Vector2(r.size.x * 0.58, 0.0), r.position + Vector2(r.size.x * 0.58 + gw, 0.0), Vector2(r.position.x + r.size.x * 0.58 + gw - r.size.y * 0.6, r.end.y), Vector2(r.position.x + r.size.x * 0.58 - r.size.y * 0.6, r.end.y)]), Color(1, 1, 1, 0.025))
+	if r.size.y >= 22.0:
+		var lip := Rect2(r.position.x, r.end.y - 14.0, r.size.x, 14.0)
+		_grad_panel(lip, 6.0, Color("2b2e33"), Color("17181b"))
+		draw_line(Vector2(lip.position.x + 8.0, lip.position.y + 1.0), Vector2(lip.end.x - 8.0, lip.position.y + 1.0), Color(1, 1, 1, 0.16), 1.5)
+		draw_line(Vector2(r.position.x + 14.0, lip.position.y - 7.0), Vector2(r.end.x - 14.0, lip.position.y - 7.0), Color("8a9098", 0.45), 1.5)
+		var notch := Rect2(r.get_center().x - 70.0, lip.position.y + 3.0, 140.0, 7.0)
+		_panel(notch, Color("08090a"), 4)
+		draw_line(Vector2(notch.position.x + 6.0, notch.end.y + 1.0), Vector2(notch.end.x - 6.0, notch.end.y + 1.0), Color(1, 1, 1, 0.12), 1.0)
+	if label != "" and full_h > 0.0 and r.size.y > full_h * 0.6:
+		var la := clampf((r.size.y - full_h * 0.6) / (full_h * 0.3), 0.0, 1.0)
+		_text_center(Rect2(r.position.x, r.end.y - 52.0, r.size.x, 24.0), label, 13, Color(0.75, 0.78, 0.82, 0.55 * la), true)
+	_panel(r, Color(0, 0, 0, 0), 8, Color(0, 0, 0, 0.75), 2)
 
 func _draw_hand_door() -> void:
 	if hand_t <= 0.01:
 		return
 	var e := hand_t * hand_t * (3.0 - 2.0 * hand_t)
-	_door_face(Rect2(730.0, HAND_PLATE_Y + 10.0, 1756.0, maxf(12.0, 260.0 * e)), 91)
+	_door_face(Rect2(730.0, HAND_PLATE_Y + 10.0, 1756.0, maxf(12.0, 260.0 * e)), 91, "DISC STORAGE", 260.0)
 
 func _draw_bottom() -> void:
 	var cx := 1608.0
@@ -3938,7 +4078,7 @@ func _draw_changer_door() -> void:
 	if ch_door <= 0.01:
 		return
 	var e := ch_door * ch_door * (3.0 - 2.0 * ch_door)
-	_door_face(Rect2(730.0, CHANGER_Y + 10.0, 1756.0, maxf(12.0, (CHANGER_H - 20.0) * e)), 77)
+	_door_face(Rect2(730.0, CHANGER_Y + 10.0, 1756.0, maxf(12.0, (CHANGER_H - 20.0) * e)), 77, "CD CHANGER  ·  6 DISC", CHANGER_H - 20.0)
 
 func _draw_tray_disc(s: int) -> void:
 	var cr := _case_rect(s)
@@ -4983,12 +5123,7 @@ func _apply_swap(i: int) -> void:
 	if rack[a].is_empty():
 		if swap_first < 0:
 			return
-		if _rack_try(swap_first, i):
-			consumables[consume_slot] = ""
-			consume_mode = ""
-			consume_slot = -1
-			_sfx("page_turn")
-			_say("Moved the unit.")
+		_deferred_rack_move(swap_first, i, "Moved the unit.")
 		swap_first = -1
 		return
 	if swap_first < 0:
@@ -5000,13 +5135,27 @@ func _apply_swap(i: int) -> void:
 	if a == swap_first:
 		swap_first = -1
 		return
-	if _rack_try(swap_first, a):
-		consumables[consume_slot] = ""
-		consume_mode = ""
-		consume_slot = -1
-		_sfx("page_turn")
-		_say("Swapped the two units.")
+	_deferred_rack_move(swap_first, a, "Swapped the two units.")
 	swap_first = -1
+
+func _deferred_rack_move(from_i: int, to_i: int, msg: String) -> void:
+	var before := rack.duplicate()
+	if not _rack_try(from_i, to_i):
+		return
+	var after := rack.duplicate()
+	for k in rack.size():
+		rack[k] = before[k]
+	var target := _unit_rect(_anchor(to_i))
+	var hit := func() -> void:
+		for k in rack.size():
+			rack[k] = after[k]
+			if not rack[k].is_empty():
+				comp_flash[k] = 1.0
+		_say(msg)
+	_tape_fx("patch_bay", consume_slot, target, hit)
+	consumables[consume_slot] = ""
+	consume_mode = ""
+	consume_slot = -1
 
 func _rack_try(fa: int, to_i: int) -> bool:
 	var g: Dictionary = rack[fa]
@@ -6599,9 +6748,8 @@ func _draw_shop_gear() -> void:
 		var skey := ("gbuy%d" % k) if k < 2 else "buy5"
 		var ush := Rect2(ur.position + _shake_off(skey), ur.size)
 		if k < 2:
-			_draw_gear(ush, it["gear"], 0.0)
-			if install_src == 3 + k:
-				_panel(ur.grow(6.0), Color(0, 0, 0, 0), 10, c_gold, 5)
+			var glift := 8.0 if ui_live and install_queue.is_empty() and ur.has_point(mouse) else 0.0
+			_draw_gear(Rect2(ush.position - Vector2(0.0, glift), ush.size), it["gear"], 0.0)
 		else:
 			var gp: Dictionary = it["pack"]
 			_gear_box(Rect2(ush.position - Vector2(0.0, 8.0 if ui_live and install_queue.is_empty() and ur.has_point(mouse) else 0.0), ur.size), String(gp["name"]), "PICK %d OF %d" % [int(gp["pick"]), int(gp["show"])])
@@ -6611,8 +6759,6 @@ func _draw_shop_gear() -> void:
 			_register(ur, _deny.bind(skey, ""))
 		if ui_live and afford and install_queue.is_empty():
 			if k < 2:
-				if ur.has_point(mouse):
-					_panel(ur.grow(4.0), Color(0, 0, 0, 0), 10, Color(c_gold, 0.8), 3)
 				_hold(ur, "gbuy%d" % k, "Hold to buy", _buy.bind(3 + k))
 			else:
 				_hold(ur, "buy5", "Hold to buy", _buy.bind(5))
@@ -6889,17 +7035,25 @@ func _tick_hold(delta: float) -> void:
 func _draw_hold() -> void:
 	for tg: Dictionary in hold_targets:
 		var r: Rect2 = tg["rect"]
+		var lab := String(tg["label"])
+		var word := "TAKE" if lab.to_lower().find("take") >= 0 else "BUY"
 		if hold_key == String(tg["key"]):
 			var f := clampf(hold_t / D.HOLD_TIME, 0.0, 1.0)
-			draw_rect(Rect2(r.position.x, r.end.y - r.size.y * f, r.size.x, r.size.y * f), Color(c_gold, 0.26))
-			draw_rect(Rect2(r.position.x, r.end.y - 10.0, r.size.x * f, 10.0), c_gold)
-			_panel(r.grow(4.0), Color(0, 0, 0, 0), 10, c_gold, 4)
+			var c := r.get_center()
+			var rad := HOLD_WHEEL_R * (1.0 + 0.12 * pow(f, 6.0))
+			_aa_circle(c + Vector2(0.0, 4.0), rad + 6.0, Color(0, 0, 0, 0.35))
+			_aa_circle(c, rad + 6.0, Color(0.05, 0.06, 0.08, 0.85))
+			draw_arc(c, rad - 4.0, 0.0, TAU, 64, Color(1, 1, 1, 0.14), 9.0, true)
+			if f > 0.001:
+				draw_arc(c, rad - 4.0, -PI * 0.5, -PI * 0.5 + TAU * f, maxi(8, int(64 * f)), Color(1, 1, 1, 0.22), 17.0, true)
+				draw_arc(c, rad - 4.0, -PI * 0.5, -PI * 0.5 + TAU * f, maxi(8, int(64 * f)), Color.WHITE, 9.0, true)
+				_aa_circle(c + Vector2.from_angle(-PI * 0.5 + TAU * f) * (rad - 4.0), 6.5, Color.WHITE)
+			_text_center(Rect2(c - Vector2(rad, rad), Vector2(rad, rad) * 2.0), word, T_SM, Color(1, 1, 1, 0.9), true)
 		elif hold_key == "" and r.has_point(mouse):
-			var lab := String(tg["label"])
 			var w := _text_w(lab, T_SM, true) + 36.0
 			var pr := Rect2(r.get_center().x - w * 0.5, minf(r.end.y + 8.0, UI_H - 56.0), w, 42.0)
-			_panel(pr, Color(0.06, 0.07, 0.09, 0.94), 21, Color(c_gold, 0.6), 2)
-			_text_center(pr, lab, T_SM, c_gold, true)
+			_panel(pr, Color(0.06, 0.07, 0.09, 0.92), 21, Color(1, 1, 1, 0.16), 2)
+			_text_center(pr, lab, T_SM, Color(1, 1, 1, 0.9), true)
 
 func _pack_take(k: int) -> void:
 	if pack.is_empty() or k in pack_sel or not install_queue.is_empty():
