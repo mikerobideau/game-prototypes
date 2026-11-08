@@ -1,0 +1,135 @@
+{
+	"deck": "starter",
+	"seed": 7,
+	"cash": 10,
+	"venue": "Open Mic Night",
+	"gear": "clean_boost",
+	"gear_price": 5,
+	"tape": "polish",
+	"tape_price": 5,
+	"steps": [
+		{
+			"id": "welcome",
+			"on": "stall_ready",
+			"title": "Welcome to DJ Engine",
+			"text": "You're the DJ. Each gig, you play sets of CDs to win over the crowd. Reach the target score of {target} within {turns} turns to win the gig."
+		},
+		{
+			"id": "score",
+			"anchor": ["score", "meter"],
+			"title": "Your score",
+			"text": "Every set you play adds to your score. The meter fills as you close in on the target."
+		},
+		{
+			"id": "cash",
+			"anchor": ["cash"],
+			"title": "Cash",
+			"text": "Cash buys CDs, Stomp Boxes and cassettes. You earn more each turn and for every gig you win."
+		},
+		{
+			"id": "stall",
+			"anchor": ["stall"],
+			"title": "The stall",
+			"text": "Each turn opens at the stall. Its stock changes every turn, so check it before you play."
+		},
+		{
+			"id": "stomp_buy",
+			"anchor": ["stall_gear", "rack"],
+			"wait": "gear_installed",
+			"title": "Stomp Boxes",
+			"text": "Stomp Boxes are your long-term investment. Once installed, they stay for the whole run and fire every set. Hold the {gear} to buy it, then click a bay to install it."
+		},
+		{
+			"id": "rack",
+			"anchor": ["rack"],
+			"title": "Your rack",
+			"text": "Most Stomp Boxes work on the tray right below their bay. {gear}: {gear_text}\nStomp Boxes are locked in place, so choose bays with care. Over a run, buy CDs that feed the Stomp Boxes you own."
+		},
+		{
+			"id": "tape_buy",
+			"anchor": ["stall_tape", "tape_deck"],
+			"wait": "tape_owned",
+			"title": "Cassettes",
+			"text": "Cassettes are one-shot items. Some boost the current turn, others change a CD for good. Hold {tape} to buy it."
+		},
+		{
+			"id": "tape_deck",
+			"anchor": ["tape_deck"],
+			"title": "The cassette deck",
+			"text": "{tape}: {tape_text}\nCassettes wait in your deck until you use them. We'll use this one after your first set."
+		},
+		{
+			"id": "next_set",
+			"anchor": ["next_button"],
+			"wait": "hand_ready",
+			"title": "Done shopping",
+			"text": "Press Next Set to close the stall and open your hand."
+		},
+		{
+			"id": "hand",
+			"on": "hand_ready",
+			"anchor": ["hand"],
+			"title": "Your hand",
+			"text": "These are the CDs you drew. Each turn you play up to {max_play} of them as a set."
+		},
+		{
+			"id": "cd",
+			"anchor": ["hand_card"],
+			"title": "Reading a CD",
+			"text": "The green badge is the CD's base points. The note under the cover is its ability: when it triggers and what it gives. Hover any CD to see the full details."
+		},
+		{
+			"id": "genre",
+			"anchor": ["hand_card"],
+			"title": "Genre traits",
+			"text": "Every CD has a genre, shown by its colour and the sticker on its cover. Each genre has a trait that earns flow.\n{genre} · {trait_name}: {trait}"
+		},
+		{
+			"id": "flow",
+			"title": "Points x flow",
+			"text": "As songs play they add points. Flow multiplies them. A set scores points x flow, so lining up traits and abilities is how big scores happen."
+		},
+		{
+			"id": "place",
+			"anchor": ["hand", "changer"],
+			"wait": "cd_placed",
+			"title": "Build a set",
+			"text": "Drag or click a CD in your hand to put it in a tray. Trays play in order, left to right."
+		},
+		{
+			"id": "play",
+			"anchor": ["hand", "changer", "play_button"],
+			"wait": "set_played",
+			"title": "Play the set",
+			"text": "Add more CDs if you like. Order matters for abilities and traits. When you're ready, press Play."
+		},
+		{
+			"id": "scored",
+			"on": "scoring_done",
+			"anchor": ["score", "meter"],
+			"title": "Nice set",
+			"text": "Your set's points x flow went onto your score. A new turn starts with a fresh stall and new CDs in your hand."
+		},
+		{
+			"id": "tape_use",
+			"on": "stall_ready",
+			"anchor": ["tape_deck", "hand"],
+			"wait": "tape_used",
+			"title": "Use your cassette",
+			"text": "Time to use {tape}: {tape_how}"
+		},
+		{
+			"id": "free_play",
+			"title": "Over to you",
+			"text": "Finish the gig on your own. Press Next Set, build a set and press Play. If your hand is weak, Discard swaps it for new CDs ({discards} times per gig)."
+		},
+		{
+			"id": "done",
+			"on": "gig_end",
+			"anchor": ["result"],
+			"title": "Gig complete",
+			"text": "A full run is a tour of gigs with shops and pickups between them, and a headliner boss every few gigs. That's everything you need to start.",
+			"button": "Finish"
+		}
+	]
+}

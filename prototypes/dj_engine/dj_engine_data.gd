@@ -36,6 +36,7 @@ const RARITY_WEIGHTS := {"common": 20, "uncommon": 55, "rare": 25}
 const GEAR_PATH := "res://prototypes/dj_engine/data/gear.json"
 const CARDS_PATH := "res://prototypes/dj_engine/data/cards.json"
 const DECKS_PATH := "res://prototypes/dj_engine/data/decks.json"
+const TUTORIAL_PATH := "res://prototypes/dj_engine/data/tutorial.json"
 const DECKS_SHOWN := 12
 const PREFS_PATH := "user://dj_engine.cfg"
 const END_TARGET_SCALE := 1.0

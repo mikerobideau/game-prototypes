@@ -216,6 +216,14 @@ var vol_knob_rect := Rect2()
 var deck_flash: Array[float] = [0.0, 0.0, 0.0, 0.0]
 var meter_peak := 0.0
 var meter_frac := 0.0
+var tut_mode := false
+var tut: Dictionary = {}
+var tut_i := -1
+var tut_live := false
+var tut_snap: Dictionary = {}
+var tut_card := Rect2()
+var tut_pulse := 0.0
+var tut_nudge := 0.0
 var hand_after_shop := false # open the hand door once the shop door has finished closing
 var vignette_tex: GradientTexture2D
 var flow_pulse := 0.0
@@ -336,6 +344,10 @@ const STAGE_BOTTOM := CHANGER_Y + CHANGER_H
 const GUTTER_GAP := 120.0
 const GUTTER_NUDGE := 14.0
 const HOVER_LIFT := 10.0
+const TUT_GLOW := "5ef2e0"
+const TUT_CONDS: Array[String] = ["always", "stall_ready", "hand_ready", "gear_installed", "tape_owned", "tape_used", "cd_placed", "set_played", "scoring_done", "gig_end"]
+const TUT_ANCHORS: Array[String] = ["score", "meter", "cash", "stall", "stall_gear", "stall_tape", "rack", "tape_deck", "next_button", "play_button", "discard_button", "hand", "hand_card", "changer", "result"]
+const TUT_TOKENS: Array[String] = ["target", "turns", "max_play", "allowance", "discards", "gear", "gear_text", "tape", "tape_text", "tape_how", "card", "genre", "trait_name", "trait"]
 const HOVER_SCALE := 1.04
 const HOVER_WASH := 0.12
 const SHOW_TOWER_LCDS := false
@@ -1506,6 +1518,7 @@ func _process(delta: float) -> void:
 				_sfx("click")
 			vol_drag = ""
 			_save_prefs()
+	_tut_tick(delta)
 	if hand_after_shop and not ch_shop:
 		hand_after_shop = false
 		hand_hold = false
@@ -1610,6 +1623,8 @@ func _process(delta: float) -> void:
 func _unhandled_input(ev: InputEvent) -> void:
 	if ev is InputEventMouseButton:
 		var mb := ev as InputEventMouseButton
+		if _tut_gate(mb):
+			return
 		if not pack.is_empty() and mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT and not _pack_ready():
 			pack_skipped = true
 			pack_t = _pack_ready_time()
@@ -2449,6 +2464,7 @@ func _gear_status(g: Dictionary, slot: int) -> String:
 	return ""
 
 func _new_run(kit_i: int = 0, deck: Dictionary = {}) -> void:
+	tut_mode = false
 	gear_seen.clear()
 	_menu_fade_out()
 	collection.clear()
@@ -3864,6 +3880,7 @@ func _draw() -> void:
 		_draw_binder_overlay()
 	elif (phase == "shop" and install_queue.is_empty()) or phase in ["map", "fork"]:
 		_draw_binder_button()
+	_draw_tutorial()
 	_draw_hold()
 	if resolving or hold_key != "":
 		hover_tip = ""
@@ -6620,6 +6637,379 @@ func _draw_run_end(won: bool) -> void:
 		_text_center(Rect2(r.position.x, r.position.y + 190.0, r.size.x, 44.0), "Your tour ended at gig %d of %d." % [gig_n, D.RUN_GIGS], T_LG, c_ink, true)
 	_hw_button(Rect2(r.get_center().x - 160.0, r.end.y - 130.0, 320.0, 86.0), "Main menu", _to_title, true, Color("3f9b5a"), T_LG)
 
+func _tut_load() -> bool:
+	tut = {}
+	if not FileAccess.file_exists(D.TUTORIAL_PATH):
+		push_warning("Tutorial: %s is missing." % D.TUTORIAL_PATH)
+		return false
+	var data = JSON.parse_string(FileAccess.get_file_as_string(D.TUTORIAL_PATH))
+	if not data is Dictionary:
+		push_warning("Tutorial: %s is not a JSON object." % D.TUTORIAL_PATH)
+		return false
+	tut = data
+	for p in _tut_validate():
+		push_warning("Tutorial: " + p)
+	return true
+
+func _tut_validate() -> Array[String]:
+	var out: Array[String] = []
+	var deck_ok := false
+	for dk: Dictionary in deck_defs:
+		if String(dk.get("id", "")) == String(tut.get("deck", "")):
+			deck_ok = true
+	if not deck_ok:
+		out.append("deck '%s' does not exist" % tut.get("deck", ""))
+	if not gear_defs.has(String(tut.get("gear", ""))):
+		out.append("gear '%s' does not exist" % tut.get("gear", ""))
+	if not D.CONSUMABLES.has(String(tut.get("tape", ""))):
+		out.append("tape '%s' does not exist" % tut.get("tape", ""))
+	var steps: Array = tut.get("steps", [])
+	if steps.is_empty():
+		out.append("no steps")
+	var rx := RegEx.new()
+	rx.compile("\\{([a-z_]+)\\}")
+	for st: Dictionary in steps:
+		var sid := String(st.get("id", "?"))
+		for key in ["on", "wait"]:
+			var c := String(st.get(key, ""))
+			if c != "" and not c in TUT_CONDS:
+				out.append("step '%s': unknown %s condition '%s'" % [sid, key, c])
+		for a in st.get("anchor", []) + st.get("allow", []):
+			if not String(a) in TUT_ANCHORS:
+				out.append("step '%s': unknown anchor '%s'" % [sid, a])
+		for m in rx.search_all(String(st.get("title", "")) + " " + String(st.get("text", ""))):
+			if not m.get_string(1) in TUT_TOKENS:
+				out.append("step '%s': unknown token {%s}" % [sid, m.get_string(1)])
+	return out
+
+func _start_tutorial() -> void:
+	if not _tut_load():
+		return
+	var deck: Dictionary = {}
+	for dk: Dictionary in deck_defs:
+		if String(dk.get("id", "")) == String(tut.get("deck", "")):
+			deck = dk
+	if deck.is_empty() and not deck_defs.is_empty():
+		deck = deck_defs[0]
+	rng.seed = int(tut.get("seed", 1))
+	_new_run(0, deck)
+	road_stops.clear()
+	gig_n = 1
+	cash = int(tut.get("cash", cash))
+	tut_mode = true
+	tut_i = 0
+	tut_live = false
+	tut_snap = _tut_snapshot()
+	_start_show({"name": String(tut.get("venue", "Open Mic")), "likes": [], "dislikes": []})
+	var gid := String(tut.get("gear", ""))
+	if gear_defs.has(gid) and stall.size() > 0:
+		stall[0] = {"kind": "gear", "gear": _make_gear(gid), "price": int(tut.get("gear_price", gear_defs[gid]["price"])), "sold": false}
+	var tid := String(tut.get("tape", ""))
+	if D.CONSUMABLES.has(tid) and stall.size() > 1:
+		stall[1] = {"kind": "tape", "tape": tid, "price": int(tut.get("tape_price", D.CONSUMABLES[tid]["price"])), "sold": false}
+
+func _end_tutorial() -> void:
+	tut_mode = false
+	tut_i = -1
+	tut_live = false
+	_to_title()
+
+func _skip_tutorial() -> void:
+	var steps: Array = tut.get("steps", [])
+	tut_i = steps.size()
+	for k in steps.size():
+		if String((steps[k] as Dictionary).get("on", "")) == "gig_end":
+			tut_i = k
+	tut_live = false
+
+func _tut_step() -> Dictionary:
+	var steps: Array = tut.get("steps", [])
+	if not tut_mode or tut_i < 0 or tut_i >= steps.size():
+		return {}
+	return steps[tut_i]
+
+func _tut_snapshot() -> Dictionary:
+	var units := 0
+	for k in rack.size():
+		if not rack[k].is_empty() and _anchor(k) == k:
+			units += 1
+	var tapes := 0
+	for c in consumables:
+		if String(c) != "":
+			tapes += 1
+	return {"units": units, "tapes": tapes, "turn": turn_n}
+
+func _tut_cond(c: String) -> bool:
+	var now := _tut_snapshot()
+	match c:
+		"", "always":
+			return true
+		"stall_ready":
+			return phase == "show" and _shop_live() and not resolving and not playing and pack.is_empty() and install_queue.is_empty()
+		"hand_ready":
+			return phase == "show" and _hand_live() and _trays_live() and not resolving and not playing
+		"gear_installed":
+			return int(now["units"]) > int(tut_snap.get("units", 0)) and install_queue.is_empty()
+		"tape_owned":
+			return int(now["tapes"]) > int(tut_snap.get("tapes", 0))
+		"tape_used":
+			return int(now["tapes"]) < int(tut_snap.get("tapes", 0)) and not _tape_busy()
+		"cd_placed":
+			return _placed() > 0
+		"set_played":
+			return resolving or playing
+		"scoring_done":
+			return phase == "show" and not resolving and not playing and turn_n > int(tut_snap.get("turn", 0))
+		"gig_end":
+			return phase == "end"
+	return false
+
+func _tut_tick(delta: float) -> void:
+	var st := _tut_step()
+	if st.is_empty():
+		return
+	tut_pulse += delta
+	tut_nudge = maxf(0.0, tut_nudge - delta * 2.5)
+	if phase == "end" and String(st.get("on", "")) != "gig_end":
+		_skip_tutorial()
+		return
+	if not tut_live:
+		if _tut_cond(String(st.get("on", "always"))):
+			tut_live = true
+			tut_pulse = 0.0
+			tut_snap = _tut_snapshot()
+			_sfx("page_turn")
+		return
+	var w := String(st.get("wait", ""))
+	if w != "" and _tut_cond(w):
+		_tut_next()
+
+func _tut_next() -> void:
+	var st := _tut_step()
+	if String(st.get("on", "")) == "gig_end":
+		_end_tutorial()
+		return
+	tut_i += 1
+	tut_live = false
+	tut_snap = _tut_snapshot()
+
+func _tut_visible() -> bool:
+	if not tut_live or _tut_step().is_empty():
+		return false
+	if not pack.is_empty() or binder_open or settings_open or not tbrowse.is_empty() or not dig_offer.is_empty():
+		return false
+	if phase == "end":
+		return true
+	return phase == "show" and not resolving and not playing
+
+func _tut_allowed(p: Vector2) -> bool:
+	if tut_card.has_point(p):
+		return true
+	var st := _tut_step()
+	if String(st.get("wait", "")) == "":
+		return false
+	for r in _tut_rects(st.get("allow", st.get("anchor", []))):
+		if r.grow(12.0).has_point(p):
+			return true
+	return false
+
+func _tut_gate(mb: InputEventMouseButton) -> bool:
+	if not mb.pressed or not (mb.button_index == MOUSE_BUTTON_LEFT or mb.button_index == MOUSE_BUTTON_RIGHT) or not _tut_visible():
+		return false
+	if _tut_allowed(_ui_mouse()):
+		return false
+	tut_nudge = 1.0
+	_sfx("deny")
+	return true
+
+func _tut_anchor(name: String) -> Rect2:
+	match name:
+		"score":
+			return _score_lcd()
+		"meter":
+			return Rect2(r_score.position.x + 40.0, r_score.position.y + 260.0, r_score.size.x - 80.0, 56.0)
+		"cash":
+			return _cash_lcd()
+		"stall":
+			return _stall_rect(0).merge(_stall_rect(maxi(0, stall.size() - 1))) if _shop_live() else Rect2()
+		"stall_gear", "stall_tape":
+			if not _shop_live():
+				return Rect2()
+			for i in stall.size():
+				var it: Dictionary = stall[i]
+				if not bool(it["sold"]) and String(it["kind"]) == ("gear" if name == "stall_gear" else "tape"):
+					return _stall_rect(i)
+			return Rect2()
+		"rack":
+			return _bay_rect(0).merge(_bay_rect(D.RACK_SLOTS - 1))
+		"tape_deck":
+			return _cons_rect(0).merge(_cons_rect(1)).grow(8.0)
+		"next_button":
+			return Rect2(1608.0 - 140.0, BUTTON_Y, 280.0, 100.0)
+		"play_button":
+			return Rect2(1608.0 + 14.0, BUTTON_Y, 280.0, 100.0)
+		"discard_button":
+			return Rect2(1608.0 - 14.0 - 280.0, BUTTON_Y, 280.0, 100.0)
+		"hand":
+			return _pocket_rect(0).merge(_pocket_rect(D.HAND - 1)) if _hand_live() else Rect2()
+		"hand_card":
+			var p := _tut_card_pocket()
+			return _pocket_rect(p) if p >= 0 and _hand_live() else Rect2()
+		"changer":
+			var cr := _case_rect(0).merge(_case_rect(D.TRAYS - 1))
+			return Rect2(cr.position.x, cr.position.y - 60.0, cr.size.x, cr.size.y + 60.0) if _trays_live() else Rect2()
+		"result":
+			return Rect2(UI_W * 0.5 - 450.0, UI_H * 0.5 - 340.0, 900.0, 680.0) if phase == "end" else Rect2()
+	return Rect2()
+
+func _tut_rects(names: Array) -> Array[Rect2]:
+	var out: Array[Rect2] = []
+	for n in names:
+		var r := _tut_anchor(String(n))
+		if r.has_area():
+			out.append(r.grow(10.0))
+	return out
+
+func _tut_card_pocket() -> int:
+	for p in wallet.size():
+		if wallet[p] >= 0 and collection[wallet[p]].genre >= 0 and not String((collection[wallet[p]].rule as Dictionary).get("effect", "none")) in ["none", "copy"]:
+			return p
+	for p in wallet.size():
+		if wallet[p] >= 0 and collection[wallet[p]].genre >= 0:
+			return p
+	return -1
+
+func _tut_tokens() -> Dictionary:
+	var tk := {"target": _fmt_int(_gig_target()), "turns": str(D.TURNS), "max_play": str(_max_play()), "allowance": "$%d" % D.TURN_ALLOWANCE, "discards": str(opt_discards)}
+	var gid := String(tut.get("gear", ""))
+	if gear_defs.has(gid):
+		tk["gear"] = String(gear_defs[gid]["name"])
+		tk["gear_text"] = _gear_text(_make_gear(gid))
+	var tid := String(tut.get("tape", ""))
+	if D.CONSUMABLES.has(tid):
+		var td: Dictionary = D.CONSUMABLES[tid]
+		tk["tape"] = String(td["name"])
+		tk["tape_text"] = String(td["text"])
+		match String(td.get("target", "")):
+			"cd":
+				tk["tape_how"] = "click it in your deck, then click a CD in your hand."
+			"gear":
+				tk["tape_how"] = "click it in your deck, then click a Stomp Box."
+			_:
+				tk["tape_how"] = "click it in your deck."
+	var p := _tut_card_pocket()
+	if p >= 0:
+		var d: Disc = collection[wallet[p]]
+		tk["card"] = d.title
+		tk["genre"] = String(D.GENRES[d.genre])
+		tk["trait_name"] = _trait_name(d.genre)
+		tk["trait"] = _trait_body(d.genre)
+	return tk
+
+func _tut_fill(s: String) -> String:
+	var tk := _tut_tokens()
+	for k in tk:
+		s = s.replace("{%s}" % k, String(tk[k]))
+	return s
+
+func _draw_tutorial() -> void:
+	tut_card = Rect2()
+	if not _tut_visible():
+		return
+	var st := _tut_step()
+	var holes := _tut_rects(st.get("anchor", []))
+	var view := Rect2(-2000.0, -2000.0, UI_W + 4000.0, UI_H + 4000.0)
+	var xs: Array[float] = [view.position.x, view.end.x]
+	var ys: Array[float] = [view.position.y, view.end.y]
+	for h in holes:
+		xs.append_array([h.position.x, h.end.x])
+		ys.append_array([h.position.y, h.end.y])
+	xs.sort()
+	ys.sort()
+	var dim := Color(0.0, 0.0, 0.0, 0.66)
+	for xi in xs.size() - 1:
+		for yi in ys.size() - 1:
+			var cell := Rect2(xs[xi], ys[yi], xs[xi + 1] - xs[xi], ys[yi + 1] - ys[yi])
+			if cell.size.x <= 0.0 or cell.size.y <= 0.0:
+				continue
+			var lit := false
+			for h in holes:
+				if h.encloses(cell):
+					lit = true
+					break
+			if not lit:
+				draw_rect(cell, dim)
+	var glow := Color(TUT_GLOW)
+	var pulse := 0.5 + 0.5 * sin(tut_pulse * 4.0)
+	for h in holes:
+		_panel(h.grow(4.0 + 6.0 * tut_nudge), Color(0, 0, 0, 0), 14, Color(glow, 0.25 + 0.2 * pulse + 0.5 * tut_nudge), 8)
+		_panel(h, Color(0, 0, 0, 0), 12, Color(glow, 0.75 + 0.25 * pulse), 3)
+	var waits := String(st.get("wait", "")) != ""
+	var w := 640.0
+	var pad := 30.0
+	var body := _tut_fill(String(st.get("text", "")))
+	var title := _tut_fill(String(st.get("title", "")))
+	var bh := _f(false).get_multiline_string_size(body, HORIZONTAL_ALIGNMENT_LEFT, w - pad * 2.0, T_MD).y
+	var h := pad + 26.0 + 52.0 + bh + 26.0 + (64.0 if not waits else 40.0) + pad
+	var box := Rect2(Vector2.ZERO, Vector2(w, h))
+	box.position = _tut_card_pos(holes, box.size)
+	tut_card = box
+	_shadow(box, 18, 14.0)
+	_panel(box, Color("0d1013"), 16, Color(glow, 0.55), 2)
+	draw_line(box.position + Vector2(16.0, 2.0), Vector2(box.end.x - 16.0, box.position.y + 2.0), Color(1, 1, 1, 0.12), 2.0)
+	var x := box.position.x + pad
+	var y := box.position.y + pad
+	var steps: Array = tut.get("steps", [])
+	_silk(Vector2(x, y + 14.0), "TUTORIAL  ·  %d / %d" % [tut_i + 1, steps.size()], 13, Color(glow, 0.8))
+	y += 26.0
+	_heavy(Vector2(x, y + 38.0), title, T_XL, Color("f4efe4"))
+	y += 52.0
+	_wrap(Vector2(x, y), body, w - pad * 2.0, T_MD, Color(1, 1, 1, 0.86))
+	y += bh + 26.0
+	var saved := ui_live
+	ui_live = true
+	if waits:
+		var a := 0.55 + 0.45 * pulse
+		_transport_icon(Vector2(x + 10.0, y + 12.0), "play", 16.0, Color(glow, a))
+		_silk(Vector2(x + 30.0, y + 18.0), "YOUR TURN", 14, Color(glow, a))
+	else:
+		_hw_button(Rect2(box.end.x - pad - 200.0, y, 200.0, 64.0), String(st.get("button", "Next")), _tut_next, true, Color("2f6fc2"), T_MD)
+	if String(st.get("on", "")) != "gig_end":
+		var sk := Rect2(box.position.x + pad - 8.0, box.end.y - pad - 34.0 if not waits else y - 6.0, 170.0, 40.0)
+		if waits:
+			sk.position.x = box.end.x - pad - 170.0
+		var hot := sk.has_point(mouse)
+		_text_center(sk, "Skip tutorial", T_SM, Color(1, 1, 1, 0.75 if hot else 0.4), true)
+		_register(sk, _skip_tutorial)
+	ui_live = saved
+
+func _tut_card_pos(holes: Array[Rect2], size: Vector2) -> Vector2:
+	var margin := 36.0
+	var screen := Rect2(margin, margin, UI_W - margin * 2.0, UI_H - margin * 2.0)
+	if holes.is_empty():
+		return (Vector2(UI_W, UI_H) - size) * 0.5
+	var b: Rect2 = holes[0]
+	for hr in holes:
+		b = b.merge(hr)
+	var c := b.get_center()
+	var cands: Array[Vector2] = [
+		Vector2(b.end.x + 40.0, c.y - size.y * 0.5),
+		Vector2(b.position.x - 40.0 - size.x, c.y - size.y * 0.5),
+		Vector2(c.x - size.x * 0.5, b.end.y + 40.0),
+		Vector2(c.x - size.x * 0.5, b.position.y - 40.0 - size.y),
+	]
+	for p in cands:
+		var q := Vector2(clampf(p.x, screen.position.x, screen.end.x - size.x), clampf(p.y, screen.position.y, screen.end.y - size.y))
+		var r := Rect2(q, size)
+		var clear := true
+		for hr in holes:
+			if r.intersects(hr):
+				clear = false
+				break
+		if clear:
+			return q
+	return Vector2(clampf(c.x - size.x * 0.5, screen.position.x, screen.end.x - size.x), screen.end.y - size.y)
+
 func _to_shop(hint: Dictionary = {}) -> void:
 	_make_shop(hint)
 	phase = "shop"
@@ -8347,7 +8737,7 @@ func _note_tokens(d: Disc) -> Array:
 	var p := String(r.get("cparam", ""))
 	var tp := String(r.get("tparam", ""))
 	var green := Color(D.SOUND_COLOR).darkened(0.1)
-	var purple := Color(D.ENERGY_COLOR)
+	var flow_c := Color(D.FLOW_COLOR).darkened(0.15)
 	var out: Array = []
 	match String(r.get("condition", "always")):
 		"first":
@@ -8403,10 +8793,10 @@ func _note_tokens(d: Disc) -> Array:
 			out.append(_ni("note", green))
 		"flow_add":
 			out.append(_nt("+%s " % v))
-			out.append(_ni("wave", purple))
+			out.append(_ni("wave", flow_c))
 		"flow_mult":
 			out.append(_nt("x%s " % v))
-			out.append(_ni("wave", purple))
+			out.append(_ni("wave", flow_c))
 		"cash":
 			out.append(_nt("+$%s" % v))
 		"consumable":
@@ -9069,7 +9459,9 @@ func _draw_show_end() -> void:
 		for dd: Disc in doomed:
 			names.append(dd.title)
 		_text_center(Rect2(r.position.x, r.position.y + 500.0, r.size.x, 30.0), "Destroyed: " + ", ".join(names), T_SM, c_bad, true)
-	if booed:
+	if tut_mode:
+		_hw_button(Rect2(r.get_center().x - 220.0, r.end.y - 130.0, 440.0, 86.0), "Finish tutorial", _end_tutorial, true, Color("3f9b5a"), T_LG)
+	elif booed:
 		_hw_button(Rect2(r.get_center().x - 200.0, r.end.y - 130.0, 400.0, 86.0), "Main menu", _to_title, true, Color("3f9b5a"), T_LG)
 	elif final:
 		_hw_button(Rect2(r.get_center().x - 220.0, r.end.y - 130.0, 440.0, 86.0), "Continue", _to_win, true, Color("3f9b5a"), T_LG)
@@ -9524,6 +9916,9 @@ func _draw_boss() -> void:
 	_hw_button(Rect2(r.get_center().x - 220.0, r.end.y - 120.0, 440.0, 86.0), "Take the stage", _begin_boss, true, Color("3f9b5a"), T_LG)
 
 func _to_title() -> void:
+	tut_mode = false
+	tut_i = -1
+	tut_live = false
 	Engine.time_scale = 1.0
 	slowmo_end_ms = 0
 	binder_open = false
@@ -9600,9 +9995,10 @@ func _draw_title() -> void:
 	_draw_cd_player(Rect2(c - Vector2(280.0, 280.0), Vector2(560.0, 560.0)), ctex if ctex != null else null, clock * 0.8, true)
 	_heavy_center(Rect2(0.0, 820.0, UI_W, 150.0), "DJ Engine", T_HERO + 40, Color("f4efe4"))
 	_text_center(Rect2(0.0, 985.0, UI_W, 50.0), "A DJ roguelike. Lay out a set, chain your effects, win the crowd.", T_MD, Color(1, 1, 1, 0.85), true)
-	_hw_button(Rect2(UI_W * 0.5 - 220.0, 1070.0, 440.0, 100.0), "Play", _to_kits, true, Color("3f9b5a"), T_XL)
-	_hw_button(Rect2(UI_W * 0.5 - 180.0, 1192.0, 360.0, 80.0), "Your collection", _open_collection, true, Color("2f6fc2"), T_MD)
-	_hw_button(Rect2(UI_W * 0.5 - 180.0, 1292.0, 360.0, 80.0), "Settings", _open_settings, true, Color("6a6f77"), T_MD)
+	_hw_button(Rect2(UI_W * 0.5 - 220.0, 1060.0, 440.0, 100.0), "Play", _to_kits, true, Color("3f9b5a"), T_XL)
+	_hw_button(Rect2(UI_W * 0.5 - 180.0, 1176.0, 360.0, 72.0), "Tutorial", _start_tutorial, true, Color("a8700f"), T_MD)
+	_hw_button(Rect2(UI_W * 0.5 - 180.0, 1262.0, 360.0, 72.0), "Your collection", _open_collection, true, Color("2f6fc2"), T_MD)
+	_hw_button(Rect2(UI_W * 0.5 - 180.0, 1348.0, 360.0, 72.0), "Settings", _open_settings, true, Color("6a6f77"), T_MD)
 
 func _open_collection() -> void:
 	coll_discs.clear()
