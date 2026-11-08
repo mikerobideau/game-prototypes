@@ -1076,5 +1076,21 @@
 			"rn": 0
 		},
 		"levels": false
+	},
+	{
+		"id": "royalty_check",
+		"name": "Royalty Check",
+		"text": "At the end of each gig, earn $1 for every ${per} you have (up to ${cap}).",
+		"size": "half",
+		"price": 6,
+		"look": "",
+		"active": false,
+		"activates": "round_end",
+		"params": {
+			"per": 5,
+			"cap": 5
+		},
+		"enabled": true,
+		"levels": false
 	}
 ]

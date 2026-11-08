@@ -20,6 +20,7 @@ const PACK_RARITY := {
 	"common": {"glow": 0.12, "col": "ffffff", "damp": 5.0, "freq": 11.0, "pulse": 0.0, "speed": 0.0, "size": 0.9},
 	"uncommon": {"glow": 0.32, "col": "6fc8ee", "damp": 4.0, "freq": 12.0, "pulse": 0.08, "speed": 2.0, "size": 1.0},
 	"rare": {"glow": 0.5, "col": "c38bff", "damp": 3.0, "freq": 13.0, "pulse": 0.1, "speed": 2.0, "size": 1.3},
+	"legendary": {"glow": 0.7, "col": "ff9a3c", "damp": 2.5, "freq": 14.0, "pulse": 0.14, "speed": 2.5, "size": 1.6},
 }
 const AUDITION_DB := -4.0
 const TEXTURES := "res://prototypes/dj_engine/art/textures/"
@@ -48,6 +49,8 @@ const STEP_MIN := 0.11
 const SONG_TAIL := 0.45
 const ANIM_NAMES: Array[String] = ["Fast", "Normal", "Relaxed", "Slow"]
 const ANIM_SCALE: Array[float] = [1.0, 1.35, 1.8, 2.4]
+const SFX_DIR := "res://prototypes/dj_engine/sound_effect/"
+const SFX_FILE_DB := {"f_whoosh": -6.0, "f_money_collect": -8.0, "f_click_switch": -6.0, "f_metal_door_open": -10.0}
 const SFX_LEVEL_NAMES: Array[String] = ["Off", "Low", "Medium", "High"]
 const SFX_LEVEL_DB: Array[float] = [-80.0, -10.0, -4.0, 0.0]
 const HOOK_BASE := 1.2
@@ -60,6 +63,10 @@ const CHAIN_STEP_LAST := 0.12
 const TURN_MAX_SECS := 10.0
 const POP_TIME := 0.3
 const STREAK_TIME := 0.15
+const POP_DELAY := 0.033
+const BEAT_STEP := 0.12
+const BEAT_STEP_FAST := 0.07
+const BEAT_MAX := 8
 const HITSTOP := 0.045
 const SLAM_RISER := 0.6
 const SLAM_DROP := 0.15
@@ -109,6 +116,11 @@ const STATIC_KEEP := 0.5
 const MOVE_WEIGHTS := {"cool": 3, "boo": 3, "demand": 3, "static": 2, "block": 2}
 const RUN_GIGS := 15
 const BOSS_EVERY := 3
+const CROWD_MOVES := false
+const BOSS_TIERS := 5
+const PURIST_TIERS: Array[float] = [0.8, 0.7, 0.6, 0.5, 0.4]
+const CRITIC_TIERS: Array[float] = [0.6, 0.5, 0.4, 0.3, 0.2]
+const TURN_ALLOWANCE := 3
 const BOSS_INTRO_SECS := 2.6 # red vignette + "Incoming Boss" banner at the start of a boss gig
 const MOVE_FLASH_SECS := 1.6 # highlight on the boss ability row when it changes
 const DIGS := 2
@@ -254,8 +266,14 @@ const CONSUMABLES := {
 	"quiet_down": {"name": "Quiet Down", "text": "Cancel this turn's crowd move.", "target": "", "price": 3, "rarity": "uncommon", "col": "d9a62e"},
 	"master_tape": {"name": "Master Tape", "text": "One CD gains +4 base points and a random edition, if it has none.", "target": "cd", "price": 7, "col": "2f9d8c", "rarity": "rare"},
 	"overdrive": {"name": "Overdrive", "text": "Multiply your flow by 1.5 for the rest of this turn.", "target": "", "price": 6, "col": "d9a62e", "rarity": "rare"},
+	"patch_bay": {"name": "Patch Bay", "text": "Swap two gear units in your rig, or move one into an empty bay.", "target": "gear", "price": 3, "rarity": "uncommon", "col": "6b4fb8"},
+	"hype_reel": {"name": "Hype Reel", "text": "+3 flow for the rest of this turn.", "target": "", "price": 6, "rarity": "rare", "col": "d9a62e"},
+	"bootleg": {"name": "Bootleg", "text": "Add two copies of one CD to your deck.", "target": "cd", "price": 7, "rarity": "rare", "col": "2f9d8c"},
+	"platinum_master": {"name": "Platinum Master", "text": "One CD gains +8 base points and a random edition, if it has none.", "target": "cd", "price": 10, "rarity": "legendary", "col": "c9772a"},
+	"wall_of_sound": {"name": "Wall of Sound", "text": "Multiply your flow by 2.5 for the rest of this turn.", "target": "", "price": 10, "rarity": "legendary", "col": "c9772a"},
+	"golden_ticket": {"name": "Golden Ticket", "text": "Gain $15.", "target": "", "price": 8, "rarity": "legendary", "col": "c9772a"},
 }
-const TAPE_WEIGHTS := {"common": 60.0, "uncommon": 30.0, "rare": 10.0}
+const TAPE_WEIGHTS := {"common": 60.0, "uncommon": 30.0, "rare": 10.0, "legendary": 3.0}
 const TAPE_PACK_PRICE := 6
 const TAPE_PACK_SHOW := 3
 const BROWSER_SHOW := 6
