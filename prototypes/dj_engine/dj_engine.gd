@@ -6726,7 +6726,10 @@ func _pack_spark(p: Vector2, v: Vector2, life: float, col: Color, r: float, drag
 
 func _pack_burst_fx() -> void:
 	fin_shake = maxf(fin_shake, 0.12)
-	_sfx("page_turn")
+	if sfx.has("f_magic_spell"):
+		_sc_sfx("f_magic_spell", 0.8, 0.0)
+	else:
+		_sfx("page_turn")
 	var cols := [Color("ffd24a"), Color("ffffff"), Color("8fe9ff"), Color("ff9ec4")]
 	for i in 60:
 		_pack_spark(_pack_c(), Vector2.from_angle(rng.randf_range(0.0, TAU)) * rng.randf_range(200.0, 900.0), rng.randf_range(1.2, 2.2), cols[rng.randi_range(0, cols.size() - 1)], rng.randf_range(2.0, 6.0))
@@ -7886,7 +7889,7 @@ func _trait_name(genre: int) -> String:
 		"Pop":
 			return "Crossover"
 		"Jazz":
-			return "Ascent"
+			return "Trading Fours"
 	return ""
 
 func _trait_label(genre: int) -> String:
@@ -7898,11 +7901,11 @@ func _trait_body(genre: int) -> String:
 		"Rock":
 			return "+%s flow if the CD before it is Rock." % _ff(D.TRAIT_ROCK_FLOW)
 		"Hip-Hop":
-			return "+%d point for each CD played before it." % D.TRAIT_HIPHOP_POINTS
+			return "+%s flow for each CD played before it." % _ff(D.TRAIT_HIPHOP_FLOW)
 		"Pop":
-			return "+$%d the first time each turn it follows a different genre." % D.TRAIT_POP_CASH
+			return "+%s flow the first time each turn it follows a different genre." % _ff(D.TRAIT_POP_FLOW)
 		"Jazz":
-			return "Banks +%d points for next turn if the CD before it is from an earlier decade." % D.TRAIT_JAZZ_BANK
+			return "+%s flow if the CD two before it is also Jazz." % _ff(D.TRAIT_JAZZ_FLOW)
 	return ""
 
 func _trait_text(genre: int) -> String:
@@ -8040,33 +8043,32 @@ func _draw_note(cr: Rect2, k: float, toks: Array, dim: float) -> void:
 			var ic := fs * 1.15
 			_icon(String(tk["i"]), Vector2(x + ic * 0.5, cy), ic * 0.9, Color(tk["c"]).darkened(dim * 0.5))
 			x += ic
-func _genre_trait(d: Disc, s: int, prev: Disc, out: Array, st: Dictionary, fx: Dictionary, ctx: Dictionary) -> int:
+func _trait_flow(out: Array, st: Dictionary, fx: Dictionary, text: String, f: float) -> void:
+	fx["tf"] = true
+	fx["fl"] = float(fx["fl"]) + f
+	out.append({"src": "fx", "text": text, "n": 0, "ci": -1, "run": _s_run(st), "flow": float(fx["fl"])})
+
+func _genre_trait(d: Disc, s: int, prev: Disc, ids: Array, out: Array, st: Dictionary, fx: Dictionary, ctx: Dictionary) -> int:
 	match String(D.GENRES[d.genre]):
 		"Rock":
 			if prev != null and prev.genre == d.genre:
-				var f: float = D.TRAIT_ROCK_FLOW
-				fx["tf"] = true
-				fx["fl"] = float(fx["fl"]) + f
-				out.append({"src": "fx", "text": "Rock streak +%s flow" % _ff(f), "n": 0, "ci": -1, "run": _s_run(st), "flow": float(fx["fl"])})
+				_trait_flow(out, st, fx, "Rock streak +%s flow" % _ff(D.TRAIT_ROCK_FLOW), D.TRAIT_ROCK_FLOW)
 		"Hip-Hop":
 			if s > 0:
-				fx["tf"] = true
-				var n: int = s * D.TRAIT_HIPHOP_POINTS
-				_s_add(out, st, "fx", "Hip-Hop: %d before it +%d" % [s, n], n)
+				var f := D.TRAIT_HIPHOP_FLOW * s
+				_trait_flow(out, st, fx, "Hip-Hop: %d before it +%s flow" % [s, _ff(f)], f)
+				var bs: Array = []
+				for j in s:
+					bs.append({"k": "play", "i": j})
+				_tag_beats(out, bs)
 		"Pop":
 			if prev != null and prev.genre >= 0 and prev.genre != d.genre and not bool(ctx["pop_done"]):
 				ctx["pop_done"] = true
-				fx["tf"] = true
-				var c: int = D.TRAIT_POP_CASH
-				out.append({"src": "fx", "text": "Pop crossover +$%d" % c, "n": 0, "ci": -1, "run": _s_run(st), "cash": c})
-				return c
+				_trait_flow(out, st, fx, "Pop crossover +%s flow" % _ff(D.TRAIT_POP_FLOW), D.TRAIT_POP_FLOW)
 		"Jazz":
-			if prev != null and prev.era >= 0 and d.era >= 0 and d.era > prev.era:
-				fx["tf"] = true
-				var b: int = D.TRAIT_JAZZ_BANK
-				var bk: Dictionary = fx["bank"]
-				bk["points"] = int(bk["points"]) + b
-				out.append({"src": "bank", "text": "Jazz: +%d points next turn" % b, "n": 0, "ci": -1, "run": _s_run(st), "word": "+%d NEXT TURN" % b})
+			var two := _ids_disc(ids, s - 2)
+			if two != null and two.genre == d.genre:
+				_trait_flow(out, st, fx, "Jazz trade +%s flow" % _ff(D.TRAIT_JAZZ_FLOW), D.TRAIT_JAZZ_FLOW)
 	return 0
 
 func _score_slot(s: int, ids: Array, ctx: Dictionary) -> Dictionary:
@@ -8110,7 +8112,7 @@ func _score_slot(s: int, ids: Array, ctx: Dictionary) -> Dictionary:
 	if not d.cdr and d.genre >= 0:
 		for rp in reps:
 			var tr0 := out.size()
-			cash_gain += _genre_trait(d, s, prev, out, st, fx, ctx)
+			cash_gain += _genre_trait(d, s, prev, ids, out, st, fx, ctx)
 			_tag_effect(out, tr0, "%s %s" % [D.GENRES[d.genre], _trait_name(d.genre)])
 		if bool(fx["tf"]):
 			fired = true
