@@ -212,6 +212,10 @@ var coll_max := 0.0
 var coll_discs: Array[Disc] = []
 var coll_eds := {}
 var tape_fxs: Array = []
+var vol_knob_rect := Rect2()
+var deck_flash: Array[float] = [0.0, 0.0, 0.0, 0.0]
+var meter_peak := 0.0
+var meter_frac := 0.0
 var hand_after_shop := false # open the hand door once the shop door has finished closing
 var vignette_tex: GradientTexture2D
 var flow_pulse := 0.0
@@ -838,7 +842,7 @@ func _eq_strip(r: Rect2) -> void:
 		var pk := int(ceil(float(eq_peak[i]) * EQ_SEGS)) - 1
 		for k in EQ_SEGS:
 			var t := float(k) / (EQ_SEGS - 1)
-			var col := (Color(D.FLOW_COLOR) if float(eq_hue[i]) > 0.5 else Color(D.SOUND_COLOR)).lightened(t * 0.35)
+			var col := Color("38d9cb").lerp(Color("c8fbff"), t * 0.8)
 			var on := float(k) < lv
 			var sr := Rect2(r.position.x + 12.0 + i * cw, r.end.y - 8.0 - (k + 1) * sh + 2.0, cw - 4.0, sh - 3.0)
 			_panel(sr, col if on else (Color(col.lightened(0.3), 0.9) if k == pk and pk >= 0 else Color(col, 0.1)), 2)
@@ -1114,6 +1118,8 @@ func _tape_fx(id: String, slot: int, target: Rect2 = Rect2(), on_hit: Callable =
 			on_hit.call()
 		return
 	tape_fxs.append({"id": id, "from": _cons_rect(slot), "to": target, "t": 0.0, "col": Color(String(D.CONSUMABLES[id]["col"])), "hit": false, "on_hit": on_hit})
+	if slot >= 0 and slot < deck_flash.size():
+		deck_flash[slot] = 1.0
 
 func _tape_busy() -> bool:
 	for f: Dictionary in tape_fxs:
@@ -1483,6 +1489,9 @@ func _process(delta: float) -> void:
 		pd = 0.0
 	_tick_pops(pd, delta)
 	_tick_tape_fx(delta)
+	for di in deck_flash.size():
+		deck_flash[di] = maxf(0.0, deck_flash[di] - delta * 2.5)
+	meter_peak = maxf(meter_frac, meter_peak - delta * 0.12)
 	pts_pulse = maxf(0.0, pts_pulse - delta * 2.5)
 	move_flash = maxf(0.0, move_flash - delta)
 	for sk in shake_t.keys():
@@ -1610,6 +1619,10 @@ func _unhandled_input(ev: InputEvent) -> void:
 			return
 		if fin_t >= 0.0 and mb.pressed and not fin_boomed:
 			fin_t = (D.FIN_WIND * _anim()) + (D.FIN_STREAM * _anim())
+			return
+		if phase == "show" and mb.pressed and (mb.button_index == MOUSE_BUTTON_WHEEL_UP or mb.button_index == MOUSE_BUTTON_WHEEL_DOWN) and vol_knob_rect.has_point(_ui_mouse()):
+			music_vol = clampi(music_vol + (5 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else -5), 0, 100)
+			_save_prefs()
 			return
 		if phase == "collection" and mb.pressed and (mb.button_index == MOUSE_BUTTON_WHEEL_UP or mb.button_index == MOUSE_BUTTON_WHEEL_DOWN):
 			coll_scroll = clampf(coll_scroll + (-140.0 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else 140.0), 0.0, coll_max)
@@ -2896,23 +2909,31 @@ func _draw_jewel(r: Rect2, d: Disc, dim: float = 0.0, price: int = -1) -> void:
 
 func _draw_cd_player(r: Rect2, art: Texture2D = null, art_spin: float = 0.0, force_art: bool = false) -> void:
 	_shadow(r, 14, 8.0)
-	_grad_panel(r, 14.0, Color("34373c"), Color("202226"))
-	_panel(r, Color(0, 0, 0, 0), 14, Color(0, 0, 0, 0.6), 2)
-	var c := r.position + Vector2(r.size.x * 0.5, r.size.y * 0.49)
-	var wr := r.size.x * 0.44
-	draw_circle(c, wr + 5.0, Color("0b0c0e"))
-	draw_circle(c, wr, Color("17181b"))
-	draw_arc(c, wr - 8.0, 0.0, TAU, 96, Color(1, 1, 1, 0.07), 2.0, true)
+	_grad_panel(r, 14.0, Color("222428"), Color("111214"))
+	_panel(r, Color(0, 0, 0, 0), 14, Color(0, 0, 0, 0.7), 2)
+	draw_line(r.position + Vector2(14.0, 2.0), Vector2(r.end.x - 14.0, r.position.y + 2.0), Color(1, 1, 1, 0.14), 1.5)
+	var c := r.position + Vector2(r.size.x * 0.5, r.size.y * 0.47)
+	var wr := r.size.x * 0.42
+	draw_circle(c, wr + 6.0, Color("060708"))
+	draw_circle(c, wr, Color("141518"))
 	var d := _playing_disc()
 	if force_art:
-		_cd_art(c, wr * 0.9, art, art_spin)
+		_cd_art(c, wr * 0.92, art, art_spin)
 	elif d != null:
-		_disc_face(c, wr * 0.9 * lerpf(0.9, 1.0, 1.0 - rec_pop), d, spin)
+		_disc_face(c, wr * 0.92 * lerpf(0.9, 1.0, 1.0 - rec_pop), d, spin)
 	else:
 		draw_circle(c, wr * 0.1, Color("2a2c31"))
 		draw_arc(c, wr * 0.1, 0.0, TAU, 32, Color(1, 1, 1, 0.2), 2.0, true)
-	draw_colored_polygon(PackedVector2Array([r.position + Vector2(14.0, 10.0), r.position + Vector2(r.size.x * 0.62, 10.0), r.position + Vector2(14.0, r.size.y * 0.62)]), Color(1, 1, 1, 0.06))
-	draw_circle(r.end - Vector2(22.0, 22.0), 5.0, Color("7fe0a0") if d != null or force_art else Color("4a4e55"))
+	draw_circle(c, wr + 2.0, Color(0.06, 0.08, 0.11, 0.3))
+	draw_arc(c, wr + 3.0, 0.0, TAU, 96, Color(1, 1, 1, 0.14), 3.0, true)
+	draw_arc(c, wr * 0.78, PI * 1.08, PI * 1.62, 32, Color(1, 1, 1, 0.1), wr * 0.16, true)
+	_panel(Rect2(c.x - wr * 0.35, c.y - wr - 10.0, wr * 0.7, 7.0), Color("2a2d32"), 3, Color(0, 0, 0, 0.6), 1)
+	var on := d != null or force_art
+	var ly := r.end.y - 18.0
+	_led(Vector2(r.position.x + 22.0, ly), 4.0, Color("38e07b"), 1.0 if on else 0.0)
+	_silk(Vector2(r.position.x + 32.0, ly + 5.0), "PLAY", 11, Color(1, 1, 1, 0.45))
+	_led(Vector2(r.end.x - 70.0, ly), 4.0, Color("ffb347"), 0.0 if on else 1.0)
+	_silk(Vector2(r.end.x - 60.0, ly + 5.0), "STBY", 11, Color(1, 1, 1, 0.45))
 
 func _setlist() -> Array:
 	var ids: Array = []
@@ -3455,19 +3476,8 @@ func _draw_cons_tile(r: Rect2, id: String, targeting: bool, hot: bool) -> void:
 func _draw_consumables() -> void:
 	var bay := Rect2(_cons_rect(0).position - Vector2(26.0, 26.0), Vector2(2.0 * COL_W + COL_G + 52.0, GEAR_H + 52.0))
 	_inset(bay, 14.0, Color("0b0c0e"))
-	for bi in D.CONSUMABLE_SLOTS:
-		_inset(_cons_rect(bi).grow(6.0), 10.0, Color("060708"))
 	for i in D.CONSUMABLE_SLOTS:
-		var r := _cons_rect(i)
-		var id := String(consumables[i])
-		if id == "":
-			_text_center(r, "Tape %d" % (i + 1), T_XS, Color("4a4f57"), true)
-			continue
-		var targeting := consume_mode != "" and consume_slot == i
-		var usable := ui_live and ((phase == "show" and not resolving and not playing) or (phase == "shop" and install_queue.is_empty()))
-		_draw_cons_tile(r, id, targeting, usable and r.has_point(mouse))
-		if usable:
-			_register(r, _use_consumable.bind(i))
+		_draw_deck(i)
 
 func _on_pocket(p: int) -> void:
 	if not _hand_live():
@@ -4004,6 +4014,11 @@ func _draw_room() -> void:
 	_unit_plate(Rect2(720.0, 172.0, 1776.0, 199.0), "rig")
 	_unit_plate(Rect2(720.0, CHANGER_Y, 1776.0, CHANGER_H), "changer")
 	_unit_plate(Rect2(720.0, HAND_PLATE_Y, 1776.0, 280.0), "hand")
+	for sy in [164.0, 379.0]:
+		draw_rect(Rect2(720.0, sy - 3.0, 1776.0, 6.0), Color("08090a"))
+		draw_line(Vector2(726.0, sy - 3.0), Vector2(2490.0, sy - 3.0), Color("6a7078", 0.35), 1.0)
+		draw_line(Vector2(726.0, sy + 3.0), Vector2(2490.0, sy + 3.0), Color(1, 1, 1, 0.05), 1.0)
+	_silk(Vector2(740.0, 194.0), "EFFECTS RACK  ·  6 BAY", 11, Color(1, 1, 1, 0.4))
 
 func _door_face(r: Rect2, _seed_n: int, label: String = "", full_h: float = 0.0) -> void:
 	_shadow(r, 8, 10.0)
@@ -4041,23 +4056,23 @@ func _draw_bottom() -> void:
 	var h := 100.0
 	if shop_open and phase == "show":
 		var ok := ui_live and _shop_live() and install_queue.is_empty() and pack.is_empty()
-		_hw_button(Rect2(cx - 140.0, y, 280.0, h), "Next Set", _close_stall, ok, Color("2f6fc2"), T_LG)
+		_transport_key(Rect2(cx - 140.0, y, 280.0, h), "next", "Next Set", _close_stall, ok, Color("4aa3ff"))
 		return
 	skip_rect = Rect2()
 	if resolving and phase == "show":
 		skip_rect = Rect2(cx - 140.0, y, 280.0, h)
-		_hw_button(skip_rect, "Skip  >>" if not skip_on else "Skipping", _skip_scoring, not skip_on, Color("a8861c"), T_LG)
+		_transport_key(skip_rect, "ff", "Skip" if not skip_on else "Skipping", _skip_scoring, not skip_on, Color("ffb347"))
 		return
 	if not _hand_live():
 		return
 	var dr := Rect2(cx - 14.0 - 280.0, y, 280.0, h)
 	var pr := Rect2(cx + 14.0, y, 280.0, h)
 	var can := ui_live and phase == "show" and not resolving and not discard_pending and _hand_live() and digs > 0 and draw_pile.size() + discard.size() > 0
-	_hw_button(dr, "Discard", _start_dig, can, Color("c23a2e"), T_LG)
+	_transport_key(dr, "eject", "Discard", _start_dig, can, Color("ff5a4a"))
 	var lamps := maxi(opt_discards, digs)
 	for k in lamps:
-		_led(Vector2(dr.end.x - 30.0 - (lamps - 1 - k) * 24.0, dr.position.y + 18.0), 6.0, Color("ffb347"), 1.0 if k < digs else 0.0)
-	_hw_button(pr, "Play" if not resolving else "Playing", _play, _can_play(), Color("3f9b5a"), T_LG)
+		_led(Vector2(dr.position.x + 22.0 + k * 20.0, dr.position.y + 18.0), 5.0, Color("ffb347"), 1.0 if k < digs else 0.0)
+	_transport_key(pr, "play", "Play" if not resolving else "Playing", _play, _can_play(), Color("38e07b"))
 
 func _trays_live() -> bool:
 	return not ch_shop and ch_door < 0.02 and not shop_open
@@ -4909,11 +4924,148 @@ func _nav_bg(r: Rect2) -> void:
 	draw_line(r.position + Vector2(8.0, 2.0), Vector2(r.end.x - 8.0, r.position.y + 2.0), Color(1, 1, 1, 0.18), 2.0)
 	_panel(r, Color(0, 0, 0, 0), 8, Color(0, 0, 0, 0.6), 2)
 
+func _vfd(r: Rect2, text: String, col: Color, size: int, ghost: String = "", align: String = "center") -> void:
+	_panel(r.grow(5.0), Color("050607"), 9)
+	_grad_panel(r, 6.0, col.darkened(0.93).lerp(Color("06090b"), 0.4), Color("020304"))
+	var g := ghost if ghost != "" else "8".repeat(text.length())
+	var yb := r.get_center().y + _vc(font_bold, size)
+	var gx := r.end.x - 16.0 - _text_w(g, size, true)
+	var tx := r.end.x - 16.0 - _text_w(text, size, true)
+	if align == "center":
+		gx = r.get_center().x - _text_w(g, size, true) * 0.5
+		tx = r.get_center().x - _text_w(text, size, true) * 0.5
+	elif align == "left":
+		gx = r.position.x + 16.0
+		tx = r.position.x + 16.0
+	_text(Vector2(gx, yb), g, size, Color(col, 0.06), true)
+	for o in [Vector2(-2, 0), Vector2(2, 0), Vector2(0, -2), Vector2(0, 2)]:
+		_text(Vector2(tx, yb) + o, text, size, Color(col, 0.16), true)
+	_text(Vector2(tx, yb), text, size, col.lightened(0.15), true)
+	var sy := r.position.y + 2.0
+	while sy < r.end.y - 2.0:
+		draw_line(Vector2(r.position.x + 4.0, sy), Vector2(r.end.x - 4.0, sy), Color(0, 0, 0, 0.16), 1.0)
+		sy += 3.0
+	_grad_panel(Rect2(r.position, Vector2(r.size.x, minf(16.0, r.size.y))), 6.0, Color(0, 0, 0, 0.5), Color(0, 0, 0, 0.0))
+	draw_colored_polygon(PackedVector2Array([r.position + Vector2(8.0, 4.0), r.position + Vector2(r.size.x * 0.4, 4.0), r.position + Vector2(r.size.x * 0.28, r.size.y * 0.55), r.position + Vector2(8.0, r.size.y * 0.55)]), Color(1, 1, 1, 0.035))
+	_panel(r, Color(0, 0, 0, 0), 6, Color(1, 1, 1, 0.07), 1)
+
+func _transport_icon(c: Vector2, kind: String, s: float, col: Color) -> void:
+	match kind:
+		"play":
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-s * 0.4, -s * 0.5), c + Vector2(s * 0.55, 0.0), c + Vector2(-s * 0.4, s * 0.5)]), col)
+		"eject":
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-s * 0.55, s * 0.12), c + Vector2(0.0, -s * 0.5), c + Vector2(s * 0.55, s * 0.12)]), col)
+			_panel(Rect2(c + Vector2(-s * 0.55, s * 0.26), Vector2(s * 1.1, s * 0.2)), col, 2)
+		"next":
+			for k in 2:
+				var ox := -s * 0.55 + k * s * 0.45
+				draw_colored_polygon(PackedVector2Array([c + Vector2(ox, -s * 0.45), c + Vector2(ox + s * 0.45, 0.0), c + Vector2(ox, s * 0.45)]), col)
+			_panel(Rect2(c + Vector2(s * 0.38, -s * 0.45), Vector2(s * 0.14, s * 0.9)), col, 1)
+		"ff":
+			for k in 2:
+				var ox2 := -s * 0.5 + k * s * 0.5
+				draw_colored_polygon(PackedVector2Array([c + Vector2(ox2, -s * 0.45), c + Vector2(ox2 + s * 0.5, 0.0), c + Vector2(ox2, s * 0.45)]), col)
+
+func _transport_key(r: Rect2, icon: String, label: String, cb: Callable, enabled: bool, led: Color) -> void:
+	var hovered := enabled and ui_live and r.has_point(mouse)
+	var down := 3.0 if hovered and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) else 0.0
+	_panel(Rect2(r.position + Vector2(-4.0, -4.0), r.size + Vector2(8.0, 12.0)), Color("08090a"), 12)
+	var body := Rect2(r.position + Vector2(0.0, down), r.size)
+	_panel(Rect2(body.position + Vector2(0.0, 6.0 - down), body.size), Color("060708"), 10)
+	_grad_panel(body, 10.0, Color("3a3d43") if hovered else Color("2e3136"), Color("15171a"))
+	draw_line(body.position + Vector2(10.0, 2.0), Vector2(body.end.x - 10.0, body.position.y + 2.0), Color(1, 1, 1, 0.22 if enabled else 0.08), 2.0)
+	_panel(body, Color(0, 0, 0, 0), 10, Color(0, 0, 0, 0.7), 1)
+	var ink := Color(1, 1, 1, 0.95 if enabled else 0.3)
+	_transport_icon(Vector2(body.get_center().x, body.position.y + body.size.y * 0.4), icon, 34.0, ink)
+	_text_center(Rect2(body.position.x, body.end.y - 34.0, body.size.x, 26.0), label.to_upper(), 15, Color(ink, ink.a * 0.75), true)
+	_led(Vector2(body.end.x - 22.0, body.position.y + 18.0), 5.0, led, 1.0 if enabled else 0.0)
+	if enabled:
+		_register(r, cb)
+
+func _draw_deck(i: int) -> void:
+	var r := _cons_rect(i)
+	var door := r.grow(8.0)
+	_grad_panel(door, 10.0, Color("202226"), Color("111214"))
+	_panel(door, Color(0, 0, 0, 0), 10, Color(0, 0, 0, 0.75), 2)
+	draw_line(door.position + Vector2(10.0, 2.0), Vector2(door.end.x - 10.0, door.position.y + 2.0), Color(1, 1, 1, 0.12), 1.5)
+	_silk(Vector2(door.position.x + 14.0, door.position.y + 20.0), "DECK %s" % ["A", "B", "C", "D"][i % 4], 12, Color(1, 1, 1, 0.5))
+	var win := Rect2(door.position.x + 12.0, door.position.y + 28.0, door.size.x - 24.0, door.size.y - 56.0)
+	_panel(win.grow(2.0), Color("040506"), 8)
+	_panel(win, Color("0a0c0f"), 7)
+	var id := String(consumables[i])
+	if id == "":
+		for rx in [win.position.x + win.size.x * 0.33, win.position.x + win.size.x * 0.67]:
+			draw_arc(Vector2(rx, win.get_center().y), win.size.y * 0.22, 0.0, TAU, 24, Color(1, 1, 1, 0.08), 2.0, true)
+		_text_center(win, "NO TAPE", 12, Color(1, 1, 1, 0.18), true)
+	else:
+		var targeting := consume_mode != "" and consume_slot == i
+		var usable := ui_live and ((phase == "show" and not resolving and not playing) or (phase == "shop" and install_queue.is_empty()))
+		var tw := win.grow(-6.0)
+		var tile := Rect2(tw.get_center() - Vector2(tw.size.y / GEAR_H * COL_W, tw.size.y) * 0.5, Vector2(tw.size.y / GEAR_H * COL_W, tw.size.y))
+		if tile.size.x > tw.size.x:
+			tile = Rect2(tw.get_center() - Vector2(tw.size.x, tw.size.x * GEAR_H / COL_W) * 0.5, Vector2(tw.size.x, tw.size.x * GEAR_H / COL_W))
+		gear_tip_off = true
+		_draw_cons_tile(tile, id, targeting, usable and r.has_point(mouse))
+		gear_tip_off = false
+		_tip(r, _tape_tip(id), String(D.CONSUMABLES[id]["rarity"]))
+		if usable:
+			_register(r, _use_consumable.bind(i))
+	_panel(win, Color(0.05, 0.07, 0.09, 0.22), 7)
+	draw_colored_polygon(PackedVector2Array([win.position + Vector2(win.size.x * 0.55, 0.0), win.position + Vector2(win.size.x * 0.75, 0.0), Vector2(win.position.x + win.size.x * 0.5, win.end.y), Vector2(win.position.x + win.size.x * 0.3, win.end.y)]), Color(1, 1, 1, 0.05))
+	if deck_flash[i] > 0.0:
+		_panel(win, Color(1, 1, 1, 0.35 * deck_flash[i]), 7)
+	var ej := Rect2(door.end.x - 48.0, door.end.y - 22.0, 34.0, 15.0)
+	_grad_panel(ej, 4.0, Color("3a3d43"), Color("1a1c1f"))
+	_transport_icon(ej.get_center() + Vector2(0.0, 0.5), "eject", 10.0, Color(1, 1, 1, 0.6 + 0.4 * deck_flash[i]))
+	_led(Vector2(door.position.x + 18.0, door.end.y - 14.0), 3.5, Color("7fe0a0"), 1.0 if id != "" else 0.0)
+
+func _grille(r: Rect2) -> void:
+	if r.size.y < 16.0 or r.size.x < 16.0:
+		return
+	_panel(r, Color("15171a"), 8, Color(0, 0, 0, 0.6), 1)
+	var yy := r.position.y + 7.0
+	var row := 0
+	while yy < r.end.y - 4.0:
+		var xx := r.position.x + 8.0 + (4.0 if row % 2 == 1 else 0.0)
+		while xx < r.end.x - 5.0:
+			draw_circle(Vector2(xx, yy), 2.2, Color("050607"))
+			xx += 9.0
+		yy += 8.0
+		row += 1
+
+func _power_and_knob(x: float, y: float, w: float) -> void:
+	var pc := Vector2(x + 30.0, y + 44.0)
+	_aa_circle(pc + Vector2(0.0, 3.0), 26.0, Color(0, 0, 0, 0.4))
+	_aa_circle(pc, 26.0, Color("23262a"))
+	draw_arc(pc, 25.0, 0.0, TAU, 40, Color(1, 1, 1, 0.12), 1.5, true)
+	draw_arc(pc, 10.0, -PI * 0.3, PI * 1.3, 24, Color(1, 1, 1, 0.7), 2.5, true)
+	draw_line(pc + Vector2(0.0, -14.0), pc + Vector2(0.0, -4.0), Color(1, 1, 1, 0.7), 2.5)
+	_led(pc + Vector2(0.0, 36.0), 4.0, Color("4aa3ff"), 1.0 if phase == "show" else 0.4)
+	_heavy_center(Rect2(x + 70.0, y + 10.0, w - 190.0, 40.0), "DJ ENGINE", 28, Color("d9dde2"))
+	_text_center(Rect2(x + 70.0, y + 52.0, w - 190.0, 24.0), "DE-1  ·  STEREO CD SYSTEM", 12, Color(1, 1, 1, 0.45), true)
+	var kc := Vector2(x + w - 44.0, y + 44.0)
+	var kr := 36.0
+	vol_knob_rect = Rect2(kc - Vector2(kr + 6.0, kr + 6.0), Vector2(kr + 6.0, kr + 6.0) * 2.0)
+	_aa_circle(kc + Vector2(0.0, 4.0), kr + 2.0, Color(0, 0, 0, 0.45))
+	_aa_circle(kc, kr, Color("1c1e22"))
+	for k in 36:
+		var a := TAU * k / 36.0
+		draw_line(kc + Vector2.from_angle(a) * (kr - 4.0), kc + Vector2.from_angle(a) * kr, Color(1, 1, 1, 0.08), 2.0)
+	_aa_circle(kc, kr * 0.72, Color("2a2d32"))
+	draw_arc(kc, kr * 0.72, PI * 1.05, PI * 1.6, 16, Color(1, 1, 1, 0.18), 2.0, true)
+	var ang := deg_to_rad(135.0 + 270.0 * float(music_vol) / 100.0)
+	draw_line(kc + Vector2.from_angle(ang) * kr * 0.25, kc + Vector2.from_angle(ang) * kr * 0.64, Color(1, 1, 1, 0.85), 3.0, true)
+	for k in 11:
+		var ta := deg_to_rad(135.0 + 27.0 * k)
+		draw_circle(kc + Vector2.from_angle(ta) * (kr + 9.0), 1.6, Color(1, 1, 1, 0.35 if float(k) * 10.0 <= float(music_vol) else 0.12))
+	_silk(Vector2(kc.x - 24.0, kc.y + kr + 24.0), "VOLUME", 11, Color(1, 1, 1, 0.45))
+	_tip(vol_knob_rect, "Music volume: %d. Scroll to change." % music_vol)
+
 func _draw_cash() -> void:
 	var lr := _cash_lcd()
 	if cash_pulse > 0.0:
-		_panel(lr.grow(4.0 + 12.0 * cash_pulse), Color(0.5, 0.88, 0.63, 0.5 * cash_pulse), 10)
-	_lcd(lr, "$" + _fmt_int(cash), Color("7fe0a0"), int(_lcd_size(lr, 52) * (1.0 + 0.12 * cash_pulse)), "$88,888")
+		_panel(lr.grow(4.0 + 12.0 * cash_pulse), Color(1.0, 0.69, 0.18, 0.45 * cash_pulse), 10)
+	_vfd(lr, "$" + _fmt_int(cash), Color("ffb02e"), int(_lcd_size(lr, 52) * (1.0 + 0.12 * cash_pulse)), " ", "right")
 
 func _draw_actions() -> void:
 	var r := r_actions
@@ -5495,31 +5647,42 @@ func _draw_paper(p: Rect2, tgt: int) -> void:
 	_marker_l(left, p.position.y + 104.0, "Turn %d of %d" % [mini(turn_n, D.TURNS), D.TURNS], 26, ink)
 
 func _song_display(r: Rect2, text: String, moving: bool) -> void:
-	_panel(r.grow(5.0), Color("0a0b0d"), 9)
-	_grad_panel(r, 6.0, Color("dfe7d2"), Color("b9c6aa"))
-	draw_colored_polygon(PackedVector2Array([r.position + Vector2(6, 4), r.position + Vector2(r.size.x * 0.45, 4), r.position + Vector2(r.size.x * 0.3, r.size.y * 0.5), r.position + Vector2(6, r.size.y * 0.5)]), Color(1, 1, 1, 0.12))
-	var ink := Color("1c2a1e")
+	_panel(r.grow(5.0), Color("050607"), 9)
+	_grad_panel(r, 6.0, Color("06100f"), Color("020405"))
+	var ink := Color("6ff3e6")
 	var size := 40
 	var tw := _text_w(text, size, true)
 	var pad := 22.0
 	var yb := r.get_center().y + _vc(font_bold, size)
 	if not moving:
-		_text(Vector2(r.get_center().x - tw * 0.5, yb), text, size, Color(ink, 0.55), true)
-		return
-	var period := tw + 220.0
-	var off := fmod(float(Time.get_ticks_msec()) * 0.001 * 110.0, period)
-	var copies := int(ceil(r.size.x / period)) + 1
-	var xs: Array = []
-	for i in text.length():
-		xs.append(_text_w(text.substr(0, i), size, true))
-	for c in range(-copies, 2):
-		var base := r.end.x - pad - off + c * period
+		var blink := 0.55 + 0.45 * (1.0 if fmod(clock, 1.2) < 0.8 else 0.0)
+		_text(Vector2(r.get_center().x - tw * 0.5, yb), text, size, Color(ink, 0.18 * blink), true)
+		_text(Vector2(r.get_center().x - tw * 0.5, yb), text, size, Color(ink, 0.85 * blink), true)
+	else:
+		var period := tw + 220.0
+		var off := fmod(float(Time.get_ticks_msec()) * 0.001 * 110.0, period)
+		var copies := int(ceil(r.size.x / period)) + 1
+		var xs: Array = []
 		for i in text.length():
-			var cx: float = base + float(xs[i])
-			var cw := _text_w(text.substr(i, 1), size, true)
-			var a := clampf((cx - (r.position.x + pad)) / 36.0, 0.0, 1.0) * clampf(((r.end.x - pad) - (cx + cw)) / 36.0, 0.0, 1.0)
-			if a > 0.0:
-				_text(Vector2(cx, yb), text.substr(i, 1), size, Color(ink, a), true)
+			xs.append(_text_w(text.substr(0, i), size, true))
+		for c in range(-copies, 2):
+			var base := r.end.x - pad - off + c * period
+			for i in text.length():
+				var cx: float = base + float(xs[i])
+				var cw := _text_w(text.substr(i, 1), size, true)
+				var a := clampf((cx - (r.position.x + pad)) / 36.0, 0.0, 1.0) * clampf(((r.end.x - pad) - (cx + cw)) / 36.0, 0.0, 1.0)
+				if a > 0.0:
+					_text(Vector2(cx, yb), text.substr(i, 1), size, Color(ink, a), true)
+	var gx := r.position.x + 2.0
+	while gx < r.end.x:
+		draw_line(Vector2(gx, r.position.y + 2.0), Vector2(gx, r.end.y - 2.0), Color(0, 0, 0, 0.5), 1.5)
+		gx += 4.0
+	var gy := r.position.y + 2.0
+	while gy < r.end.y:
+		draw_line(Vector2(r.position.x + 2.0, gy), Vector2(r.end.x - 2.0, gy), Color(0, 0, 0, 0.5), 1.5)
+		gy += 4.0
+	draw_colored_polygon(PackedVector2Array([r.position + Vector2(6, 4), r.position + Vector2(r.size.x * 0.42, 4), r.position + Vector2(r.size.x * 0.3, r.size.y * 0.5), r.position + Vector2(6, r.size.y * 0.5)]), Color(1, 1, 1, 0.04))
+	_panel(r, Color(0, 0, 0, 0), 6, Color(1, 1, 1, 0.07), 1)
 
 func _draw_score_panel() -> void:
 	var r := r_score
@@ -5556,18 +5719,22 @@ func _draw_score_panel() -> void:
 		_panel(meter.grow(5.0 + 3.0 * sin(clock * 7.0)), Color(Color("ffd96a"), 0.25), 10)
 	_inset(meter, 6.0, Color("0b0c0e"))
 	var frac := clampf(float(shown) / float(tgt), 0.0, 1.0)
-	var gfrac := 0.0
+	meter_frac = frac
 	var bars := 28
 	var bw := (meter.size.x - 24.0) / bars
+	var pk := int(clampf(meter_peak, 0.0, 1.0) * bars) - 1
 	for k in bars:
 		var on := float(k) / bars < frac
-		var ghost := not on and float(k) / bars < gfrac
-		var col := _score_color(float(shown) if shown >= tgt else float(k) / bars * float(tgt))
+		var u := float(k) / bars
+		var col := Color("38e07b") if u < 0.6 else (Color("ffd23f") if u < 0.85 else Color("ff4d3d"))
 		var br := Rect2(meter.position.x + 12.0 + k * bw, meter.position.y + 10.0, bw - 4.0, meter.size.y - 20.0)
-		_panel(br, col if on else (Color(col, 0.38) if ghost else Color(col, 0.08)), 2)
+		if on:
+			_panel(br.grow(2.0), Color(col, 0.16), 3)
+		_panel(br, col if on else (col.lightened(0.25) if k == pk else Color(col, 0.08)), 2)
 	var sl := _score_lcd()
-	_lcd(sl, _fmt_int(shown), _score_color(float(shown)), _lcd_size(sl, 96), "888,888", "center")
-	_silk(Vector2(sl.position.x + 14.0, sl.position.y + 24.0), "SCORE", 13, Color(_score_color(float(shown)), 0.55))
+	_vfd(sl, _fmt_int(shown), Color("5ef2e0"), _lcd_size(sl, 96), " ", "center")
+	_silk(Vector2(sl.position.x + 14.0, sl.position.y + 24.0), "SCORE", 13, Color(Color("5ef2e0"), 0.55))
+	_power_and_knob(x, y + 330.0, w)
 	if SHOW_TOWER_LCDS:
 		_draw_cd_player(Rect2(x + w - 280.0, y + 720.0, 280.0, 280.0))
 		_hw_button(Rect2(x, y + 1022.0, 260.0, 64.0), "View binder", _toggle_binder, phase == "show" and not dig_mode, Color("14161a"), T_SM)
@@ -5576,8 +5743,11 @@ func _draw_score_panel() -> void:
 		var free_bot := _cons_rect(0).position.y - 26.0
 		var gy := free_top + (free_bot - free_top - (280.0 + 24.0 + 64.0)) * 0.5
 		var tcx := r.get_center().x
+		_grille(Rect2(x, free_top + 12.0, w, gy - free_top - 26.0))
 		_draw_cd_player(Rect2(tcx - 140.0, gy, 280.0, 280.0))
 		_hw_button(Rect2(tcx - 130.0, gy + 304.0, 260.0, 64.0), "View binder", _toggle_binder, phase == "show" and not dig_mode, Color("14161a"), T_SM)
+		_grille(Rect2(x, gy + 384.0, w, free_bot - gy - 384.0 - 34.0))
+		_silk(Vector2(x, free_bot - 10.0), "CASSETTE DECK", 12, Color(1, 1, 1, 0.45))
 	if SHOW_TOWER_LCDS:
 		var pl := _pts_lcd()
 		var fl := _flow_lcd()
@@ -5619,8 +5789,22 @@ func _info_chip(x: float, y: float, text: String, col: Color) -> float:
 	return w
 
 func _draw_empty_bay(r: Rect2) -> void:
-	_panel(r, Color(0, 0, 0, 0.28), 8, Color(1, 1, 1, 0.14), 2)
-	_text_center(r, "EMPTY", T_MD, Color("6f747c"), true)
+	_grad_panel(r, 6.0, Color("1d1f23"), Color("101113"))
+	_panel(r, Color(0, 0, 0, 0), 6, Color(0, 0, 0, 0.7), 2)
+	for ex in [r.position.x, r.end.x - 16.0]:
+		var ear := Rect2(ex, r.position.y, 16.0, r.size.y)
+		_panel(ear, Color("2a2d32"), 4)
+		_screw(Vector2(ear.get_center().x, r.position.y + 18.0), 4.5)
+		_screw(Vector2(ear.get_center().x, r.end.y - 18.0), 4.5)
+	var vx0 := r.position.x + 30.0
+	var vw := r.size.x - 60.0
+	for row in 4:
+		var vy := r.position.y + r.size.y * 0.28 + row * 16.0
+		var vx := vx0
+		while vx + 26.0 <= vx0 + vw:
+			_panel(Rect2(vx, vy, 26.0, 6.0), Color("050607"), 3)
+			vx += 34.0
+	_text_center(Rect2(r.position.x, r.end.y - 30.0, r.size.x, 20.0), "EMPTY BAY", 11, Color(1, 1, 1, 0.3), true)
 
 func _header_row(r: Rect2, title: String, desc: String, col: Color, stacked: bool) -> void:
 	_panel(r, Color(0.07, 0.08, 0.1, 0.92), 8, Color(col, 0.55), 2)
