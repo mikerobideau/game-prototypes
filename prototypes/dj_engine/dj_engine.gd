@@ -5782,8 +5782,9 @@ func _draw_score_panel() -> void:
 		_lcd(fl, _fmt_flow(flow_roll), fc, int(lsz * (1.0 + 0.1 * flow_pulse)), "88.88")
 	if shown > tgt:
 		var ok_txt := "OVERDRIVE +%d%%" % int(round((float(shown) / float(tgt) - 1.0) * 100.0))
-		var okr := Rect2(meter.position.x, meter.end.y + 6.0, meter.size.x, 34.0)
-		_text_center(okr, ok_txt, T_SM, Color("ffd96a").lerp(Color.WHITE, 0.3 + 0.3 * sin(clock * 6.0)), true)
+		var slr := _score_lcd()
+		var okr := Rect2(slr.position.x, slr.end.y - 36.0, slr.size.x, 28.0)
+		_text_center(okr, ok_txt, T_XS, Color("ffd96a").lerp(Color.WHITE, 0.3 + 0.3 * sin(clock * 6.0)), true)
 
 func _focus_slot() -> int:
 	if now_slot >= 0:
@@ -8011,6 +8012,7 @@ func _fmt_time(sec: int) -> String:
 
 func _start_show(v: Dictionary) -> void:
 	venue = v
+	meter_peak = 0.0
 	gig_done = false
 	wallet.clear()
 	for i in D.HAND:

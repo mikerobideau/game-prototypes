@@ -1,0 +1,31 @@
+[
+ {
+  "id": "starter",
+  "name": "Starter Crate",
+  "idea": "Five percussion, five rhythm, four chord and six lead loops.",
+  "enabled": true,
+  "mixes": 0,
+  "cards": {
+   "drums_100_x_01": 1,
+   "drums_100_x_02": 1,
+   "drums_100_x_03": 1,
+   "perc_100_x_01": 1,
+   "perc_100_x_02": 1,
+   "bass_100_a_01": 1,
+   "bass_100_a_02": 1,
+   "rhythm_100_a_02": 1,
+   "chord_am_01_bass": 1,
+   "chord_c_01_bass": 1,
+   "chord_am_00_pad": 1,
+   "chord_am_03_rhythm": 1,
+   "chord_am_04_rhythm": 1,
+   "chord_c_03_rhythm": 1,
+   "lead_100_a_01": 1,
+   "lead_100_a_02": 1,
+   "chord_am_06_lead": 1,
+   "chord_am_07_lead": 1,
+   "chord_c_06_lead": 1,
+   "chord_g_08_lead": 1
+  }
+ }
+]
