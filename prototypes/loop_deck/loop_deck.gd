@@ -39,6 +39,12 @@ var rng := RandomNumberGenerator.new()
 var albums: Array = []
 var gen := G.new()
 var run_key := "A minor"
+var run_root := "C"
+var run_mode := "major"
+## Each CD tray's chord this turn (a scale degree, see CHORDS_MAJOR); empty until the shop closes.
+var tray_chords: Array = []
+var set_sig := ""
+var pad_slot := -1
 var fixed_albums: Array = []
 var gen_pool := {}
 var collection: Array[Disc] = []
@@ -1489,6 +1495,8 @@ func _draw_slam() -> void:
 
 func _process(delta: float) -> void:
 	_prewarm_step()
+	if phase == "show" and not resolving:
+		_prepare_trays()
 	if slowmo_end_ms > 0 and Time.get_ticks_msec() >= slowmo_end_ms:
 		slowmo_end_ms = 0
 		Engine.time_scale = 1.0
@@ -1831,14 +1839,14 @@ func _legacy_rule_named(effect: String, p: String) -> Dictionary:
 func _load_albums() -> void:
 	fixed_albums.clear()
 	gen_pool.clear()
-	if D.GEN_LOOPS and D.MIDI_TEST:
-		gen.load_templates(D.MIDI_DIR, true, D.MIDI_TEST_CARDS)
-	elif D.GEN_LOOPS:
+	if D.GEN_LOOPS:
 		gen.load_templates()
+	var gen_on := D.GEN_LOOPS and not gen.templates.is_empty()
 	for c in _read_cards():
 		var a := _card_to_album(c)
-		var gname := String(D.GENRES[int(a["genre"])])
-		if D.GEN_LOOPS and gname != "Percussion" and not gen.templates.is_empty():
+		if gen_on:
+			# Generated cards borrow points, rarity and abilities from cards.json by type.
+			var gname := String(D.GENRES[int(a["genre"])])
 			if not gen_pool.has(gname):
 				gen_pool[gname] = []
 			(gen_pool[gname] as Array).append(a)
@@ -1861,15 +1869,16 @@ func _warm_loops() -> void:
 func _exit_tree() -> void:
 	gen.finish()
 
-## Rebuilds the card list: fixed cards from cards.json plus this run's generated loops.
-## A deck may set "root" (A-G) and "mode" (major or minor); generated loops use that key.
+## Rebuilds the card list: this run's generated loops (or the cards.json cards when there are
+## no patterns). A deck sets "root" (A-G) and "mode" (major or minor); loops follow that key.
 func _roll_albums(seed_n: int, deck: Dictionary = {}) -> void:
-	var root := String(deck.get("root", "A"))
-	var mode := String(deck.get("mode", "minor"))
-	run_key = "%s %s" % [root, mode]
+	run_root = String(deck.get("root", "C"))
+	run_mode = String(deck.get("mode", "major"))
+	run_key = "%s %s" % [run_root, run_mode]
+	tray_chords.clear()
 	albums = fixed_albums.duplicate()
 	if D.GEN_LOOPS and not gen.templates.is_empty():
-		albums.append_array(gen.make_albums(seed_n, gen_pool, _key_offset(root), mode == "major"))
+		albums.append_array(gen.make_albums(seed_n, gen_pool, _key_offset(), _home()))
 	if albums.is_empty():
 		_legacy_albums()
 
@@ -1925,6 +1934,15 @@ func _load_music() -> void:
 		loop_players.append(lp)
 		loop_gain.append(0.0)
 		loop_want.append(0.0)
+	# The pad: one more loop player that starts with a set's first card and fades with the loops.
+	var pp := AudioStreamPlayer.new()
+	pp.volume_db = -80.0
+	pp.bus = music_player.bus
+	add_child(pp)
+	pad_slot = loop_players.size()
+	loop_players.append(pp)
+	loop_gain.append(0.0)
+	loop_want.append(0.0)
 
 func _bg_next() -> void:
 	if bg_files.is_empty() or bg_player == null:
@@ -2049,18 +2067,38 @@ func _loop_enter(slot: int, d: Disc) -> void:
 	var path := _music_for(d)
 	if path == "":
 		return
-	var stream := _loop_stream(path)
+	# A generated loop plays the set's chords (its trays' chords in play order).
+	var stream: AudioStream = gen.stream(path.substr(6), gen.set_prog) if path.begins_with("gen://") else _loop_stream(path)
 	if stream == null:
 		return
 	if loop_t0 < 0.0:
 		loop_t0 = _real_now()
 	loop_stop_at = -1.0
+	_pad_start()
 	var lp := loop_players[slot]
 	lp.stream = stream
 	loop_gain[slot] = 1.0
 	loop_want[slot] = 1.0
 	lp.volume_db = D.LOOP_DB
-	lp.play(fmod(_loop_now(), _loop_len()))
+	# Each loop starts at the clock's place in its own length (2-bar WAVs, 4-bar generated
+	# loops), so every loop and the pad stay on the same bars and chords.
+	lp.play(fmod(_loop_now(), maxf(stream.get_length(), 0.01)))
+
+## Starts the pad on the set's clock if it is not already playing.
+func _pad_start() -> void:
+	if pad_slot < 0 or not D.GEN_LOOPS or gen.templates.is_empty():
+		return
+	var pp := loop_players[pad_slot]
+	if pp.playing and loop_want[pad_slot] > 0.0:
+		return
+	var st := gen.pad_stream(gen.set_prog)
+	if st == null:
+		return
+	pp.stream = st
+	loop_gain[pad_slot] = 1.0
+	loop_want[pad_slot] = 1.0
+	pp.volume_db = D.LOOP_DB
+	pp.play(fmod(_loop_now(), st.get_length()))
 
 func _loop_next_bar() -> float:
 	var bar := _loop_bar()
@@ -2540,6 +2578,9 @@ func _new_run(kit_i: int = 0, deck: Dictionary = {}) -> void:
 		var all := _decks()
 		dk = all[rng.randi_range(0, all.size() - 1)]
 	_roll_albums(rng.randi(), dk)
+	if bool(dk.get("gen_deck", false)):
+		dk = dk.duplicate(true)
+		dk["cards"] = _gen_deck_cards()
 	for d: Disc in _deck_discs(dk):
 		collection.append(d)
 	_warm_loops()
@@ -2577,27 +2618,17 @@ func _load_decks() -> void:
 			for dk: Dictionary in data:
 				if bool(dk.get("enabled", true)):
 					deck_defs.append(dk)
-	if D.MIDI_TEST and not deck_defs.is_empty():
-		var test_cards := {}
-		for id in (deck_defs[0]["cards"] as Dictionary):
-			var a := _album_by_id(String(id))
-			if not a.is_empty() and D.GENRES[int(a["genre"])] == "Percussion":
-				test_cards[id] = deck_defs[0]["cards"][id]
-		for a: Dictionary in albums:
-			if String(a.get("song", "")).begins_with("gen://"):
-				test_cards[a["id"]] = 1
-		deck_defs[0]["cards"] = test_cards
-		deck_defs[0]["idea"] = "Your MIDI tracks from midi/ plus percussion."
 	if D.KEY_DECKS and not deck_defs.is_empty():
 		var base: Dictionary = deck_defs[0]
 		deck_defs.clear()
-		for mode in ["major", "minor"]:
+		for mode in D.KEY_MODES:
 			for root in D.KEY_ROOTS:
 				var dk: Dictionary = base.duplicate(true)
 				dk["id"] = "%s_%s" % [root.to_lower(), mode]
 				dk["name"] = "%s %s" % [root, mode.capitalize()]
 				dk["root"] = root
 				dk["mode"] = mode
+				dk["gen_deck"] = D.GEN_LOOPS and not gen.templates.is_empty()
 				dk["idea"] = "  ".join(_scale_names(root, mode))
 				deck_defs.append(dk)
 	if deck_defs.is_empty():
@@ -2610,24 +2641,118 @@ func _load_decks() -> void:
 func _decks() -> Array:
 	return deck_defs
 
-## Semitones from A to a key's root, kept within -6..5 so loops stay near their written range.
-func _key_offset(root: String) -> int:
-	var o := posmod(int(D.KEY_SEMIS.get(root, 9)) - 9, 12)
+## A generated deck: every card made from your MIDI (midi/), then random demo cards, each one of
+## the loop type the deck has fewest of, until there are D.COLLECTION cards.
+func _gen_deck_cards() -> Dictionary:
+	var cards := {}
+	var piles := {}
+	var counts := {}
+	for g in D.GENRES.size():
+		counts[g] = 0
+	for a: Dictionary in albums:
+		if not String(a.get("song", "")).begins_with("gen://"):
+			continue
+		var g := int(a["genre"])
+		if String(a.get("source", "")) == "midi":
+			cards[a["id"]] = 1
+			counts[g] += 1
+			continue
+		if not piles.has(g):
+			piles[g] = []
+		(piles[g] as Array).append(a["id"])
+	for g in piles:
+		var pile: Array = piles[g]
+		for i in range(pile.size() - 1, 0, -1):
+			var j := rng.randi_range(0, i)
+			var tmp = pile[i]
+			pile[i] = pile[j]
+			pile[j] = tmp
+	while cards.size() < D.COLLECTION:
+		var pick := -1
+		for g in piles:
+			if not (piles[g] as Array).is_empty() and (pick < 0 or counts[g] < counts[pick]):
+				pick = g
+		if pick < 0:
+			break
+		cards[(piles[pick] as Array).pop_back()] = 1
+		counts[pick] += 1
+	return cards
+
+## The key's major scale root (the relative major for a minor key) as a pitch class (C = 0).
+func _parent_pc(root: String = run_root, mode: String = run_mode) -> int:
+	return posmod(int(D.KEY_SEMIS.get(root, 0)) + (3 if mode == "minor" else 0), 12)
+
+## The scale degree of the key's home chord: 0 (I) in major, 5 (vi of the relative major) in minor.
+func _home(mode: String = run_mode) -> int:
+	return 5 if mode == "minor" else 0
+
+## Semitones from C to the key's major scale root, kept within -6..5 so loops stay near their
+## written range.
+func _key_offset(root: String = run_root, mode: String = run_mode) -> int:
+	var o := _parent_pc(root, mode)
 	return o - 12 if o > 5 else o
 
-## The pentatonic notes a key's melodies use, spelled for that key (e.g. C D E G A).
+func _note_names(root: String = run_root, mode: String = run_mode) -> Array:
+	if _parent_pc(root, mode) in D.FLAT_PARENTS:
+		return ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
+	return ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+
+## A chord's name in a key: in C major degree 4 is "G" and degree 1 is "Dm".
+func _chord_name(deg: int, root: String = run_root, mode: String = run_mode) -> String:
+	var q := "m" if deg in [1, 2, 5] else ("dim" if deg == 6 else "")
+	return String(_note_names(root, mode)[(_parent_pc(root, mode) + G.SCALE[deg]) % 12]) + q
+
+## A tray's chord as shown on the tray: its numeral in the key and its name, e.g. "V - G".
+func _chord_label(deg: int) -> String:
+	var num: String = D.NUMERALS_MINOR[posmod(deg - 5, 7)] if run_mode == "minor" else D.NUMERALS_MAJOR[deg]
+	return "%s - %s" % [num, _chord_name(deg)]
+
+func _key_chords(mode: String = run_mode) -> Array:
+	return D.CHORDS_MINOR if mode == "minor" else D.CHORDS_MAJOR
+
+## A key's scale from its root, spelled for that key (e.g. A B C D E F G for A minor).
 func _scale_names(root: String, mode: String) -> Array:
-	var sharp := ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-	var flat := ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
-	var names: Array = flat if ("%s %s" % [root, mode]) in D.FLAT_KEYS else sharp
-	var r := int(D.KEY_SEMIS.get(root, 9))
+	var names := _note_names(root, mode)
+	var pc := _parent_pc(root, mode)
 	var out: Array = []
-	var degs: Array[int] = G.DEG_MAJOR if mode == "major" else G.DEG_MINOR
-	if D.MIDI_TEST:
-		degs = G.SCALE_MAJOR if mode == "major" else G.SCALE_MINOR
-	for s in degs:
-		out.append(names[(r + s) % 12])
+	for i in 7:
+		out.append(names[(pc + G.SCALE[(_home(mode) + i) % 7]) % 12])
 	return out
+
+## Gives every CD tray a random chord from the key for this turn.
+func _roll_tray_chords() -> void:
+	tray_chords.clear()
+	var opts := _key_chords()
+	for k in D.TRAYS:
+		tray_chords.append(int(opts[rng.randi_range(0, opts.size() - 1)]))
+	set_sig = ""
+
+## A set's chords in play order: the chord of each tray it plays.
+func _set_prog(slots: Array) -> Array:
+	var out: Array = []
+	for sl in slots:
+		out.append(int(tray_chords[int(sl)]) if int(sl) < tray_chords.size() else _home())
+	return out
+
+## Starts mixing the loops for the trays as they are now (in the background), so a set can
+## start at once when Play is pressed.
+func _prepare_trays() -> void:
+	if not D.GEN_LOOPS or tray_chords.is_empty():
+		return
+	var sl := _setlist()
+	var ids: Array = []
+	for t in sl[0]:
+		var d: Disc = collection[int(t)]
+		if d.song.begins_with("gen://"):
+			ids.append(d.song.substr(6))
+	if ids.is_empty():
+		return
+	var prog := _set_prog(sl[1])
+	var sig := "%s|%s" % [str(ids), str(prog)]
+	if sig == set_sig:
+		return
+	set_sig = sig
+	gen.prepare_set(ids, prog)
 
 func _album_by_id(id: String) -> Dictionary:
 	for a: Dictionary in albums:
@@ -2636,6 +2761,8 @@ func _album_by_id(id: String) -> Dictionary:
 	return {}
 
 func _deck_size(deck: Dictionary) -> int:
+	if bool(deck.get("gen_deck", false)):
+		return maxi(D.COLLECTION, albums.filter(func(a): return String(a.get("source", "")) == "midi").size())
 	var n := 0
 	var cards: Dictionary = deck.get("cards", {})
 	for id in cards.keys():
@@ -2788,7 +2915,8 @@ func _jewel_parts(d: Disc) -> Dictionary:
 		"even":
 			cb = ["E"]
 		"slot1", "slot2", "slot3", "slot4", "slot5", "slot6":
-			cb = [String(r.get("condition", "")).substr(4)]
+			var bch := _slot_chord(String(r.get("condition", "")))
+			cb = [bch if bch != "" else String(r.get("condition", "")).substr(4)]
 		"prev_is":
 			cb = ["@left", p]
 		"next_is":
@@ -4247,6 +4375,12 @@ func _draw_tray_disc(s: int) -> void:
 	if _slot_met(s):
 		draw_arc(c, 29.0, 0.0, TAU, 32, Color(c_gold, 0.5), 3.0, true)
 	_text_center(Rect2(c - Vector2(22.0, 22.0), Vector2(44.0, 44.0)), str(s + 1), T_MD, ink, true)
+	# This turn's chord for the tray, e.g. "V - G".
+	if s < tray_chords.size():
+		var lab := _chord_label(int(tray_chords[s]))
+		var lr := Rect2(c.x - 74.0, c.y - 66.0, 148.0, 32.0)
+		_panel(lr, Color(0.04, 0.05, 0.07, 0.85), 10, Color(c_gold, 0.6) if occupied else Color(1, 1, 1, 0.18), 1)
+		_text_center(lr, lab, T_SM, c_gold if occupied else Color("d7dce3"), true)
 
 func _draw_links() -> void:
 	var sl: Array = _setlist()[1]
@@ -4508,6 +4642,11 @@ func _short_name(n: String) -> String:
 		return String(D.GENRE_SHORT[gi])
 	return n.to_upper()
 
+## A fixed chord for a set slot, for card text ("On IV"). Chords are random per tray now, so
+## slots have none.
+func _slot_chord(_cond: String) -> String:
+	return ""
+
 func _cond_label(d: Disc) -> String:
 	var r: Dictionary = d.rule
 	var eff := String(r.get("effect", "none"))
@@ -4550,7 +4689,8 @@ func _cond_label(d: Disc) -> String:
 		"even":
 			cp = "EVEN"
 		"slot1", "slot2", "slot3", "slot4", "slot5", "slot6":
-			cp = "SLOT " + String(r.get("condition", "")).substr(4)
+			var lch := _slot_chord(String(r.get("condition", "")))
+			cp = ("ON " + lch) if lch != "" else "SLOT " + String(r.get("condition", "")).substr(4)
 		"prev_is":
 			cp = "AFTER " + p
 		"next_is":
@@ -4719,6 +4859,7 @@ func _close_stall() -> void:
 	if not install_queue.is_empty() or not pack.is_empty():
 		return
 	shop_open = false
+	_roll_tray_chords()
 	# The first shop of a gig is shopped blind. The hand door opens only after the shop door
 	# has fully closed (see _process), so the two doors move one after the other.
 	if hand_hold:
@@ -4855,7 +4996,8 @@ func _cond_text(d: Disc, with_trait: bool = true) -> String:
 		"even":
 			lead = "In an even slot (2, 4), "
 		"slot1", "slot2", "slot3", "slot4", "slot5", "slot6":
-			lead = "In slot %s, " % String(r.get("condition", "")).substr(4)
+			var tch := _slot_chord(String(r.get("condition", "")))
+			lead = ("On the %s chord (slot %s), " % [tch, String(r.get("condition", "")).substr(4)]) if tch != "" else "In slot %s, " % String(r.get("condition", "")).substr(4)
 		"prev_is":
 			lead = "If the loop before it is %s, " % p
 		"next_is":
@@ -4922,7 +5064,8 @@ func _cond_part(rule: Dictionary, count: int) -> String:
 		"even":
 			return "Even slot"
 		"slot1", "slot2", "slot3", "slot4", "slot5", "slot6":
-			return "Slot " + String(rule.get("condition", "")).substr(4)
+			var pch := _slot_chord(String(rule.get("condition", "")))
+			return ("On %s (slot %s)" % [pch, String(rule.get("condition", "")).substr(4)]) if pch != "" else "Slot " + String(rule.get("condition", "")).substr(4)
 		"prev_is":
 			return "After %s" % p
 		"next_is":
@@ -8543,7 +8686,8 @@ func _note_tokens(d: Disc) -> Array:
 		"even":
 			out.append(_nt("Even slot, "))
 		"slot1", "slot2", "slot3", "slot4", "slot5", "slot6":
-			out.append(_nt("Slot %s, " % String(r.get("condition", "")).substr(4)))
+			var nch := _slot_chord(String(r.get("condition", "")))
+			out.append(_nt(("On %s, " % nch) if nch != "" else "Slot %s, " % String(r.get("condition", "")).substr(4)))
 		"prev_is":
 			out.append(_nt("After "))
 			out.append(_note_genre(p))
@@ -8785,6 +8929,10 @@ func _play() -> void:
 	var sl := _setlist()
 	play_ids = sl[0]
 	play_slots = sl[1]
+	if tray_chords.is_empty():
+		_roll_tray_chords()
+	gen.set_prog = _set_prog(play_slots)
+	_prepare_trays()
 	for t in play_ids:
 		var m: Disc = collection[t]
 		if m.cdr and m.genre < 0:
@@ -9103,6 +9251,8 @@ func _move_desc() -> String:
 	return ""
 
 func _start_turn() -> void:
+	tray_chords.clear()
+	set_sig = ""
 	for k in D.TRAYS:
 		tray[k] = -1
 		readout[k] = {}
@@ -9751,11 +9901,13 @@ func _pick_kit(i: int) -> void:
 	phase = "decks"
 
 func _pick_deck(i: int) -> void:
-	_new_run(pending_kit, _decks()[i])
+	_new_run(pending_kit, (_decks()[i] as Dictionary).duplicate(true))
 
 func _draw_decks() -> void:
 	_menu_bg(false)
 	_heavy_center(Rect2(0.0, 40.0, UI_W, 110.0), "Choose Deck", T_XL + 16, Color("f4efe4"))
+	if D.KEY_DECKS:
+		_text_center(Rect2(0.0, 160.0, UI_W, 40.0), "Every CD tray gets a random chord from the key each turn", T_MD, Color(1, 1, 1, 0.7), true)
 	var ds := _decks()
 	var w := 300.0
 	var h := 400.0
@@ -9775,11 +9927,16 @@ func _draw_decks() -> void:
 		var lead := _deck_lead(dk)
 		var tex: Texture2D = _cover_tex(String(lead["cover"])) if not lead.is_empty() else null
 		_cd_art(Vector2(r.get_center().x, r.position.y + 118.0), 84.0, tex, clock * 0.6 if hot else 0.0)
-		_heavy_center(Rect2(r.position.x, r.position.y + 224.0, w, 44.0), String(dk["name"]), T_LG, c_ink)
-		_text_center(Rect2(r.position.x, r.position.y + 268.0, w, 24.0), ("%d loops  ·  %d MIX" % [_deck_size(dk), int(dk["mixes"])]) if int(dk.get("mixes", 0)) > 0 else ("%d loops" % _deck_size(dk)), 13, c_muted, true)
+		_heavy_center(Rect2(r.position.x, r.position.y + 218.0, w, 44.0), String(dk["name"]), T_LG, c_ink)
 		if dk.has("root"):
-			_text_center(Rect2(r.position.x, r.position.y + 318.0, w, 36.0), String(dk["idea"]), T_MD, c_body, true)
+			var cn: Array = []
+			for cd in _key_chords(String(dk["mode"])):
+				cn.append(_chord_name(int(cd), String(dk["root"]), String(dk["mode"])))
+			_heavy_center(Rect2(r.position.x, r.position.y + 262.0, w, 36.0), " ".join(cn), T_SM, c_ink)
+			_text_center(Rect2(r.position.x, r.position.y + 304.0, w, 24.0), "%d loops" % _deck_size(dk), 13, c_muted, true)
+			_text_center(Rect2(r.position.x, r.position.y + 336.0, w, 30.0), String(dk["idea"]), T_SM, c_body, true)
 		else:
+			_text_center(Rect2(r.position.x, r.position.y + 268.0, w, 24.0), ("%d loops  ·  %d MIX" % [_deck_size(dk), int(dk["mixes"])]) if int(dk.get("mixes", 0)) > 0 else ("%d loops" % _deck_size(dk)), 13, c_muted, true)
 			_wrap(Vector2(r.position.x + 22.0, r.position.y + 322.0), String(dk.get("idea", "")), w - 44.0, 15, c_body, true)
 		if ui_live:
 			_register(r, _pick_deck.bind(di))

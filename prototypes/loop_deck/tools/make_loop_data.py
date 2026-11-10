@@ -120,6 +120,13 @@ G = [
     gear('unison', 'Unison', '+{amount} flow if two loops share an instrument.', 6, {'requires': 'instrument_pair', 'effect': 'flow', 'amount': 1.5}, 'anywhere'),
     gear('ensemble', 'Ensemble', '+{amount} points if this loop shares its instrument with another loop.', 5, {'requires': 'instrument_shared', 'effect': 'points', 'amount': 15}),
     gear('orchestra', 'Orchestra', '+{amount} flow if {rn} loops all use different instruments.', 7, {'requires': 'instruments_differ', 'rn': 4, 'effect': 'flow', 'amount': 2}, 'anywhere'),
+    # Synthwave units (placement).
+    gear('gated_reverb', 'Gated Reverb', 'x{amount} points if this tray is {aparam} and plays first.', 6, {'when': 'first', 'applies': 'genre', 'aparam': 'Percussion', 'effect': 'mult', 'amount': 2}),
+    gear('sidechain', 'Sidechain', '+{amount} flow if this tray is {aparam} and sits next to a {rparam} loop.', 6, {'applies': 'genre', 'aparam': 'Rhythm', 'requires': 'adjacent', 'rparam': 'Percussion', 'effect': 'flow', 'amount': 1}),
+    gear('arpeggiator', 'Arpeggiator', '+{amount} points for each loop already playing if this tray is {aparam}.', 6, {'applies': 'genre', 'aparam': 'Chord', 'per': 'loops_before', 'effect': 'points', 'amount': 6}),
+    gear('chorus', 'Chorus', '+{amount} points if the loop in this tray sits next to a {rparam} loop.', 5, {'requires': 'adjacent', 'rparam': 'Chord', 'effect': 'points', 'amount': 12}),
+    gear('turnaround', 'Turnaround', 'x{amount} points to the last loop of a full set.', 8, {'requires': 'full_set', 'effect': 'mult', 'amount': 2}, 'anywhere'),
+    gear('bridge', 'Bridge', 'x{amount} points if the loop in this tray sits between two loops of one other type.', 7, {'requires': 'sandwich', 'effect': 'mult', 'amount': 1.5}),
     gear('tape_deck', 'Tape Deck', 'Makes a cassette the first time its tray is played each gig.', 6, {'effect': 'consumable', 'amount': 1}, 'gig', False),
 ]
 json.dump(G, open(os.path.join(DST, 'data', 'gear.json'), 'w', encoding='utf-8'), indent='\t')

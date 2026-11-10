@@ -214,63 +214,87 @@ const LOOP_BARS := 2
 const LOOP_FADE_OUT := 0.6
 const LOOP_DB := -6.0
 const KEY_NAME := "A minor pentatonic"
-# Key decks: the Choose Deck screen offers the first deck in decks.json in every key below,
-# major and minor. Generated loops are transposed to the chosen key.
+# Key decks: Choose Deck offers one deck per major key. Every deck plays the I-V-vi-IV
+# progression in its key; generated loops and the pad are moved to the chosen key.
 const KEY_DECKS := true
 const KEY_ROOTS: Array[String] = ["A", "B", "C", "D", "E", "F", "G"]
+const KEY_MODES: Array[String] = ["major", "minor"]
 const KEY_SEMIS := {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
-# Keys whose notes are spelled with flats (F major, and D, G, C and F minor).
-const FLAT_KEYS: Array[String] = ["F major", "D minor", "G minor", "C minor", "F minor"]
+# A minor key uses the notes of its relative major (A minor: C major). Names are spelled with
+# flats when that major key has flats (F, Bb, Eb, Ab, Db), so D minor shows Bb and C minor Eb.
+const FLAT_PARENTS: Array[int] = [5, 10, 3, 8, 1]
+# Spine labels for every instrument a card can have.
 const INSTRUMENTS := {
-	"Drum Kit": "DRUMS",
-	"Hand Percussion": "PERC",
-	"Sine Synth": "SINE",
-	"Saw Synth": "SAW",
-	"Pluck": "PLUCK",
-	"Synth Pad": "PAD",
-	"Electric Piano": "E.PIANO",
-	"Organ": "ORGAN",
-	"Square Synth": "SQUARE",
-	"Flute": "FLUTE",
-	"FM Bell": "BELL",
+	"Gated Kit": "GATED",
+	"Analog Kit": "ANALOG",
+	"Saw Bass": "SAW BASS",
+	"Pulse Bass": "PULSE BASS",
+	"Sub Bass": "SUB BASS",
+	"Saw Lead": "SAW LEAD",
+	"Square Lead": "SQUARE",
+	"PWM Lead": "PWM",
+	"Synth Pluck": "PLUCK",
+	"Brass": "BRASS",
 }
-# Generated loops (loop_deck_gen.gd). Percussion still uses the WAVs in loops/; every pitched
-# card is built each run from a MIDI pattern in PATTERN_DIR played on one of VOICES.
+
+# --- Synthwave loops (loop_deck_gen.gd) ---
+# Every card is built each run from a MIDI pattern: the demo patterns in PATTERN_DIR and your own
+# files in MIDI_DIR. Pitched patterns are written in C major over a C chord; drum patterns use
+# MIDI channel 10. Each CD tray gets a random chord from the deck's key every turn, after the
+# shop closes; a set's progression is the chords of the trays it plays, in order, one bar per
+# card. Each bar of a loop is moved along the scale to its chord, then to the deck's key.
 const GEN_LOOPS := true
 const PATTERN_DIR := "res://prototypes/loop_deck/patterns"
-const VOICE_DIR := "res://prototypes/loop_deck/instruments"
-# MIDI test: when on, the only pitched cards come from your own files in MIDI_DIR, played as
-# written (only the deck's key and the instrument change), MIDI_TEST_CARDS cards per track,
-# each on a different instrument. Every deck is the starter's percussion plus those cards.
-const MIDI_TEST := true
 const MIDI_DIR := "res://prototypes/loop_deck/midi"
-const MIDI_TEST_CARDS := 4
-const PATTERN_TYPES := {"rhythm": "Rhythm", "bass": "Rhythm", "chord": "Chord", "lead": "Lead"}
-const GEN_VARIANTS := 3
+const GENERATED_DIR := "res://prototypes/loop_deck/generated_midi"
+# Folders the cards come from: [folder, source]. "generated" is the 100-card set made by
+# tools/make_generated_midi.py. Add [PATTERN_DIR, "demo"] or [MIDI_DIR, "midi"] for the demo
+# patterns or your own MIDI (every card of yours goes in each starting deck).
+const CARD_DIRS := [[GENERATED_DIR, "generated"]]
+# A folder's card sheet (one row per MIDI file: title, type, rarity, points, ability). A file with
+# a row makes exactly one card with that ability; a file without one makes GEN_VARIANTS cards
+# that borrow abilities from cards.json.
+const CARD_SHEET := "cards.csv"
+const VOICE_DIR := "res://prototypes/loop_deck/instruments"
+const PATTERN_TYPES := {"rhythm": "Rhythm", "bass": "Rhythm", "chord": "Chord", "lead": "Lead", "drums": "Percussion", "drum": "Percussion", "perc": "Percussion", "percussion": "Percussion"}
+# Longest pattern, in bars (shorter ones repeat).
+const PATTERN_MAX_BARS := 4
+# Chords a tray can get, as the scale degree of the chord's root in the key's major scale (the
+# relative major for a minor key: A minor's i is degree 5, A, of C major). Diminished chords are
+# left out. Numerals are shown with the chord's name on each tray, e.g. "V - G".
+const CHORDS_MAJOR: Array[int] = [0, 1, 2, 3, 4, 5]
+const CHORDS_MINOR: Array[int] = [5, 0, 1, 2, 3, 4]
+const NUMERALS_MAJOR: Array[String] = ["I", "ii", "iii", "IV", "V", "vi", "vii°"]
+const NUMERALS_MINOR: Array[String] = ["i", "ii°", "III", "iv", "v", "VI", "VII"]
+# Cards per pattern, each on a different instrument: demo patterns and your own MIDI tracks.
+const GEN_VARIANTS := 2
+const MIDI_CARDS := 4
 const GEN_RATE := 32000
 # Instrument name: sample folder, loop types it may play, release (seconds) after a note ends.
+# Kits play each drum sample to its end (DRUM_FILES maps MIDI drum notes to sample names).
 const VOICES := {
-	"Sine Synth": {"dir": "sine", "roles": ["Rhythm", "Lead"], "release": 0.05},
-	"Saw Synth": {"dir": "saw", "roles": ["Rhythm", "Lead"], "release": 0.05},
-	"Pluck": {"dir": "pluck", "roles": ["Rhythm", "Chord", "Lead"], "release": 0.12},
-	"Square Synth": {"dir": "square", "roles": ["Lead"], "release": 0.04},
-	"Flute": {"dir": "flute", "roles": ["Lead"], "release": 0.08},
-	"FM Bell": {"dir": "bell", "roles": ["Chord", "Lead"], "release": 0.4},
-	"Synth Pad": {"dir": "pad", "roles": ["Chord"], "release": 0.35},
-	"Electric Piano": {"dir": "epiano", "roles": ["Chord", "Lead"], "release": 0.15},
-	"Organ": {"dir": "organ", "roles": ["Chord", "Lead"], "release": 0.04},
+	"Gated Kit": {"dir": "kit_gated", "roles": ["Percussion"], "release": 0.0, "drums": true},
+	"Analog Kit": {"dir": "kit_analog", "roles": ["Percussion"], "release": 0.0, "drums": true},
+	"Saw Bass": {"dir": "saw_bass", "roles": ["Rhythm"], "release": 0.04},
+	"Pulse Bass": {"dir": "pulse_bass", "roles": ["Rhythm"], "release": 0.04},
+	"Sub Bass": {"dir": "sub_bass", "roles": ["Rhythm"], "release": 0.05},
+	"Saw Lead": {"dir": "saw_lead", "roles": ["Lead"], "release": 0.08},
+	"Square Lead": {"dir": "square_lead", "roles": ["Lead"], "release": 0.06},
+	"PWM Lead": {"dir": "pwm_lead", "roles": ["Lead"], "release": 0.08},
+	"Synth Pluck": {"dir": "synth_pluck", "roles": ["Lead", "Chord"], "release": 0.1},
+	"Brass": {"dir": "brass", "roles": ["Chord"], "release": 0.1},
 }
-# MIDI note range each loop type is played in (A1-A3 bass, A2-E5 chords, A3-E6 leads).
-const GEN_RANGES := {"Rhythm": [33, 57], "Chord": [45, 76], "Lead": [57, 88]}
-# Pentatonic steps a pattern may be moved by (0 = as written, 1 = up one scale note …), per mode.
-# Minor: bass and chords start on the root, 3rd or 5th, so the mix keeps its minor centre.
-# Major: chords stay on the root (a major triad) and bass on the root or 5th.
-const GEN_OFFSETS := {
-	"minor": {"Rhythm": [0, 1, 3], "Chord": [0, 3], "Lead": [0, 1, 2, 3, 4]},
-	"major": {"Rhythm": [0, 0, 3], "Chord": [0], "Lead": [0, 1, 2, 3, 4]},
-}
-# Loudness (RMS) each generated loop is mixed to, matched to the old loop WAVs.
-const GEN_RMS := {"Rhythm": 0.115, "Chord": 0.08, "Lead": 0.08}
+const DRUM_FILES := {35: "kick", 36: "kick", 37: "rim", 38: "snare", 40: "snare", 39: "clap", 42: "hat_closed", 44: "hat_closed", 46: "hat_open", 51: "hat_open", 41: "tom_low", 43: "tom_low", 45: "tom_low", 47: "tom_mid", 48: "tom_mid", 50: "tom_high", 49: "crash", 57: "crash"}
+# MIDI note range each loop type is played in (E1-G3 bass, C3-G5 chords, C4-G6 leads).
+const GEN_RANGES := {"Rhythm": [28, 55], "Chord": [48, 79], "Lead": [60, 91]}
+# Loudness (RMS) each loop is mixed to.
+const GEN_RMS := {"Percussion": 0.09, "Rhythm": 0.11, "Chord": 0.07, "Lead": 0.075}
+# The pad that always plays during a set: the set's chords, one bar each, as a low root plus the
+# triad around middle C (C3 + C4 E4 G4 moved to each chord), in the deck's key.
+const PAD_DIR := "poly_pad"
+const PAD_RELEASE := 0.5
+const PAD_RMS := 0.06
+const PAD_NOTES: Array[int] = [48, 60, 64, 67]
 const VENUE_NAMES: Array[String] = ["Basement Jam", "Open Deck Night", "Warehouse Loop", "Rooftop Session", "Club Nocturne", "Festival Tent", "Arena Soundcheck", "Main Stage"]
 const REWARD_BASE := 5
 const PAY_BOOED := 2

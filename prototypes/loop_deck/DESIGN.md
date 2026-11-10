@@ -1,75 +1,75 @@
 # Loop Deck
 
-DJ Engine's game, played with loops instead of CDs. Each card is a 2-bar loop at 100 BPM in A minor pentatonic. Cards still activate and score one at a time, but every loop keeps playing once it comes in, so a set builds into a full mix.
+A synthwave looper built on DJ Engine's game. Each card is a synth loop (drums, bass, chords or lead) at 100 BPM. Cards still activate and score one at a time, but every loop keeps playing once it comes in, and a synth pad plays the chords underneath. Every CD tray carries a random chord from the deck's key each turn, and a card plays its tray's chord as it comes in, so the order of the trays you fill makes the set's chord progression.
 
 Run it from `loop_deck.tscn`. The code was copied from DJ Engine (`loop_deck.gd`, `loop_deck_ui.gd`, `loop_deck_data.gd`, `edition.gdshader`) and the two games now evolve separately.
 
 ## Run
 
-- The title screen has only **Play**. Play opens **Choose Deck**: 14 decks, one per key, majors (A–G) in the top row and minors (A–G, blue cards) below. Each card shows the five notes the key's loops use, e.g. C E F G A for C major.
-- Every key deck holds the cards of the first deck in `data/decks.json` (the Starter Crate). The key sets which notes the generated loops play for the whole run, and the tooltip byline names it ("Organ · C major"). Built in `_load_decks` when `KEY_DECKS` is on; roots, spelling and flat keys are `KEY_ROOTS`, `KEY_SEMIS` and `FLAT_KEYS`.
+- The title screen has only **Play**. Play opens **Choose Deck**: 14 decks, one per key, majors (A–G) in the top row and minors (A–G, blue cards) below. Each card shows the key's scale and the six chords its trays can get (e.g. C Dm Em F G Am).
+- Each deck is built when the run starts (`_gen_deck_cards`): every card made from your MIDI in `midi/` (when that folder is in `CARD_DIRS`), then random cards from the pool, each of the loop type the deck has fewest of, up to `COLLECTION` (20). The key sets the notes of every loop and the pad for the whole run; the tooltip byline names it ("Saw Lead · C major"). Built in `_load_decks` when `KEY_DECKS` is on.
 - Gigs run back to back: Basement Jam, Open Deck Night and so on (`VENUE_NAMES`), with the same rising targets as DJ Engine. There are `RUN_GIGS` (8) gigs. There is no tour map, road stops, venue likes or dislikes, crowd moves or headliner bosses.
 - Each gig is DJ Engine's gig: 4 turns, a stall at the start of each turn (loops, Stomp Boxes, cassettes, packs), a hand of 6, up to 4 loops per set, discards, editions, points x flow, and the slam.
 - When a gig ends, Continue goes straight to the next gig. Losing returns to the title.
 
 ## Loops
 
-- **Percussion** cards play the drum and perc WAVs in `loops/` (from Loop Mixer). The `.import` files set each WAV to loop forward.
-- **Rhythm, Chord and Lead** cards are **generated loops** (see below): each run builds them from MIDI pattern templates played on per-note instrument samples. The pitched Loop Mixer WAVs are still in `loops/` and `cards.json` but are not dealt while `GEN_LOOPS` is on.
-- **Loop types** replace genres (`GENRES`), each with a colour (`SLEEVE_*`) and an icon in `icon/type/`, drawn by `tools/make_type_icons.gd`: **Percussion** (red, drum), **Rhythm** (green, square pulse: bass lines), **Chord** (purple, stacked notes) and **Lead** (amber, eighth note).
+- Every card is a **generated loop**: a MIDI pattern played on one instrument (see Synthwave loops). The old Loop Mixer WAVs in `loops/` and the cards in `cards.json` are no longer dealt while `GEN_LOOPS` is on; `cards.json` now only lends points, rarity and abilities to generated cards.
+- **Loop types** replace genres (`GENRES`), each with a colour (`SLEEVE_*`) and an icon in `icon/type/`, drawn by `tools/make_type_icons.gd`: **Percussion** (red, drum: drum kits), **Rhythm** (green, square pulse: bass), **Chord** (purple, stacked notes: arps and stabs) and **Lead** (amber, eighth note).
 - There are no decades. Cards have no decade sticker, chip or rule.
-- Each card has a title, an instrument (shown in the tooltip with the run's key, e.g. "Organ · C major"), base points, a rarity and one DJ Engine-style ability, with genre conditions naming loop types (e.g. "After Percussion, x2"). Covers are blank CDs.
-- The starter deck is 20 cards: 5 percussion, 5 rhythm, 4 chord and 6 lead. Its pitched cards are listed by template variant (`lead_hook#0`), so the deck is the same riffs every run but they sound different.
+- Each card has a title, an instrument, base points, a rarity and one DJ Engine-style ability, with genre conditions naming loop types (e.g. "After Percussion, x2"). Covers are blank CDs.
 
-## Generated loops
+## The 100-card set
 
-A pitched card is **pattern × instrument × notes**. The pattern (rhythm and melodic shape) is hand-made and fixed; the run's seed picks how it sounds. Code: `loop_deck_gen.gd`; settings: the `GEN_*`, `PATTERN_*` and `VOICES` constants in `loop_deck_data.gd`.
+- The cards come from the folders in `CARD_DIRS`: now only `generated_midi/`, which holds **100 MIDI files, one card each**, made by `tools/make_generated_midi.py`: 24 Percussion, 24 Rhythm, 22 Chord and 30 Lead. Add `[PATTERN_DIR, "demo"]` or `[MIDI_DIR, "midi"]` to bring back the demo patterns or your own MIDI.
+- The patterns are built from small hand-written pieces so they stay musical: drum grooves (6 kicks x 4 snares x 4 hat patterns, with tom, snare-roll or crash fills in bar 2) plus 6 hand-percussion grooves; bass rhythms x note shapes (root, octave pump, fifths, walks); arpeggio shapes x rhythms and chord stabs x rhythms; and leads made of a 1-bar call and a 1-bar answer (10 calls x 9 answers). Titles are synthwave word pairs ("Neon Skyline").
+- **The card sheet** `generated_midi/cards.csv` has one row per MIDI file: `file, title, type, rarity, points, condition, cond_param, effect, value, target, target_param`. Open it in a spreadsheet to change any card; a file with a row makes exactly one card with that ability (`CARD_SHEET`), and its instrument is still picked by the run's seed. The sheet's `.import` file says "keep" so Godot does not read it as a translation table.
+- **Every card has a placement ability:** where it sits in the set decides whether it fires. Conditions: a set slot (1-4, the play order), first, last, odd or even slot, after or before a loop type or instrument, and for each earlier loop of a type. Each type has its own list (e.g. Percussion: first x2, slot 1 x2, before Rhythm +1 flow; Lead: slot 4 x3, last x2.5, after Chord x2). Rarity: about half common, a third uncommon, a sixth rare; rarer cards have fewer base points (5 / 4 / 3) and stronger abilities (+2 points, +0.5 mult or +0.5 flow per tier). Chords do not affect scoring yet.
+- **Measured** (`_score_set` over 150 random hands of 6 from a C major deck, every way to choose and order 4 cards): the best arrangement averages about 150, a random one about 50 and the worst about 16, so placement roughly triples a set. With the six new Stomp Boxes in the rack the best arrangement averages about 400 (4x random). Perfect play with the starting deck alone would clear all 8 gigs, so targets or values need tuning.
 
-- **Patterns** are MIDI files in `patterns/`, one 2-bar loop each, written in A minor pentatonic. The file name sets the type and title: `lead_triplet_descent.mid` is a Lead called "Triplet Descent" (prefixes `rhythm_`/`bass_`, `chord_`, `lead_`). Only notes are read (start, length, pitch, velocity); tempo and time signature in the file are ignored. Notes outside the scale snap to the nearest scale note.
-- The 11 demo patterns are written by `tools/make_patterns.py` from one-line rhythm/pitch strings. Replace or add `.mid` files from any DAW; no other data is needed.
-  - Rhythm: Root Fifth Bass, Octave Pump, Walking Bass, Tresillo Bass.
-  - Chord: Whole Note Chords, Offbeat Stabs, Tresillo Hits.
-  - Lead: Triplet Descent, Call and Response, Hook, Turnaround Run.
-- **Instruments** are folders in `instruments/` with one WAV per note, named by pitch (`A3.wav`, `C4.wav`). The demo set is 9 synth voices, made by `tools/make_instruments.py` (pentatonic notes only). Any file can be replaced by a recording with the same name; a missing note is played from the nearest sample, re-pitched. The WAVs must import uncompressed (Compress: Disabled, the default here).
-- **Each run** (`_roll_albums` in `_new_run`) makes `GEN_VARIANTS` (3) cards per pattern, each with a different instrument allowed for its type (`VOICES` roles). For each card the seed also picks:
-  - **Which notes:** the pattern moves up by 0–4 scale steps (`GEN_OFFSETS`). Bass and chords only start on A, C or E so the mix keeps an A minor centre; leads can start anywhere.
-  - **Which octave:** any octave that fits both the type's range (`GEN_RANGES`) and the instrument's samples.
-  - Slight velocity changes. The rhythm and shape never change.
-- **Key:** after that, every note moves to the deck's key (`make_albums` root and mode; the root is kept within 6 semitones of A so loops stay near their written range). Patterns are written in minor:
-  - **Minor keys** are a straight transposition.
-  - **Major keys** raise the minor 3rd to a major 3rd and turn the minor 7th into the 6th (`DEG_MAJOR`): A C D E G becomes C E F G A in C major. Triads and arpeggios stay triads (the A–C–E arpeggio plays C–E–G) and every melody keeps its up/down shape.
-  - **Starting notes per mode** (`GEN_OFFSETS`): in minor, bass and chords start on the root, 3rd or 5th; in major, chords start on the root and bass on the root or 5th. Leads can start on any scale note in both.
-  - The instrument samples are A minor pentatonic notes only. Other notes play the nearest sample re-pitched by at most 1.5 semitones.
-  - **Points, rarity and ability** are borrowed from a random pitched card of the same type in `cards.json`.
-- **Mixing:** each loop is mixed into one looping `AudioStreamWAV` (32 kHz mono), with note tails wrapping round to the start so it repeats without a gap, and normalised to the old loops' loudness (`GEN_RMS`). From there it plays exactly like a WAV loop. Generated cards use the song path `gen://<card id>`, which `_music_stream` hands to the generator.
-- **Timing:** a loop takes about 0.1 s to mix. At the start of a run a background thread mixes the collection's loops first, then every other card (about 4 s for all 33). A loop needed before then is mixed on the spot.
-- **Your MIDI files** go in `midi/`, written in A minor. Every track with notes becomes a template; drum tracks (MIDI channel 10) and empty tracks are skipped. A track name can start with its type: "Lead Falling" and "Rhythm - Prowl" make a Lead called "Falling" and a Rhythm called "Prowl" (prefixes rhythm, bass, chord, lead; then a space, -, _ or :). Without one, the file-name prefix is used, or the type is guessed (low notes: Rhythm, stacked notes: Chord, otherwise Lead). Card ids are `<file>_<track title>#<n>`.
-- **MIDI test** (`MIDI_TEST`, on): the only pitched cards are the tracks in `midi/`, `MIDI_TEST_CARDS` (4) per track, each on a different instrument (fewer if the type has fewer instruments: Rhythm has 3). They play **as written**: every note is kept, including B, F and chromatic notes (no pentatonic snapping or step shift), at the written octave or the nearest one that fits the instrument. Only the key and instrument change; in a major key the minor 3rd, 6th and 7th are raised (`MAJOR_RAISE`), so "Falling" (A E D C B) plays C G F E D in C major. Every key deck is the starter's 5 percussion cards plus those cards, and the deck cards list the key's full 7-note scale. Turn it off to go back to the demo patterns.
-- **Export:** add `*.mid` to the export preset's non-resource include filter so `patterns/` ships.
+## Synthwave loops
+
+Code: `loop_deck_gen.gd`; settings: the `GEN_*`, `CHORDS_*`, `NUMERALS_*`, `PAD_*`, `VOICES` and `DRUM_FILES` constants in `loop_deck_data.gd`.
+
+- **Tray chords.** When the shop closes each turn (`_close_stall` → `_roll_tray_chords`), every CD tray gets a random chord from the key: I ii iii IV V vi in a major key, i III iv v VI VII in a minor key (`CHORDS_MAJOR`, `CHORDS_MINOR`; diminished chords are left out; repeats are allowed). The chord shows above the tray's number as numeral and name, e.g. "V - G" (gold when the tray holds a card). Until the shop closes the trays show no chord. Chords are flavour only for now.
+- **A set's progression** is the chords of the trays it plays, in play order, one bar each (`_set_prog`): trays 1, 3, 4 and 6 holding i, iv, III and iv in A minor play Am | Dm | C | Dm. Cards enter one bar apart, so each card comes in on its own tray's chord; after the last card the progression keeps repeating through the scoring and the tail.
+- **The pad** always plays during a set: the set's chords, one bar each (`PAD_NOTES`: a low root plus the triad around middle C, moved to each chord and the key), on the Poly Pad voice. It is one more loop player (`pad_slot`), started by the set's first card (`_pad_start`) and faded and stopped with the other loops.
+- **Patterns** are MIDI tracks: the demo patterns in `patterns/` (written by `tools/make_patterns.py`), the 100-card set in `generated_midi/` and your files in `midi/`. Pitched tracks are written in **C major over a C chord**; drum tracks use MIDI channel 10 with General MIDI drum notes. Only notes are read; tempo is ignored. A pattern is 1, 2 or 4 bars (from its last note).
+- **Following the chords.** A loop is mixed for one chord sequence and is long enough for both its pattern and the sequence to repeat whole (a 2-bar pattern over 4 chords is 4 bars, over 3 chords 6 bars). Each bar of a pitched pattern is moved along the major scale to its chord (`_steps`: ii and iii up 1 and 2 steps, IV V vi vii down 4, 3, 2 and 1, so a bass on C goes to F, G or A below it), then the whole loop moves to the key's major scale (the relative major for a minor key: A minor plays in C major with i = vi; within 6 semitones of C) and by octaves to fit its type's range (`GEN_RANGES`) and the instrument, keeping the written octave when it fits. Notes outside the scale keep their sharp. Drums are not moved.
+- **Track names and types.** A track name can start with its type: "Lead Falling", "Rhythm - Prowl", "Drums Motorik" (prefixes in `PATTERN_TYPES`: rhythm, bass, chord, lead, drums, drum, perc, percussion). Without one, the file-name prefix is used (`lead_riff.mid`), then channel 10 means Percussion, then the type is guessed (low notes: Rhythm, stacked notes: Chord, otherwise Lead). Card ids are `<file>` or `<file>_<track title>`, then `#<n>`.
+- **Cards per pattern:** `GEN_VARIANTS` (2) per demo pattern and `MIDI_CARDS` (4) per track of yours, each on a different instrument allowed for its type (fewer if the type has fewer instruments). Points, rarity and ability are borrowed from a random `cards.json` card of the same type; an ability that names an old instrument gets a current one instead.
+- **Demo patterns** (15): Drums Outrun Four, Gated Halftime, Motorik, Tom Fill; Perc Clap Shaker; Rhythm Octave Pump, Root Drive, Gallop, Offbeat Pop; Chord Arp Up, Offbeat Stabs; Lead Soaring Hook, Call and Answer, Sparkle, Turnaround Run.
+- **Mixing:** each loop is mixed into one looping `AudioStreamWAV` (32 kHz mono, a bar is 2.4 s) with note tails wrapping round to the start, normalised per type (`GEN_RMS`, `PAD_RMS`), and kept per card and chord sequence. Kit samples play to their end; pitched notes stop at their length with the voice's release. Generated cards use the song path `gen://<card id>`: a set plays them over its chords (`gen.set_prog`), while hover previews play them over the key's home chord.
+- **Mixing ahead.** A background worker mixes queued loops (`warm`, `prepare_set`). At the start of a run it mixes every card's preview. Whenever the trays change during a turn (`_prepare_trays`, checked each frame), the pad and the loops for the trays as they stand jump to the front of the queue, so they are usually ready before Play (about 1.8 s for a set of four); mixes for other sequences are dropped. A loop needed before it is ready is mixed on the spot.
+- **Timing:** a loop takes about 0.2–0.3 s to mix. At the start of a run a background thread mixes the pad, then the deck's loops, then every other card. A loop needed before then is mixed on the spot.
+- **Export:** add `*.mid` to the export preset's non-resource include filter so `patterns/` and `midi/` ship.
 
 ## Instruments
 
-Every card has a second attribute, its **instrument** (`Disc.instrument`, `INSTRUMENTS` in the data file with a short spine label). One instrument can have patterns in more than one loop type. Percussion instruments come from the loop WAVs. Pitched instruments are the sample folders in `VOICES`; which loop types each may play is set there.
+Every card has a second attribute, its **instrument** (`Disc.instrument`, `INSTRUMENTS` in the data file with a short spine label). The instruments are sample folders in `instruments/`, made by `tools/make_instruments.py`; `VOICES` sets which loop types each may play.
 
-| Instrument | Percussion | Rhythm | Chord | Lead |
-|---|---|---|---|---|
-| Drum Kit | ✓ | | | |
-| Hand Percussion | ✓ | | | |
-| Sine Synth | | ✓ | | ✓ |
-| Saw Synth | | ✓ | | ✓ |
-| Pluck | | ✓ | ✓ | ✓ |
-| Synth Pad | | | ✓ | |
-| Electric Piano | | | ✓ | ✓ |
-| Organ | | | ✓ | ✓ |
-| Square Synth | | | | ✓ |
-| Flute | | | | ✓ |
-| FM Bell | | | ✓ | ✓ |
+| Instrument | Folder | Percussion | Rhythm | Chord | Lead |
+|---|---|---|---|---|---|
+| Gated Kit | `kit_gated` | ✓ | | | |
+| Analog Kit | `kit_analog` | ✓ | | | |
+| Saw Bass | `saw_bass` | | ✓ | | |
+| Pulse Bass | `pulse_bass` | | ✓ | | |
+| Sub Bass | `sub_bass` | | ✓ | | |
+| Synth Pluck | `synth_pluck` | | | ✓ | ✓ |
+| Brass | `brass` | | | ✓ | |
+| Saw Lead | `saw_lead` | | | | ✓ |
+| Square Lead | `square_lead` | | | | ✓ |
+| PWM Lead | `pwm_lead` | | | | ✓ |
 
-- **On the case:** the instrument's short name (SAW, SINE, PLUCK…) runs down the jewel case spine in stacked letters, between the title strip and the ability note.
-- **In the tooltip:** the byline reads "Saw Synth · A minor pentatonic", with an instrument chip between the type chip and the points chip.
-- **Card abilities** can name an instrument wherever they could name a type (after, before, for each earlier, for each in hand). The note shows the short name, e.g. "After Saw, x2". Generated cards borrow these abilities from `cards.json`, e.g. x2 after a Saw Synth loop, +1 flow if the next loop is a Pluck, +5 for each Pluck in hand.
+The pad's voice is `poly_pad` (no cards).
+
+- **Pitched folders** hold one WAV every 3 semitones (C, Eb, Gb and A in each octave, e.g. `Eb3.wav`); a note in between plays the nearest sample re-pitched by at most 1.5 semitones. **Kit folders** hold one WAV per drum (`kick`, `snare`, `clap`, `rim`, `hat_closed`, `hat_open`, `tom_low`, `tom_mid`, `tom_high`, `crash`), mapped from General MIDI drum notes by `DRUM_FILES`. The gated kit's snare, clap and toms have a gated-reverb tail.
+- Any file can be replaced by a recording with the same name. The WAVs must import uncompressed (Compress: Disabled, the default here).
+- **On the case:** the instrument's short name runs down the jewel case spine in stacked letters, between the title strip and the ability note.
+- **In the tooltip:** the byline reads "Saw Lead · C major", with an instrument chip between the type chip and the points chip.
+- **Card abilities** can name an instrument wherever they could name a type (after, before, for each earlier, for each in hand). The note shows the short name, e.g. "After Saw Lead, x2".
 - **Stomp Boxes** that use instruments: **Unison** (+1.5 flow if two loops share an instrument), **Ensemble** (+15 points if this loop shares its instrument with another loop) and **Orchestra** (+2 flow if 4 loops all use different instruments). Rule conditions: `instrument_pair`, `instrument_shared`, `instruments_differ`.
-- `tools/make_loop_data.py` rebuilds `data/cards.json`, `decks.json` and `gear.json` from the Loop Mixer manifest. It picks the instrument from each loop's description and copies any missing loop files. Its starter list names generated cards by template variant.
+- `tools/make_loop_data.py` rebuilds `data/cards.json`, `decks.json` and `gear.json` from the Loop Mixer manifest.
 
 ## Type traits
 
@@ -82,7 +82,7 @@ Each type earns flow, like DJ Engine's genre traits (`_genre_trait`, values `TRA
 
 ## Playback
 
-- Each tray has its own looping player on the Songs bus (`loop_players`). The first loop of a set starts the clock (`loop_t0`). Every later loop starts at the clock's position in the 2-bar cycle, so all loops stay phase-locked.
+- Each tray has its own looping player on the Songs bus (`loop_players`), plus one for the pad. The first loop of a set starts the clock (`loop_t0`) and the pad. Every later loop starts at the clock's position in its own length (4 bars for generated loops), so all loops and the pad stay on the same bars and chords.
 - One bar per card: a card's loop enters on a bar line and its scoring beats fit inside that bar (`loop_step_cap`). The next card comes in on the next bar line, about 2.4 s later.
 - Loops come in at full volume with no fade and no transition sound (no whoosh, click or scratch). The Songs bus is left clean: no heat filter, reverb, ducking or pre-slam drop.
 - After the last card, the mix keeps playing through the scoring and the slam, plays one more 2-bar pass and then fades out (`_loops_release`, `LOOP_FADE_OUT`). Pressing Play again stops any tail.
@@ -102,6 +102,7 @@ Each type earns flow, like DJ Engine's genre traits (`_genre_trait`, values `TRA
 - **Click Track:** +$2 if exactly one Percussion loop plays.
 - **Stack:** +4 points for each loop already playing.
 - **Tape Deck:** makes a cassette the first time its tray plays each gig.
+- **Synthwave units (placement):** **Gated Reverb** (x2 if this tray is Percussion and plays first), **Sidechain** (+1 flow if this tray is Rhythm and sits next to a Percussion loop), **Arpeggiator** (+6 points for each loop already playing if this tray is Chord), **Chorus** (+12 points if the loop in this tray sits next to a Chord loop), **Turnaround** (x2 to the last loop of a full set; works anywhere) and **Bridge** (x1.5 if the loop in this tray sits between two loops of one other type).
 
 ## Cassettes
 
