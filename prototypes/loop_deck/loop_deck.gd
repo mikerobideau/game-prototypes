@@ -1,6 +1,7 @@
 extends "res://prototypes/loop_deck/loop_deck_ui.gd"
 
 const D := preload("res://prototypes/loop_deck/loop_deck_data.gd")
+const G := preload("res://prototypes/loop_deck/loop_deck_gen.gd")
 
 const DRAG_MIN := 24.0
 const DRAG_START := 14.0
@@ -36,6 +37,10 @@ class Disc:
 
 var rng := RandomNumberGenerator.new()
 var albums: Array = []
+var gen := G.new()
+var run_key := "A minor"
+var fixed_albums: Array = []
+var gen_pool := {}
 var collection: Array[Disc] = []
 var draw_pile: Array[int] = []
 var discard: Array[int] = []
@@ -1824,8 +1829,47 @@ func _legacy_rule_named(effect: String, p: String) -> Dictionary:
 	return r
 
 func _load_albums() -> void:
+	fixed_albums.clear()
+	gen_pool.clear()
+	if D.GEN_LOOPS and D.MIDI_TEST:
+		gen.load_templates(D.MIDI_DIR, true, D.MIDI_TEST_CARDS)
+	elif D.GEN_LOOPS:
+		gen.load_templates()
 	for c in _read_cards():
-		albums.append(_card_to_album(c))
+		var a := _card_to_album(c)
+		var gname := String(D.GENRES[int(a["genre"])])
+		if D.GEN_LOOPS and gname != "Percussion" and not gen.templates.is_empty():
+			if not gen_pool.has(gname):
+				gen_pool[gname] = []
+			(gen_pool[gname] as Array).append(a)
+		else:
+			fixed_albums.append(a)
+	_roll_albums(rng.randi())
+
+## Mixes generated loops in the background: the collection's first, then every other card.
+func _warm_loops() -> void:
+	var ids: Array = []
+	for d in collection:
+		if d.song.begins_with("gen://") and not d.song.substr(6) in ids:
+			ids.append(d.song.substr(6))
+	for a: Dictionary in albums:
+		var s := String(a.get("song", ""))
+		if s.begins_with("gen://") and not s.substr(6) in ids:
+			ids.append(s.substr(6))
+	gen.warm(ids)
+
+func _exit_tree() -> void:
+	gen.finish()
+
+## Rebuilds the card list: fixed cards from cards.json plus this run's generated loops.
+## A deck may set "root" (A-G) and "mode" (major or minor); generated loops use that key.
+func _roll_albums(seed_n: int, deck: Dictionary = {}) -> void:
+	var root := String(deck.get("root", "A"))
+	var mode := String(deck.get("mode", "minor"))
+	run_key = "%s %s" % [root, mode]
+	albums = fixed_albums.duplicate()
+	if D.GEN_LOOPS and not gen.templates.is_empty():
+		albums.append_array(gen.make_albums(seed_n, gen_pool, _key_offset(root), mode == "major"))
 	if albums.is_empty():
 		_legacy_albums()
 
@@ -1961,7 +2005,9 @@ func _on_music_finished() -> void:
 
 func _music_stream(path: String) -> AudioStream:
 	var stream: AudioStream
-	if ResourceLoader.exists(path):
+	if path.begins_with("gen://"):
+		stream = gen.stream(path.substr(6))
+	elif ResourceLoader.exists(path):
 		stream = load(path)
 	elif path.get_extension().to_lower() == "mp3":
 		var mp3 := AudioStreamMP3.new()
@@ -2493,8 +2539,10 @@ func _new_run(kit_i: int = 0, deck: Dictionary = {}) -> void:
 	if dk.is_empty():
 		var all := _decks()
 		dk = all[rng.randi_range(0, all.size() - 1)]
+	_roll_albums(rng.randi(), dk)
 	for d: Disc in _deck_discs(dk):
 		collection.append(d)
+	_warm_loops()
 	rack.clear()
 	for k in D.RACK_SLOTS:
 		rack.append({})
@@ -2529,6 +2577,29 @@ func _load_decks() -> void:
 			for dk: Dictionary in data:
 				if bool(dk.get("enabled", true)):
 					deck_defs.append(dk)
+	if D.MIDI_TEST and not deck_defs.is_empty():
+		var test_cards := {}
+		for id in (deck_defs[0]["cards"] as Dictionary):
+			var a := _album_by_id(String(id))
+			if not a.is_empty() and D.GENRES[int(a["genre"])] == "Percussion":
+				test_cards[id] = deck_defs[0]["cards"][id]
+		for a: Dictionary in albums:
+			if String(a.get("song", "")).begins_with("gen://"):
+				test_cards[a["id"]] = 1
+		deck_defs[0]["cards"] = test_cards
+		deck_defs[0]["idea"] = "Your MIDI tracks from midi/ plus percussion."
+	if D.KEY_DECKS and not deck_defs.is_empty():
+		var base: Dictionary = deck_defs[0]
+		deck_defs.clear()
+		for mode in ["major", "minor"]:
+			for root in D.KEY_ROOTS:
+				var dk: Dictionary = base.duplicate(true)
+				dk["id"] = "%s_%s" % [root.to_lower(), mode]
+				dk["name"] = "%s %s" % [root, mode.capitalize()]
+				dk["root"] = root
+				dk["mode"] = mode
+				dk["idea"] = "  ".join(_scale_names(root, mode))
+				deck_defs.append(dk)
 	if deck_defs.is_empty():
 		var all := {}
 		for a: Dictionary in albums:
@@ -2538,6 +2609,25 @@ func _load_decks() -> void:
 
 func _decks() -> Array:
 	return deck_defs
+
+## Semitones from A to a key's root, kept within -6..5 so loops stay near their written range.
+func _key_offset(root: String) -> int:
+	var o := posmod(int(D.KEY_SEMIS.get(root, 9)) - 9, 12)
+	return o - 12 if o > 5 else o
+
+## The pentatonic notes a key's melodies use, spelled for that key (e.g. C D E G A).
+func _scale_names(root: String, mode: String) -> Array:
+	var sharp := ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+	var flat := ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
+	var names: Array = flat if ("%s %s" % [root, mode]) in D.FLAT_KEYS else sharp
+	var r := int(D.KEY_SEMIS.get(root, 9))
+	var out: Array = []
+	var degs: Array[int] = G.DEG_MAJOR if mode == "major" else G.DEG_MINOR
+	if D.MIDI_TEST:
+		degs = G.SCALE_MAJOR if mode == "major" else G.SCALE_MINOR
+	for s in degs:
+		out.append(names[(r + s) % 12])
+	return out
 
 func _album_by_id(id: String) -> Dictionary:
 	for a: Dictionary in albums:
@@ -6578,7 +6668,7 @@ func _draw_disc_tip(d: Disc) -> void:
 	var x := box.position.x + pad
 	var y := box.position.y + pad
 	_heavy(Vector2(x, y + 30.0), d.title, T_LG, Color.WHITE)
-	_text_i(Vector2(x, y + 64.0), "Picks a random loop when played" if d.cdr else "%s  ·  %s" % [d.band, D.KEY_NAME], T_SM, Color("b8c0cc"))
+	_text_i(Vector2(x, y + 64.0), "Picks a random loop when played" if d.cdr else "%s  ·  %s" % [d.band, run_key], T_SM, Color("b8c0cc"))
 	if not d.cdr:
 		_rarity_chip(box.end.x - pad, box.position.y + pad + 8.0, String(d.rarity) if D.PACK_RARITY.has(String(d.rarity)) else "common")
 	y += 84.0
@@ -9665,12 +9755,12 @@ func _pick_deck(i: int) -> void:
 
 func _draw_decks() -> void:
 	_menu_bg(false)
-	_heavy_center(Rect2(0.0, 40.0, UI_W, 110.0), "Choose your deck", T_XL + 16, Color("f4efe4"))
+	_heavy_center(Rect2(0.0, 40.0, UI_W, 110.0), "Choose Deck", T_XL + 16, Color("f4efe4"))
 	var ds := _decks()
 	var w := 300.0
 	var h := 400.0
 	var gap := 24.0
-	var per := 6
+	var per := 7 if D.KEY_DECKS else 6
 	for di in ds.size():
 		var dk: Dictionary = ds[di]
 		var row := di / per
@@ -9681,13 +9771,16 @@ func _draw_decks() -> void:
 		if hot:
 			_panel(r.grow(8.0), Color("f2c14e"), 22)
 		_shadow(r, 18, 10.0)
-		_panel(r, Color("f4efe4"), 18)
+		_panel(r, Color("dde3ee") if String(dk.get("mode", "")) == "minor" else Color("f4efe4"), 18)
 		var lead := _deck_lead(dk)
 		var tex: Texture2D = _cover_tex(String(lead["cover"])) if not lead.is_empty() else null
 		_cd_art(Vector2(r.get_center().x, r.position.y + 118.0), 84.0, tex, clock * 0.6 if hot else 0.0)
 		_heavy_center(Rect2(r.position.x, r.position.y + 224.0, w, 44.0), String(dk["name"]), T_LG, c_ink)
 		_text_center(Rect2(r.position.x, r.position.y + 268.0, w, 24.0), ("%d loops  ·  %d MIX" % [_deck_size(dk), int(dk["mixes"])]) if int(dk.get("mixes", 0)) > 0 else ("%d loops" % _deck_size(dk)), 13, c_muted, true)
-		_wrap(Vector2(r.position.x + 22.0, r.position.y + 322.0), String(dk.get("idea", "")), w - 44.0, 15, c_body, true)
+		if dk.has("root"):
+			_text_center(Rect2(r.position.x, r.position.y + 318.0, w, 36.0), String(dk["idea"]), T_MD, c_body, true)
+		else:
+			_wrap(Vector2(r.position.x + 22.0, r.position.y + 322.0), String(dk.get("idea", "")), w - 44.0, 15, c_body, true)
 		if ui_live:
 			_register(r, _pick_deck.bind(di))
 	_hw_button(Rect2(70.0, 1336.0, 260.0, 84.0), "Back", _to_title, true, Color("6a6f77"), T_MD)
@@ -9703,7 +9796,7 @@ func _draw_title() -> void:
 func _start_loop_run() -> void:
 	if _decks().is_empty():
 		return
-	_new_run(0, _decks()[0])
+	_to_kits()
 
 func _draw_vol_slider(track: Rect2, key: String) -> void:
 	vol_tracks[key] = track

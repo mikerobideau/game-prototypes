@@ -36,7 +36,7 @@ const RARITY_WEIGHTS := {"common": 20, "uncommon": 55, "rare": 25}
 const GEAR_PATH := "res://prototypes/loop_deck/data/gear.json"
 const CARDS_PATH := "res://prototypes/loop_deck/data/cards.json"
 const DECKS_PATH := "res://prototypes/loop_deck/data/decks.json"
-const DECKS_SHOWN := 12
+const DECKS_SHOWN := 14
 const PREFS_PATH := "user://loop_deck.cfg"
 const END_TARGET_SCALE := 1.0
 const FIN_WIND := 0.25
@@ -214,6 +214,13 @@ const LOOP_BARS := 2
 const LOOP_FADE_OUT := 0.6
 const LOOP_DB := -6.0
 const KEY_NAME := "A minor pentatonic"
+# Key decks: the Choose Deck screen offers the first deck in decks.json in every key below,
+# major and minor. Generated loops are transposed to the chosen key.
+const KEY_DECKS := true
+const KEY_ROOTS: Array[String] = ["A", "B", "C", "D", "E", "F", "G"]
+const KEY_SEMIS := {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
+# Keys whose notes are spelled with flats (F major, and D, G, C and F minor).
+const FLAT_KEYS: Array[String] = ["F major", "D minor", "G minor", "C minor", "F minor"]
 const INSTRUMENTS := {
 	"Drum Kit": "DRUMS",
 	"Hand Percussion": "PERC",
@@ -227,6 +234,43 @@ const INSTRUMENTS := {
 	"Flute": "FLUTE",
 	"FM Bell": "BELL",
 }
+# Generated loops (loop_deck_gen.gd). Percussion still uses the WAVs in loops/; every pitched
+# card is built each run from a MIDI pattern in PATTERN_DIR played on one of VOICES.
+const GEN_LOOPS := true
+const PATTERN_DIR := "res://prototypes/loop_deck/patterns"
+const VOICE_DIR := "res://prototypes/loop_deck/instruments"
+# MIDI test: when on, the only pitched cards come from your own files in MIDI_DIR, played as
+# written (only the deck's key and the instrument change), MIDI_TEST_CARDS cards per track,
+# each on a different instrument. Every deck is the starter's percussion plus those cards.
+const MIDI_TEST := true
+const MIDI_DIR := "res://prototypes/loop_deck/midi"
+const MIDI_TEST_CARDS := 4
+const PATTERN_TYPES := {"rhythm": "Rhythm", "bass": "Rhythm", "chord": "Chord", "lead": "Lead"}
+const GEN_VARIANTS := 3
+const GEN_RATE := 32000
+# Instrument name: sample folder, loop types it may play, release (seconds) after a note ends.
+const VOICES := {
+	"Sine Synth": {"dir": "sine", "roles": ["Rhythm", "Lead"], "release": 0.05},
+	"Saw Synth": {"dir": "saw", "roles": ["Rhythm", "Lead"], "release": 0.05},
+	"Pluck": {"dir": "pluck", "roles": ["Rhythm", "Chord", "Lead"], "release": 0.12},
+	"Square Synth": {"dir": "square", "roles": ["Lead"], "release": 0.04},
+	"Flute": {"dir": "flute", "roles": ["Lead"], "release": 0.08},
+	"FM Bell": {"dir": "bell", "roles": ["Chord", "Lead"], "release": 0.4},
+	"Synth Pad": {"dir": "pad", "roles": ["Chord"], "release": 0.35},
+	"Electric Piano": {"dir": "epiano", "roles": ["Chord", "Lead"], "release": 0.15},
+	"Organ": {"dir": "organ", "roles": ["Chord", "Lead"], "release": 0.04},
+}
+# MIDI note range each loop type is played in (A1-A3 bass, A2-E5 chords, A3-E6 leads).
+const GEN_RANGES := {"Rhythm": [33, 57], "Chord": [45, 76], "Lead": [57, 88]}
+# Pentatonic steps a pattern may be moved by (0 = as written, 1 = up one scale note …), per mode.
+# Minor: bass and chords start on the root, 3rd or 5th, so the mix keeps its minor centre.
+# Major: chords stay on the root (a major triad) and bass on the root or 5th.
+const GEN_OFFSETS := {
+	"minor": {"Rhythm": [0, 1, 3], "Chord": [0, 3], "Lead": [0, 1, 2, 3, 4]},
+	"major": {"Rhythm": [0, 0, 3], "Chord": [0], "Lead": [0, 1, 2, 3, 4]},
+}
+# Loudness (RMS) each generated loop is mixed to, matched to the old loop WAVs.
+const GEN_RMS := {"Rhythm": 0.115, "Chord": 0.08, "Lead": 0.08}
 const VENUE_NAMES: Array[String] = ["Basement Jam", "Open Deck Night", "Warehouse Loop", "Rooftop Session", "Club Nocturne", "Festival Tent", "Arena Soundcheck", "Main Stage"]
 const REWARD_BASE := 5
 const PAY_BOOED := 2

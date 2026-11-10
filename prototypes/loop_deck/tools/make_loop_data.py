@@ -91,13 +91,14 @@ for l in pool:
 assert len(cards) == len(SPEC), (len(cards), len(SPEC))
 json.dump(cards, open(os.path.join(DST, 'data', 'cards.json'), 'w', encoding='utf-8'), indent=1)
 
+# Pitched starter cards are generated loops (loop_deck_gen.gd): <pattern file name>#<variant>.
 starter = ['drums_100_x_01', 'drums_100_x_02', 'drums_100_x_03', 'perc_100_x_01', 'perc_100_x_02',
-           'bass_100_a_01', 'bass_100_a_02', 'rhythm_100_a_02', 'chord_am_01_bass', 'chord_c_01_bass',
-           'chord_am_00_pad', 'chord_am_03_rhythm', 'chord_am_04_rhythm', 'chord_c_03_rhythm',
-           'lead_100_a_01', 'lead_100_a_02', 'chord_am_06_lead', 'chord_am_07_lead', 'chord_c_06_lead', 'chord_g_08_lead']
+           'rhythm_root_fifth_bass#0', 'rhythm_root_fifth_bass#1', 'rhythm_walking_bass#0', 'rhythm_octave_pump#0', 'rhythm_tresillo_bass#0',
+           'chord_whole_note_chords#0', 'chord_whole_note_chords#1', 'chord_offbeat_stabs#0', 'chord_tresillo_hits#0',
+           'lead_triplet_descent#0', 'lead_triplet_descent#1', 'lead_hook#0', 'lead_hook#1', 'lead_call_and_response#0', 'lead_turnaround_run#0']
 ids = {c['id'] for c in cards}
 for s in starter:
-    assert s in ids, s
+    assert s in ids or '#' in s, s
 json.dump([{'id': 'starter', 'name': 'Starter Crate', 'idea': 'Five percussion, five rhythm, four chord and six lead loops.', 'enabled': True, 'mixes': 0, 'cards': {s: 1 for s in starter}}],
           open(os.path.join(DST, 'data', 'decks.json'), 'w', encoding='utf-8'), indent=1)
 
